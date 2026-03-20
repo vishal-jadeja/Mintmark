@@ -1,8 +1,23 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { BookOpen, Zap, TrendingUp } from "lucide-react"
+import { useEffect } from "react"
+import { motion, useMotionValue, useSpring, useMotionTemplate } from "framer-motion"
+import {
+  BookOpen,
+  Zap,
+  TrendingUp,
+  Code2,
+  Paintbrush,
+  BarChart3,
+  PenLine,
+  GraduationCap,
+  Rocket,
+  Briefcase,
+  FlaskConical,
+} from "lucide-react"
 import WaitlistForm from "@/components/waitlist/WaitlistForm"
+import { LogoMark } from "@/components/ui/logo-mark"
+import { shadows } from "@/lib/design"
 
 // ── Animation variants ────────────────────────────────────────────────────────
 
@@ -51,58 +66,43 @@ const HOW_IT_WORKS = [
 ]
 
 const PERSONAS = [
-  { emoji: "👨‍💻", label: "Developers" },
-  { emoji: "🎨", label: "Designers" },
-  { emoji: "📈", label: "Marketers" },
-  { emoji: "✍️", label: "Writers" },
-  { emoji: "🎓", label: "Students" },
-  { emoji: "🚀", label: "Entrepreneurs" },
-  { emoji: "💼", label: "Consultants" },
-  { emoji: "🔬", label: "Researchers" },
+  { Icon: Code2, label: "Developers" },
+  { Icon: Paintbrush, label: "Designers" },
+  { Icon: BarChart3, label: "Marketers" },
+  { Icon: PenLine, label: "Writers" },
+  { Icon: GraduationCap, label: "Students" },
+  { Icon: Rocket, label: "Entrepreneurs" },
+  { Icon: Briefcase, label: "Consultants" },
+  { Icon: FlaskConical, label: "Researchers" },
 ]
 
-// ── Shared sub-components ─────────────────────────────────────────────────────
+// ── Cursor spotlight ──────────────────────────────────────────────────────────
 
-/** SVG coin stamp mark — M inside a circular dashed ring */
-function LogoMark({ size = 48 }: { size?: number }) {
+function CursorSpotlight() {
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+  const springX = useSpring(mouseX, { stiffness: 80, damping: 25, restDelta: 0.001 })
+  const springY = useSpring(mouseY, { stiffness: 80, damping: 25, restDelta: 0.001 })
+  const bg = useMotionTemplate`radial-gradient(650px circle at ${springX}px ${springY}px, oklch(0.78 0.155 82 / 5%), transparent 80%)`
+
+  useEffect(() => {
+    const move = (e: MouseEvent) => {
+      mouseX.set(e.clientX)
+      mouseY.set(e.clientY)
+    }
+    window.addEventListener("mousemove", move)
+    return () => window.removeEventListener("mousemove", move)
+  }, [mouseX, mouseY])
+
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 48 48"
-      fill="none"
-      className="text-gold"
-      aria-hidden="true"
-    >
-      {/* Outer coin stamp edge */}
-      <circle
-        cx="24"
-        cy="24"
-        r="22"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeDasharray="4 2.5"
-      />
-      {/* Inner ring */}
-      <circle
-        cx="24"
-        cy="24"
-        r="18"
-        stroke="currentColor"
-        strokeWidth="0.75"
-        opacity={0.4}
-      />
-      {/* M letterform */}
-      <path
-        d="M12 33V15L24 26.5L36 15V33"
-        stroke="currentColor"
-        strokeWidth="2.25"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <motion.div
+      className="fixed inset-0 pointer-events-none z-30"
+      style={{ background: bg }}
+    />
   )
 }
+
+// ── Shared sub-components ─────────────────────────────────────────────────────
 
 /** Scroll-triggered fade + rise. Wraps any section content. */
 function FadeInSection({
@@ -147,7 +147,11 @@ function HowItWorksSection() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {HOW_IT_WORKS.map(({ Icon, title, description }, i) => (
             <FadeInSection key={title} delay={i * 0.08}>
-              <div className="bg-card border border-border rounded-lg p-6 shadow-md h-full flex flex-col">
+              <motion.div
+                whileHover={{ y: -3, boxShadow: shadows.goldSm }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="bg-card border border-border rounded-lg p-6 shadow-md h-full flex flex-col hover:border-gold-border transition-colors cursor-default"
+              >
                 <div className="size-9 rounded-md bg-gold-muted border border-gold-border flex items-center justify-center mb-4 flex-shrink-0">
                   <Icon className="size-4 text-gold" strokeWidth={1.75} />
                 </div>
@@ -157,7 +161,7 @@ function HowItWorksSection() {
                 <p className="text-sm text-muted-foreground leading-relaxed flex-1">
                   {description}
                 </p>
-              </div>
+              </motion.div>
             </FadeInSection>
           ))}
         </div>
@@ -170,7 +174,7 @@ function WhoItsForSection() {
   return (
     <section className="py-20 px-4 border-t border-border">
       <div className="max-w-3xl mx-auto text-center">
-        <FadeInSection className="mb-8">
+        <FadeInSection className="mb-4">
           <h2 className="text-xl font-semibold text-foreground mb-2">
             For anyone who learns and wants to be known for it
           </h2>
@@ -183,17 +187,19 @@ function WhoItsForSection() {
         <FadeInSection delay={0.1}>
           {/* Horizontal scroll on mobile, wrapped grid on desktop */}
           <div
-            className="flex md:flex-wrap md:justify-center gap-2 overflow-x-auto pb-2 md:pb-0"
+            className="flex md:flex-wrap md:justify-center gap-2 overflow-x-auto py-2"
             style={{ scrollbarWidth: "none" }}
           >
-            {PERSONAS.map(({ emoji, label }) => (
-              <span
+            {PERSONAS.map(({ Icon, label }) => (
+              <motion.span
                 key={label}
-                className="flex-shrink-0 inline-flex items-center gap-1.5 rounded-full bg-muted border border-border text-muted-foreground text-xs px-3 py-1.5 whitespace-nowrap"
+                whileHover={{ scale: 1.06, backgroundColor: "var(--gold-muted)" }}
+                transition={{ duration: 0.15 }}
+                className="flex-shrink-0 inline-flex items-center gap-1.5 rounded-full bg-muted border border-border text-muted-foreground text-xs px-3 py-1.5 whitespace-nowrap cursor-default"
               >
-                <span aria-hidden="true">{emoji}</span>
+                <Icon className="size-3 text-gold" aria-hidden="true" />
                 <span>{label}</span>
-              </span>
+              </motion.span>
             ))}
           </div>
         </FadeInSection>
@@ -262,13 +268,13 @@ function Footer() {
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           <a
             href="/legal/privacy"
-            className="hover:text-foreground transition-colors"
+            className="hover:text-foreground transition-colors cursor-pointer"
           >
             Privacy Policy
           </a>
           <a
             href="/legal/terms"
-            className="hover:text-foreground transition-colors"
+            className="hover:text-foreground transition-colors cursor-pointer"
           >
             Terms
           </a>
@@ -284,6 +290,8 @@ function Footer() {
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
+      <CursorSpotlight />
+
       {/* ── Hero ── */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-4 py-16">
         {/* Ambient glow — like light catching the face of a coin */}

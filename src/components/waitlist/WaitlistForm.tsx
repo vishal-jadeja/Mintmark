@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Check, Copy, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { LogoMark } from "@/components/ui/logo-mark"
+import { shadows } from "@/lib/design"
 import { cn } from "@/lib/utils"
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -11,6 +13,8 @@ import { cn } from "@/lib/utils"
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
 }
+
+const SNAP = [0.16, 1, 0.3, 1] as const
 
 // ── WaitlistCount ─────────────────────────────────────────────────────────────
 
@@ -45,6 +49,16 @@ function WaitlistCount() {
 
 // ── SuccessState ──────────────────────────────────────────────────────────────
 
+const successContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07 } },
+}
+
+const successItem = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: SNAP } },
+}
+
 function SuccessState({ referralCode }: { referralCode: string }) {
   const [copyState, setCopyState] = useState<"idle" | "copied">("idle")
   const referralUrl = `https://mintmark.app/ref/${referralCode}`
@@ -59,49 +73,125 @@ function SuccessState({ referralCode }: { referralCode: string }) {
     }
   }
 
+  const tweetText = encodeURIComponent(
+    `Just joined the Mintmark waitlist! Turn what you learn into content for LinkedIn, X, and Medium — all at once.`
+  )
+  const tweetUrl = encodeURIComponent(referralUrl)
+  const xShareUrl = `https://twitter.com/intent/tweet?text=${tweetText}&url=${tweetUrl}`
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ type: "spring", stiffness: 300, damping: 25 }}
-      className="bg-card border border-border rounded-xl p-6 text-center"
+      className="bg-card border border-border rounded-xl p-6"
     >
-      {/* Check icon */}
-      <div className="size-10 rounded-full bg-gold-muted border border-gold-border flex items-center justify-center mx-auto mb-4">
-        <Check className="size-5 text-gold" strokeWidth={2.5} />
-      </div>
+      <motion.div
+        variants={successContainer}
+        initial="hidden"
+        animate="visible"
+        className="flex flex-col items-center text-center"
+      >
+        {/* [1] Heading */}
+        <motion.h3
+          variants={successItem}
+          className="text-2xl font-bold text-foreground mb-2"
+        >
+          You&apos;re stamped in.
+        </motion.h3>
 
-      <h3 className="text-base font-semibold text-foreground mb-1">
-        You&apos;re on the list!
-      </h3>
-      <p className="text-sm text-muted-foreground mb-6">
-        Check your email to confirm your spot.
-      </p>
+        {/* [2] Subline */}
+        <motion.p
+          variants={successItem}
+          className="text-sm text-muted-foreground mb-5"
+        >
+          Check your email to confirm your spot.
+        </motion.p>
 
-      {/* Referral link */}
-      <div className="mb-4 text-left">
-        <p className="text-xs text-muted-foreground mb-1.5">Your referral link</p>
-        <div className="flex items-center gap-2 bg-muted border border-border rounded-lg px-3 py-2">
-          <span className="flex-1 text-xs text-foreground font-mono truncate">
-            {referralUrl}
-          </span>
-          <button
-            onClick={handleCopy}
-            className="flex-shrink-0 text-muted-foreground hover:text-gold transition-colors focus-visible:outline-none"
-            aria-label={copyState === "copied" ? "Copied!" : "Copy referral link"}
-          >
-            {copyState === "copied" ? (
-              <Check className="size-3.5 text-gold" />
-            ) : (
-              <Copy className="size-3.5" />
-            )}
-          </button>
-        </div>
-      </div>
+        {/* [3] Divider */}
+        <motion.div
+          variants={successItem}
+          className="w-full mb-5 overflow-hidden"
+        >
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.5, ease: SNAP, delay: 0.3 }}
+            style={{ transformOrigin: "left" }}
+            className="h-px bg-border w-full"
+          />
+        </motion.div>
 
-      <p className="text-xs text-muted-foreground">
-        Share your link — move up the queue for every friend who joins
-      </p>
+        {/* [4] Referral section */}
+        <motion.div variants={successItem} className="w-full text-left space-y-3">
+          <div>
+            <p className="text-sm font-semibold text-foreground mb-0.5">
+              Move up the waitlist
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Every friend who joins with your link moves you up 5 spots.
+            </p>
+          </div>
+
+          {/* URL card */}
+          <div className="flex items-center gap-2 bg-muted border border-border rounded-lg px-3 py-2">
+            <span className="flex-1 text-xs text-foreground font-mono truncate">
+              {referralUrl}
+            </span>
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={handleCopy}
+              className="flex-shrink-0 text-muted-foreground hover:text-gold transition-colors focus-visible:outline-none cursor-pointer"
+              aria-label={copyState === "copied" ? "Copied!" : "Copy referral link"}
+            >
+              {copyState === "copied" ? (
+                <Check className="size-3.5 text-gold" />
+              ) : (
+                <Copy className="size-3.5" />
+              )}
+            </motion.button>
+          </div>
+
+          {/* Share buttons */}
+          <div className="flex gap-2">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="flex-1"
+            >
+              <a href={xShareUrl} target="_blank" rel="noopener noreferrer">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="size-3.5 fill-current"
+                  aria-hidden="true"
+                >
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+                Share on X
+              </a>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1"
+              onClick={handleCopy}
+            >
+              {copyState === "copied" ? (
+                <>
+                  <Check className="size-3.5 text-gold" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Copy className="size-3.5" />
+                  Copy Link
+                </>
+              )}
+            </Button>
+          </div>
+        </motion.div>
+      </motion.div>
     </motion.div>
   )
 }
