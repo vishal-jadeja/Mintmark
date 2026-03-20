@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { motion, useMotionValue, useSpring, useMotionTemplate } from "framer-motion"
 import {
   BookOpen,
@@ -17,7 +17,6 @@ import {
 } from "lucide-react"
 import WaitlistForm from "@/components/waitlist/WaitlistForm"
 import { LogoMark } from "@/components/ui/logo-mark"
-import { shadows } from "@/lib/design"
 
 // ── Animation variants ────────────────────────────────────────────────────────
 
@@ -81,23 +80,30 @@ const PERSONAS = [
 function CursorSpotlight() {
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
-  const springX = useSpring(mouseX, { stiffness: 80, damping: 25, restDelta: 0.001 })
-  const springY = useSpring(mouseY, { stiffness: 80, damping: 25, restDelta: 0.001 })
-  const bg = useMotionTemplate`radial-gradient(650px circle at ${springX}px ${springY}px, oklch(0.78 0.155 82 / 5%), transparent 80%)`
+  const opacity = useMotionValue(0)
+  const springX = useSpring(mouseX, { stiffness: 120, damping: 22, restDelta: 0.001 })
+  const springY = useSpring(mouseY, { stiffness: 120, damping: 22, restDelta: 0.001 })
+
+  const bg = useMotionTemplate`
+    radial-gradient(200px circle at ${springX}px ${springY}px, oklch(0.78 0.155 82 / 6%), transparent 80%),
+    radial-gradient(700px circle at ${springX}px ${springY}px, oklch(0.78 0.155 82 / 2%), transparent 80%)
+  `
 
   useEffect(() => {
     const move = (e: MouseEvent) => {
       mouseX.set(e.clientX)
       mouseY.set(e.clientY)
+      opacity.set(1)
     }
     window.addEventListener("mousemove", move)
     return () => window.removeEventListener("mousemove", move)
-  }, [mouseX, mouseY])
+  }, [mouseX, mouseY, opacity])
 
   return (
     <motion.div
       className="fixed inset-0 pointer-events-none z-30"
-      style={{ background: bg }}
+      style={{ background: bg, opacity }}
+      transition={{ opacity: { duration: 0.6 } }}
     />
   )
 }
@@ -128,6 +134,46 @@ function FadeInSection({
   )
 }
 
+/** Card with a cursor-tracked gold border glow. The 1px outer wrapper acts as
+ *  the border — its background (gradient at mouse position) shows through the
+ *  gap around the inner bg-card div, making only the border near the cursor glow. */
+function GlowCard({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = ref.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    el.style.setProperty("--mx", `${e.clientX - rect.left}px`)
+    el.style.setProperty("--my", `${e.clientY - rect.top}px`)
+  }
+
+  return (
+    <motion.div
+      ref={ref}
+      whileHover={{ y: -3 }}
+      transition={{ type: "spring", stiffness: 300, damping: 25 }}
+      onMouseMove={handleMouseMove}
+      className="group relative p-px rounded-lg h-full cursor-default"
+      style={{ background: "var(--color-border)" }}
+    >
+      {/* Gold glow overlay — only visible through the 1px border gap */}
+      <div
+        aria-hidden
+        className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(180px circle at var(--mx, 50%) var(--my, 50%), oklch(0.78 0.155 82 / 50%), transparent 100%)",
+        }}
+      />
+      {/* Card body covers everything except the 1px border gap */}
+      <div className="relative bg-card rounded-lg p-6 h-full flex flex-col shadow-md">
+        {children}
+      </div>
+    </motion.div>
+  )
+}
+
 // ── Page sections ─────────────────────────────────────────────────────────────
 
 function HowItWorksSection() {
@@ -147,11 +193,7 @@ function HowItWorksSection() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {HOW_IT_WORKS.map(({ Icon, title, description }, i) => (
             <FadeInSection key={title} delay={i * 0.08}>
-              <motion.div
-                whileHover={{ y: -3, boxShadow: shadows.goldSm }}
-                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                className="bg-card border border-border rounded-lg p-6 shadow-md h-full flex flex-col hover:border-gold-border transition-colors cursor-default"
-              >
+              <GlowCard>
                 <div className="size-9 rounded-md bg-gold-muted border border-gold-border flex items-center justify-center mb-4 flex-shrink-0">
                   <Icon className="size-4 text-gold" strokeWidth={1.75} />
                 </div>
@@ -161,7 +203,7 @@ function HowItWorksSection() {
                 <p className="text-sm text-muted-foreground leading-relaxed flex-1">
                   {description}
                 </p>
-              </motion.div>
+              </GlowCard>
             </FadeInSection>
           ))}
         </div>
