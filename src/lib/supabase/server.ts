@@ -1,36 +1,18 @@
-import { createClient as createSupabaseClient } from "@supabase/supabase-js"
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import type { Database } from "@/types/database"
 
 /**
- * Service-role client — bypasses RLS.
- * Uses @supabase/supabase-js directly (not @supabase/ssr) so the service role
- * key is sent as-is and never overridden by a user session JWT from cookies.
+ * Server client — publishable key, respects RLS.
+ * Use in Server Components, Route Handlers, and Server Actions.
+ * For operations that bypass RLS, use createAdminClient() from ./admin instead.
  */
-export function createClient() {
-  return createSupabaseClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_KEY!,
-    {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-      },
-    }
-  )
-}
-
-/**
- * Anon client — respects RLS.
- * Use for user-scoped operations.
- */
-export async function createAnonClient() {
+export async function createClient() {
   const cookieStore = await cookies()
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
       cookies: {
         getAll() {

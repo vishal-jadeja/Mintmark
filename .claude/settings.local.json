@@ -8,7 +8,16 @@
       "WebFetch(domain:contribution.usercontent.google.com)",
       "Bash(npm install:*)",
       "Bash(node -e \"const p=require\\(''./node_modules/next/package.json''\\); console.log\\(p.version\\)\")",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(find 'D:/Projects for Internship/mintmark' -maxdepth 2 -name .env*)",
+      "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
+      "Bash(grep -r \"service.role\\\\|Secret API\\\\|sb_secret\\\\|sb_publishable\" 'D:/Projects for Internship/mintmark/node_modules/@supabase' --include=*.ts --include=*.md)",
+      "Bash(grep -r \"JWT\\\\|role.*jwt\\\\|service role\" 'D:/Projects for Internship/mintmark/node_modules/@supabase/supabase-js/dist' --include=*.d.ts)",
+      "Bash(find 'D:/Projects for Internship/mintmark/node_modules/next/dist/docs' -type f -name *.md)",
+      "WebSearch",
+      "WebFetch(domain:supabase.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:makerkit.dev)"
     ]
   }
 }

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { checkRateLimit, statsLimiter } from "@/lib/rate-limit"
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
     return Response.json({ error: "Valid email required." }, { status: 400 })
   }
 
-  const supabase = createClient()
+  const supabase = createAdminClient()
 
   // Effective position (accounts for referral bonuses)
   const { data: position } = await supabase.rpc("get_waitlist_position", {

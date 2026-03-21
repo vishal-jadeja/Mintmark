@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto"
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { checkRateLimit, waitlistLimiter } from "@/lib/rate-limit"
 import { sendEmail } from "@/lib/email/send"
 import {
@@ -82,7 +82,7 @@ export async function POST(request: Request) {
     )
   }
 
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // 5. Check if already on waitlist
   const { data: existing } = await supabase
