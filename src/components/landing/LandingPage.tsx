@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { motion, useMotionValue, useSpring, useMotionTemplate } from "framer-motion"
 import {
   BookOpen,
@@ -250,10 +250,19 @@ function WhoItsForSection() {
   )
 }
 
+const CAPACITY = 1000
+
 function SocialProofSection() {
-  const claimed = 847
-  const total = 1000
-  const pct = (claimed / total) * 100
+  const [count, setCount] = useState<number | null>(null)
+
+  useEffect(() => {
+    fetch("/api/waitlist/count")
+      .then((r) => r.json())
+      .then((d) => setCount(typeof d.count === "number" ? d.count : 0))
+      .catch(() => setCount(0))
+  }, [])
+
+  const pct = count !== null ? Math.min((count / CAPACITY) * 100, 100) : 0
 
   return (
     <section className="py-20 px-4 border-t border-border">
@@ -265,10 +274,17 @@ function SocialProofSection() {
           <h2 className="text-lg font-semibold text-foreground mb-1">
             Spots are limited
           </h2>
-          <p className="text-sm text-muted-foreground mb-6">
-            {claimed.toLocaleString()} of {total.toLocaleString()} spots
-            claimed
-          </p>
+
+          {count === null ? (
+            <div className="flex justify-center mb-6">
+              <div className="h-4 w-48 rounded bg-neutral-800 animate-pulse" />
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground mb-6">
+              {count.toLocaleString()} of {CAPACITY.toLocaleString()} spots
+              claimed
+            </p>
+          )}
 
           {/* Progress bar */}
           <div className="relative h-1.5 w-full rounded-full bg-neutral-800 overflow-hidden">

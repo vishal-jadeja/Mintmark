@@ -114,43 +114,13 @@ function ReferralStats({ email }: { email: string }) {
           <div className="h-3 w-28 rounded bg-neutral-800 animate-pulse" />
         </div>
       ) : (
-        <div className="space-y-1">
-          <div className="flex items-baseline gap-2 flex-wrap">
-            {stats.position !== null && (
-              <span
-                className="text-sm font-bold tabular-nums"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #FFE08F 0%, #E6C364 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                #{stats.position.toLocaleString()}
-              </span>
-            )}
-            {stats.position !== null && stats.total > 0 && (
-              <span className="text-xs text-muted-foreground">
-                of {stats.total.toLocaleString()}
-              </span>
-            )}
-            {stats.position !== null && (
-              <span className="text-muted-foreground text-xs select-none">·</span>
-            )}
-            <span className="text-xs text-foreground flex items-center gap-1">
-              <Users className="size-3 text-muted-foreground" />
-              <span className="font-medium">{stats.referrals}</span>
-              <span className="text-muted-foreground">
-                {stats.referrals === 1 ? "friend joined" : "friends joined"}
-              </span>
-            </span>
-          </div>
-          <p className="text-[11px] text-muted-foreground leading-relaxed">
-            Each referral moves you up{" "}
-            <span className="text-foreground font-medium">5 spots</span>
-          </p>
-        </div>
+        <span className="text-xs text-foreground flex items-center gap-1">
+          <Users className="size-3 text-muted-foreground" />
+          <span className="font-medium">{stats.referrals}</span>
+          <span className="text-muted-foreground">
+            {stats.referrals === 1 ? "friend joined" : "friends joined"}
+          </span>
+        </span>
       )}
     </div>
   )
@@ -170,19 +140,17 @@ const successItem = {
 
 const NEXT_STEPS = [
   "Check your email and confirm your spot to lock in your place.",
-  "Share your referral link — every signup moves you up 5 spots.",
+  "Share your referral link to move up the queue faster.",
   "We'll email you the moment early access opens.",
 ]
 
 function SuccessState({
   referralCode,
   position,
-  total,
   email,
 }: {
   referralCode: string
   position: number | null
-  total: number | null
   email: string
 }) {
   const [copyState, setCopyState] = useState<"idle" | "copied">("idle")
@@ -245,26 +213,12 @@ function SuccessState({
         {/* [2] Label */}
         <motion.p
           variants={successItem}
-          className="text-sm font-medium text-foreground mb-1"
+          className="text-sm font-medium text-foreground mb-5"
         >
           your spot on the waitlist
         </motion.p>
 
-        {/* [3] Total context */}
-        {total !== null && (
-          <motion.p
-            variants={successItem}
-            className="text-xs text-muted-foreground mb-5"
-          >
-            Out of{" "}
-            <span className="text-foreground font-medium">
-              {total.toLocaleString()}
-            </span>{" "}
-            early curators
-          </motion.p>
-        )}
-
-        {/* [4] Divider */}
+        {/* [3] Divider */}
         <motion.div
           variants={successItem}
           className="w-full mb-5 overflow-hidden"
@@ -469,7 +423,6 @@ export default function WaitlistForm() {
             key="success"
             referralCode={referralCode}
             position={position}
-            total={total}
             email={email}
           />
         ) : (
