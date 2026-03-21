@@ -22,6 +22,14 @@ export const apiLimiter = new Ratelimit({
   prefix: "mintmark:api",
 })
 
+/** 10 stats lookups per IP per minute */
+export const statsLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(10, "1 m"),
+  analytics: true,
+  prefix: "mintmark:stats",
+})
+
 export async function checkRateLimit(
   identifier: string,
   limiter: Ratelimit

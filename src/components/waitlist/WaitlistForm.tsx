@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Check, Copy, Loader2 } from "lucide-react"
+import { Check, Copy, Loader2, RefreshCw, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { LogoMark } from "@/components/ui/logo-mark"
 import { shadows } from "@/lib/design"
@@ -47,6 +47,115 @@ function WaitlistCount() {
   )
 }
 
+// ── ReferralStats ─────────────────────────────────────────────────────────────
+
+type StatsData = {
+  position: number | null
+  referrals: number
+  total: number
+}
+
+function ReferralStats({ email }: { email: string }) {
+  const [stats, setStats] = useState<StatsData | null>(null)
+  const [refreshing, setRefreshing] = useState(false)
+
+  const fetchStats = async (showSpinner = false) => {
+    if (showSpinner) setRefreshing(true)
+    try {
+      const res = await fetch(
+        `/api/waitlist/referral-stats?email=${encodeURIComponent(email)}`
+      )
+      if (res.ok) {
+        const data = await res.json()
+        setStats(data as StatsData)
+      }
+    } catch {
+      // Silently fail — non-critical
+    } finally {
+      if (showSpinner) setRefreshing(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchStats()
+    const id = setInterval(() => fetchStats(), 30_000)
+    return () => clearInterval(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [email])
+
+  return (
+    <div
+      className="rounded-lg p-3 space-y-2"
+      style={{
+        background: "rgba(255,255,255,0.03)",
+        border: "1px solid rgba(230,195,100,0.12)",
+      }}
+    >
+      {/* Header row */}
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-foreground">
+          Your referral stats
+        </p>
+        <button
+          onClick={() => fetchStats(true)}
+          className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none cursor-pointer"
+          aria-label="Refresh stats"
+        >
+          <RefreshCw
+            className={cn("size-3", refreshing && "animate-spin")}
+          />
+        </button>
+      </div>
+
+      {/* Stats or skeleton */}
+      {stats === null ? (
+        <div className="space-y-1.5">
+          <div className="h-3 w-40 rounded bg-neutral-800 animate-pulse" />
+          <div className="h-3 w-28 rounded bg-neutral-800 animate-pulse" />
+        </div>
+      ) : (
+        <div className="space-y-1">
+          <div className="flex items-baseline gap-2 flex-wrap">
+            {stats.position !== null && (
+              <span
+                className="text-sm font-bold tabular-nums"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #FFE08F 0%, #E6C364 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                #{stats.position.toLocaleString()}
+              </span>
+            )}
+            {stats.position !== null && stats.total > 0 && (
+              <span className="text-xs text-muted-foreground">
+                of {stats.total.toLocaleString()}
+              </span>
+            )}
+            {stats.position !== null && (
+              <span className="text-muted-foreground text-xs select-none">·</span>
+            )}
+            <span className="text-xs text-foreground flex items-center gap-1">
+              <Users className="size-3 text-muted-foreground" />
+              <span className="font-medium">{stats.referrals}</span>
+              <span className="text-muted-foreground">
+                {stats.referrals === 1 ? "friend joined" : "friends joined"}
+              </span>
+            </span>
+          </div>
+          <p className="text-[11px] text-muted-foreground leading-relaxed">
+            Each referral moves you up{" "}
+            <span className="text-foreground font-medium">5 spots</span>
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── SuccessState ──────────────────────────────────────────────────────────────
 
 const successContainer = {
@@ -69,10 +178,12 @@ function SuccessState({
   referralCode,
   position,
   total,
+  email,
 }: {
   referralCode: string
   position: number | null
   total: number | null
+  email: string
 }) {
   const [copyState, setCopyState] = useState<"idle" | "copied">("idle")
   const referralUrl = `https://mintmark.app/ref/${referralCode}`
@@ -228,12 +339,17 @@ function SuccessState({
           </div>
         </motion.div>
 
-        {/* [6] Divider */}
+        {/* [6] Live referral stats */}
+        <motion.div variants={successItem} className="w-full mt-4">
+          <ReferralStats email={email} />
+        </motion.div>
+
+        {/* [7] Divider */}
         <motion.div variants={successItem} className="w-full my-5 overflow-hidden">
           <div style={{ height: "1px", background: "rgba(230,195,100,0.15)" }} className="w-full" />
         </motion.div>
 
-        {/* [7] What's next */}
+        {/* [8] What's next */}
         <motion.div variants={successItem} className="w-full text-left space-y-2.5">
           <p className="text-sm font-semibold text-foreground">What&apos;s next?</p>
           <ul className="space-y-2">
@@ -280,7 +396,16 @@ export default function WaitlistForm() {
   const [email, setEmail] = useState("")
   const [name, setName] = useState("")
   const [reason, setReason] = useState("")
+  const [referredBy, setReferredBy] = useState("")
   const honeypotRef = useRef<HTMLInputElement>(null)
+
+  // Read referral cookie planted by /ref/[code]
+  useEffect(() => {
+    const match = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("referral_code="))
+    if (match) setReferredBy(decodeURIComponent(match.split("=")[1]))
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -307,6 +432,7 @@ export default function WaitlistForm() {
           name: name.trim().slice(0, 100) || null,
           reason: reason.trim().slice(0, 500) || null,
           website: honeypot,
+          referred_by: referredBy || undefined,
         }),
       })
 
@@ -339,7 +465,13 @@ export default function WaitlistForm() {
     <div className="w-full space-y-3">
       <AnimatePresence mode="wait">
         {status === "success" ? (
-          <SuccessState key="success" referralCode={referralCode} position={position} total={total} />
+          <SuccessState
+            key="success"
+            referralCode={referralCode}
+            position={position}
+            total={total}
+            email={email}
+          />
         ) : (
           <motion.div
             key="form"
