@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "WebFetch(domain:stitch.withgoogle.com)",
+      "mcp__stitch__list_screens",
+      "mcp__stitch__get_screen",
+      "WebFetch(domain:contribution.usercontent.google.com)",
+      "Bash(npm install:*)",
+      "Bash(node -e \"const p=require\\(''./node_modules/next/package.json''\\); console.log\\(p.version\\)\")",
+      "Bash(ls:*)"
     ]
   }
 }
