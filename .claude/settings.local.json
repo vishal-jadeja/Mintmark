@@ -17,7 +17,12 @@
       "WebSearch",
       "WebFetch(domain:supabase.com)",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:makerkit.dev)"
+      "WebFetch(domain:makerkit.dev)",
+      "Bash(curl -L \"https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sX2IzZDlmMjI0ZWJhOTRhMTJhNmQ1YzgyNGE5MWRmYjVjEgsSBxC0zu7NmhQYAZIBIwoKcHJvamVjdF9pZBIVQhMzMDE3NzE1NzEzNzU5Njg5NDk4&filename=&opi=89354086\" -o /tmp/stitch_design.html)",
+      "Read(//tmp/**)",
+      "Bash(curl -L \"https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzAwMDY0ZDg5NDA0YzRmZDkwOTEwN2ZmYjI0MDEwZjQ2EgsSBxC0zu7NmhQYAZIBIwoKcHJvamVjdF9pZBIVQhMzMDE3NzE1NzEzNzU5Njg5NDk4&filename=&opi=89354086\" -o C:/Users/visha/AppData/Local/Temp/stitch_confirmation.html)",
+      "Bash(curl -L \"https://lh3.googleusercontent.com/aida-public/AB6AXuAzTZkUXSY3QoHYqLmDl-kBvSfZlUNiUyRVRjKFOhuRBkhNB1yagxjqyOCXX6Puz8I8Lu4IEkpoe8-h4_GkKpazkXJz8c_4aZUveoCNfqnhBKawGPrnc8VW4f11ObKCLuHAf0ln6pNKuCONYIvIT60htoUazXbjOEnyPZR1tmzdShMKxiGHUUGix5M7uRzEvjOZxbK92lthJEoccHnvc7YAekkNk3NgkL10o_xuALF_i_UHzhJrx0Z8e1wIhoU_guU_ItrbHEkAeEc\" -o \"D:/Projects for Internship/mintmark/public/hero-bg.jpg\")",
+      "Bash(npm uninstall:*)"
     ]
   }
 }

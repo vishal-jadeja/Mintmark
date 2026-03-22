@@ -1,78 +1,91 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { motion, useMotionValue, useSpring, useMotionTemplate } from "framer-motion"
+import { motion, useMotionValue, useSpring, useMotionTemplate, AnimatePresence } from "framer-motion"
 import {
   BookOpen,
   Zap,
   TrendingUp,
-  Code2,
-  Paintbrush,
-  BarChart3,
-  PenLine,
-  GraduationCap,
-  Rocket,
-  Briefcase,
-  FlaskConical,
+  Check,
+  ChevronDown,
+  Plus,
+  Brain,
+  Share2,
 } from "lucide-react"
+import Image from "next/image"
 import WaitlistForm from "@/components/waitlist/WaitlistForm"
 import { LogoMark } from "@/components/ui/logo-mark"
+import { FAQS_DATA } from "@/lib/faq-data"
 
-// ── Animation variants ────────────────────────────────────────────────────────
+// ── Avatar constants ──────────────────────────────────────────────────────────
+
+const AVATARS = [
+  { src: "/avatar-1.jpg", alt: "Waitlist member" },
+  { src: "/avatar-2.jpg", alt: "Waitlist member" },
+  { src: "/avatar-3.jpg", alt: "Waitlist member" },
+]
+
+// ── Animation helpers ─────────────────────────────────────────────────────────
 
 const SNAP = [0.16, 1, 0.3, 1] as const
-
-const heroContainer = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
-}
-
-const heroItem = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: SNAP },
-  },
-}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   visible: { opacity: 1, y: 0 },
 }
 
-// ── Page constants ────────────────────────────────────────────────────────────
+const heroContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.15 } },
+}
+
+const heroItem = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: SNAP } },
+}
+
+// ── Constants ─────────────────────────────────────────────────────────────────
 
 const HOW_IT_WORKS = [
   {
     Icon: BookOpen,
-    title: "Learn anything",
+    phase: "Phase 01",
+    title: "Learn",
     description:
-      "YouTube videos, articles, podcasts, your own notes. Any source, any format, anywhere.",
+      "Connect your bookmarks, drafts, and readings. Mintmark digests your unique perspective.",
   },
   {
     Icon: Zap,
-    title: "Generate in seconds",
+    phase: "Phase 02",
+    title: "Generate",
     description:
-      "LinkedIn post, X thread, Medium article — all at once, calibrated to your voice.",
+      "Transform insights into curated threads, articles, and briefs that sound exactly like you.",
   },
   {
     Icon: TrendingUp,
-    title: "Grow your brand",
+    phase: "Phase 03",
+    title: "Publish",
     description:
-      "Track what you share, see what resonates, and know exactly what to post next.",
+      "Distribute your expertise across the digital landscape with a single, intentional click.",
   },
 ]
 
 const PERSONAS = [
-  { Icon: Code2, label: "Developers" },
-  { Icon: Paintbrush, label: "Designers" },
-  { Icon: BarChart3, label: "Marketers" },
-  { Icon: PenLine, label: "Writers" },
-  { Icon: GraduationCap, label: "Students" },
-  { Icon: Rocket, label: "Entrepreneurs" },
-  { Icon: Briefcase, label: "Consultants" },
-  { Icon: FlaskConical, label: "Researchers" },
+  "Creative Designers",
+  "Growth Marketers",
+  "Product Strategists",
+  "Engineering Leaders",
+  "Founders",
+  "Solo-Preneurs",
+  "Content Strategists",
+  "Academics",
+  "Independent Researchers",
+]
+
+const OUTPUT_FEATURES = [
+  "Context-aware formatting per platform",
+  "Dynamic length adjustment",
+  "Visual asset generation",
 ]
 
 // ── Cursor spotlight ──────────────────────────────────────────────────────────
@@ -81,12 +94,13 @@ function CursorSpotlight() {
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
   const opacity = useMotionValue(0)
-  const springX = useSpring(mouseX, { stiffness: 120, damping: 22, restDelta: 0.001 })
-  const springY = useSpring(mouseY, { stiffness: 120, damping: 22, restDelta: 0.001 })
+  const springX = useSpring(mouseX, { stiffness: 200, damping: 30, restDelta: 0.001 })
+  const springY = useSpring(mouseY, { stiffness: 200, damping: 30, restDelta: 0.001 })
 
   const bg = useMotionTemplate`
-    radial-gradient(200px circle at ${springX}px ${springY}px, oklch(0.78 0.155 82 / 6%), transparent 80%),
-    radial-gradient(700px circle at ${springX}px ${springY}px, oklch(0.78 0.155 82 / 2%), transparent 80%)
+    radial-gradient(150px circle at ${springX}px ${springY}px, oklch(0.80 0.12 82 / 5%), transparent 100%),
+    radial-gradient(380px circle at ${springX}px ${springY}px, oklch(0.80 0.12 82 / 2.5%), transparent 100%),
+    radial-gradient(700px circle at ${springX}px ${springY}px, oklch(0.80 0.12 82 / 1%), transparent 100%)
   `
 
   useEffect(() => {
@@ -102,15 +116,14 @@ function CursorSpotlight() {
   return (
     <motion.div
       className="fixed inset-0 pointer-events-none z-30"
-      style={{ background: bg, opacity }}
+      style={{ background: bg, opacity, mixBlendMode: "screen" }}
       transition={{ opacity: { duration: 0.6 } }}
     />
   )
 }
 
-// ── Shared sub-components ─────────────────────────────────────────────────────
+// ── FadeInSection ─────────────────────────────────────────────────────────────
 
-/** Scroll-triggered fade + rise. Wraps any section content. */
 function FadeInSection({
   children,
   delay = 0,
@@ -134,9 +147,57 @@ function FadeInSection({
   )
 }
 
-/** Card with a cursor-tracked gold border glow. The 1px outer wrapper acts as
- *  the border — its background (gradient at mouse position) shows through the
- *  gap around the inner bg-card div, making only the border near the cursor glow. */
+// ── GlassCard ─────────────────────────────────────────────────────────────────
+
+function GlassCard({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = ref.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    el.style.setProperty("--mx", `${e.clientX - rect.left}px`)
+    el.style.setProperty("--my", `${e.clientY - rect.top}px`)
+  }
+
+  return (
+    <motion.div
+      ref={ref}
+      whileHover={{ y: -3 }}
+      transition={{ type: "spring", stiffness: 300, damping: 25 }}
+      onMouseMove={handleMouseMove}
+      className={`group relative h-full cursor-default ${className}`}
+      style={{
+        background: "rgba(32, 31, 31, 0.55)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        borderRadius: "0.5rem",
+        borderTop: "1px solid rgba(230, 195, 100, 0.18)",
+        border: "1px solid rgba(255,255,255,0.05)",
+      }}
+    >
+      <div
+        aria-hidden
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+        style={{
+          borderRadius: "0.5rem",
+          background:
+            "radial-gradient(200px circle at var(--mx, 50%) var(--my, 50%), rgba(230,195,100,0.06), transparent 100%)",
+        }}
+      />
+      <div className="relative h-full">{children}</div>
+    </motion.div>
+  )
+}
+
+// ── GlowCard (border glow version) ───────────────────────────────────────────
+
 function GlowCard({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -157,7 +218,6 @@ function GlowCard({ children }: { children: React.ReactNode }) {
       className="group relative p-px rounded-lg h-full cursor-default"
       style={{ background: "var(--color-border)" }}
     >
-      {/* Gold glow overlay — only visible through the 1px border gap */}
       <div
         aria-hidden
         className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
@@ -166,7 +226,6 @@ function GlowCard({ children }: { children: React.ReactNode }) {
             "radial-gradient(180px circle at var(--mx, 50%) var(--my, 50%), oklch(0.78 0.155 82 / 50%), transparent 100%)",
         }}
       />
-      {/* Card body covers everything except the 1px border gap */}
       <div className="relative bg-card rounded-lg p-6 h-full flex flex-col shadow-md">
         {children}
       </div>
@@ -174,73 +233,515 @@ function GlowCard({ children }: { children: React.ReactNode }) {
   )
 }
 
-// ── Page sections ─────────────────────────────────────────────────────────────
+// ── SocialAvatars ─────────────────────────────────────────────────────────────
+
+function SocialAvatars({ count }: { count: number | null }) {
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <div className="flex -space-x-3">
+        {AVATARS.map(({ src, alt }, i) => (
+          <div
+            key={i}
+            className="w-10 h-10 rounded-full border-2 border-neutral-950 overflow-hidden shadow-xl shrink-0"
+          >
+            <Image
+              src={src}
+              alt={alt}
+              width={40}
+              height={40}
+              className="object-cover w-full h-full"
+            />
+          </div>
+        ))}
+        <div className="w-10 h-10 rounded-full border-2 border-neutral-950 bg-neutral-800 flex items-center justify-center text-[10px] font-mono font-semibold text-neutral-400 shrink-0">
+          +1k
+        </div>
+      </div>
+
+    </div>
+  )
+}
+
+// ── ScrollIndicator ───────────────────────────────────────────────────────────
+
+function ScrollIndicator() {
+  return (
+    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
+      <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-neutral-400">
+        Explore
+      </span>
+      <div className="w-px h-10 bg-gradient-to-b from-gold/50 to-transparent" />
+    </div>
+  )
+}
+
+// ── Hero ──────────────────────────────────────────────────────────────────────
+
+function HeroSection() {
+  const [count, setCount] = useState<number | null>(null)
+
+  useEffect(() => {
+    fetch("/api/waitlist/count")
+      .then((r) => r.json())
+      .then((d) => setCount(typeof d.count === "number" ? d.count : 0))
+      .catch(() => setCount(0))
+  }, [])
+
+  return (
+    <section
+      className="relative min-h-screen flex flex-col items-center justify-center px-6 py-10 overflow-hidden"
+      style={{
+        background: "#0A0A0A",
+      }}
+    >
+      {/* Hero background texture (from Stitch design) */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          opacity: 0.18,
+          // repeat the bgimage 4 times
+          backgroundImage: "url('/hero-bg.jpg')",
+          backgroundSize: "550px 550px",
+          // backgroundSize: "cover",
+          // backgroundPosition: "center",
+          filter: "blur(1px) brightness(0.7)",
+          backgroundRepeat: "repeat",
+        }}
+      />
+
+      {/* Ambient radial gold glow — sits on top of background texture */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(230,195,100,0.055) 0%, transparent 70%)",
+        }}
+      />
+
+      <motion.div
+        className="relative z-10 text-center max-w-[680px] w-full"
+        variants={heroContainer}
+        initial="hidden"
+        animate="visible"
+      >
+        {/* Eyebrow pill */}
+        <motion.div variants={heroItem} className="mb-8 flex justify-center">
+          <span
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full font-mono text-[10px] tracking-widest uppercase"
+            style={{
+              background: "rgba(79,72,59,0.3)",
+              border: "1px solid rgba(77,70,55,0.4)",
+              color: "#cfc5b4",
+            }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-gold shrink-0" />
+            Early Access
+          </span>
+        </motion.div>
+
+        {/* Headline */}
+        <motion.h1
+          variants={heroItem}
+          className="font-display mb-8 tracking-tight"
+          style={{
+            fontSize: "clamp(4rem, 10vw, 7.5rem)",
+            lineHeight: 0.92,
+            color: "#e5e2e1",
+          }}
+        >
+          The{" "}
+          <em
+            className="not-italic"
+            style={{
+              fontStyle: "italic",
+              fontWeight: 400,
+            }}
+          >
+            Digital
+          </em>
+          <br />
+          Curator
+        </motion.h1>
+
+        {/* Subheadline */}
+        <motion.p
+          variants={heroItem}
+          className="font-body text-lg md:text-xl max-w-lg mx-auto mb-12 leading-relaxed"
+          style={{ color: "#d0c5b2" }}
+        >
+          Stamping your knowledge and identity onto the internet.
+        </motion.p>
+
+        {/* Waitlist form */}
+        <motion.div variants={heroItem} className="w-full max-w-md mx-auto mb-10">
+          <WaitlistForm />
+        </motion.div>
+
+        {/* Social proof */}
+        <motion.div variants={heroItem}>
+          <SocialAvatars count={count} />
+        </motion.div>
+      </motion.div>
+
+      <ScrollIndicator />
+    </section>
+  )
+}
+
+// ── How It Works ──────────────────────────────────────────────────────────────
 
 function HowItWorksSection() {
   return (
-    <section className="py-24 px-4 border-t border-border">
-      <div className="max-w-5xl mx-auto">
-        <FadeInSection className="mb-12 text-center">
-          <h2 className="text-2xl font-semibold text-foreground mb-3">
-            How it works
-          </h2>
-          <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-            Three steps from raw input to published content — in the time it
-            takes to read this.
-          </p>
-        </FadeInSection>
+    <section className="py-32 px-6 max-w-[1200px] mx-auto">
+      <FadeInSection className="text-center mb-24">
+        <p className="font-mono text-[10px] uppercase tracking-widest text-gold mb-4">
+          The Process
+        </p>
+        <h2 className="font-heading text-3xl md:text-5xl font-bold tracking-tight mb-4 text-foreground">
+          Crafting Your Mark
+        </h2>
+        <p className="font-body text-muted-foreground text-lg">
+          Three steps to authoritative digital presence.
+        </p>
+      </FadeInSection>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {HOW_IT_WORKS.map(({ Icon, title, description }, i) => (
-            <FadeInSection key={title} delay={i * 0.08}>
-              <GlowCard>
-                <div className="size-9 rounded-md bg-gold-muted border border-gold-border flex items-center justify-center mb-4 flex-shrink-0">
-                  <Icon className="size-4 text-gold" strokeWidth={1.75} />
-                </div>
-                <h3 className="text-sm font-semibold text-foreground mb-1.5">
-                  {title}
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed flex-1">
-                  {description}
-                </p>
-              </GlowCard>
-            </FadeInSection>
-          ))}
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+        {HOW_IT_WORKS.map(({ Icon, phase, title, description }, i) => (
+          <FadeInSection key={title} delay={i * 0.1} className="relative">
+            <GlassCard className="p-8 flex flex-col items-start">
+              <div
+                className="w-11 h-11 rounded-lg flex items-center justify-center mb-6 text-gold"
+                style={{ background: "rgba(53,53,52,0.8)" }}
+              >
+                <Icon className="size-5" strokeWidth={1.5} />
+              </div>
+              <span className="font-mono text-[10px] text-gold mb-2 tracking-widest uppercase">
+                {phase}
+              </span>
+              <h3 className="font-heading text-xl font-bold mb-3 text-foreground">
+                {title}
+              </h3>
+              <p className="font-body text-sm text-muted-foreground leading-relaxed">
+                {description}
+              </p>
+            </GlassCard>
+
+            {/* Dashed connector */}
+            {i < 2 && (
+              <div
+                className="hidden md:block absolute top-1/2 -right-3 w-6 h-px z-10"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(to right, #4d4637 50%, transparent 50%)",
+                  backgroundSize: "8px 1px",
+                  backgroundRepeat: "repeat-x",
+                }}
+              />
+            )}
+          </FadeInSection>
+        ))}
       </div>
     </section>
   )
 }
 
+// ── Output Preview ────────────────────────────────────────────────────────────
+
+function OutputPreviewSection() {
+  return (
+    <section
+      className="py-32 overflow-hidden"
+      style={{ background: "rgba(28,27,27,0.3)" }}
+    >
+      <div className="max-w-[1200px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        {/* Left — copy */}
+        <FadeInSection>
+          <p className="font-mono text-[10px] uppercase tracking-widest text-gold mb-4">
+            Multi-Platform
+          </p>
+          <h2 className="font-heading text-3xl md:text-4xl font-bold tracking-tight mb-6 text-foreground">
+            Polished to Perfection
+          </h2>
+          <p className="font-body text-lg text-muted-foreground mb-8 leading-relaxed">
+            Your content shouldn&apos;t just exist — it should resonate. Mintmark
+            adapts your ideas for every canvas, maintaining your tone while
+            optimising for the medium.
+          </p>
+          <ul className="space-y-3">
+            {OUTPUT_FEATURES.map((feat) => (
+              <li key={feat} className="flex items-center gap-3 font-mono text-sm text-muted-foreground">
+                <Check className="size-4 text-gold shrink-0" strokeWidth={2} />
+                {feat}
+              </li>
+            ))}
+          </ul>
+        </FadeInSection>
+
+        {/* Right — fanned card mockups */}
+        <FadeInSection delay={0.15}>
+          <div className="relative h-[480px] flex items-center justify-center">
+            {/* Medium card (back) */}
+            <div
+              className="absolute w-64 md:w-72 p-6 rounded-lg shadow-2xl -rotate-12 -translate-x-14 z-0 opacity-35"
+              style={{
+                background: "rgba(32,31,31,0.7)",
+                backdropFilter: "blur(12px)",
+                borderTop: "1px solid rgba(230,195,100,0.15)",
+                border: "1px solid rgba(255,255,255,0.04)",
+              }}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-7 h-7 rounded-full bg-neutral-200" />
+                <div className="space-y-1">
+                  <div className="w-20 h-2 bg-white/15 rounded" />
+                  <div className="w-12 h-1.5 bg-white/08 rounded" />
+                </div>
+              </div>
+              <div className="space-y-2.5">
+                <div className="w-full h-2.5 bg-white/08 rounded" />
+                <div className="w-5/6 h-2.5 bg-white/08 rounded" />
+                <div className="w-4/6 h-2.5 bg-white/08 rounded" />
+              </div>
+            </div>
+
+            {/* X card (middle) */}
+            <div
+              className="absolute w-64 md:w-72 p-6 rounded-lg shadow-2xl rotate-6 translate-x-14 z-10"
+              style={{
+                background: "rgba(32,31,31,0.75)",
+                backdropFilter: "blur(12px)",
+                borderTop: "1px solid rgba(230,195,100,0.15)",
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
+            >
+              <div className="flex gap-3">
+                <div
+                  className="w-9 h-9 rounded-full shrink-0"
+                  style={{ background: "rgba(230,195,100,0.2)" }}
+                />
+                <div className="flex-1 space-y-2.5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 h-2 bg-white/30 rounded" />
+                    <div className="w-12 h-1.5 bg-white/10 rounded" />
+                  </div>
+                  <div className="w-full h-2 bg-white/15 rounded" />
+                  <div className="w-full h-2 bg-white/15 rounded" />
+                  <div className="w-3/4 h-2 bg-white/15 rounded" />
+                  <div
+                    className="w-full h-28 rounded-lg overflow-hidden"
+                    style={{ background: "rgba(53,53,52,0.8)" }}
+                  >
+                    <div
+                      className="w-full h-full animate-pulse"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, rgba(230,195,100,0.15), rgba(230,195,100,0.05))",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* LinkedIn card (front) */}
+            <div
+              className="absolute w-64 md:w-72 p-6 rounded-lg shadow-2xl -rotate-2 -translate-y-10 z-20"
+              style={{
+                background: "rgba(32,31,31,0.8)",
+                backdropFilter: "blur(16px)",
+                borderTop: "1px solid rgba(230,195,100,0.3)",
+                border: "1px solid rgba(255,255,255,0.06)",
+              }}
+            >
+              <div className="flex items-center gap-2.5 mb-4">
+                <div
+                  className="w-11 h-11 rounded"
+                  style={{ background: "rgba(79,72,59,0.7)" }}
+                />
+                <div className="space-y-1.5">
+                  <div className="w-24 h-2.5 bg-white/70 rounded" />
+                  <div className="w-32 h-1.5 bg-white/30 rounded" />
+                </div>
+              </div>
+              <div className="space-y-2.5">
+                <div className="w-full h-2 bg-white/15 rounded" />
+                <div className="w-full h-2 bg-white/15 rounded" />
+                <div className="w-2/3 h-2 bg-white/15 rounded" />
+                <div
+                  className="pt-3 border-t flex justify-between"
+                  style={{ borderColor: "rgba(255,255,255,0.04)" }}
+                >
+                  <div className="w-14 h-1.5 bg-gold/25 rounded" />
+                  <div className="w-14 h-1.5 bg-white/10 rounded" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </FadeInSection>
+      </div>
+    </section>
+  )
+}
+
+// ── Bento Features ────────────────────────────────────────────────────────────
+
+function BentoFeaturesSection() {
+  const glassStyle = {
+    background: "rgba(32,31,31,0.55)",
+    backdropFilter: "blur(12px)",
+    WebkitBackdropFilter: "blur(12px)",
+    borderTop: "1px solid rgba(230,195,100,0.18)",
+    border: "1px solid rgba(255,255,255,0.05)",
+  }
+
+  return (
+    <section className="py-32 px-6 max-w-[1200px] mx-auto">
+      <FadeInSection className="text-center mb-16">
+        <h2 className="font-heading text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+          Engineered for Authors
+        </h2>
+      </FadeInSection>
+
+      <FadeInSection delay={0.1}>
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-5 md:h-[580px]">
+          {/* AI Instructions — wide */}
+          <div
+            className="md:col-span-8 rounded-lg p-10 relative overflow-hidden flex flex-col justify-end group cursor-default"
+            style={glassStyle}
+          >
+            <div className="absolute top-0 right-0 p-10 opacity-15 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none select-none">
+              <Brain className="size-28 text-gold" strokeWidth={0.75} />
+            </div>
+            <div>
+              <h3 className="font-heading text-2xl font-bold mb-3 text-foreground">
+                Custom AI Instructions
+              </h3>
+              <p className="font-body text-muted-foreground max-w-md leading-relaxed">
+                Fine-tune your curator&apos;s logic. Define your tone, specific
+                vocabulary, and formatting preferences — every output feels
+                authentically yours.
+              </p>
+            </div>
+          </div>
+
+          {/* Instant Publish — gold accent */}
+          <div
+            className="md:col-span-4 rounded-lg p-10 flex flex-col justify-between cursor-default"
+            style={{ background: "var(--mm-gold-400)" }}
+          >
+            <Zap className="size-8 text-neutral-950" strokeWidth={1.5} />
+            <div>
+              <h3 className="font-heading text-2xl font-bold mb-3 text-neutral-950">
+                Instant Publish
+              </h3>
+              <p className="font-body text-neutral-950/75 leading-relaxed">
+                Skip the copy-paste fatigue. Direct API integrations for your
+                favourite platforms.
+              </p>
+            </div>
+          </div>
+
+          {/* Growth Intelligence */}
+          <div
+            className="md:col-span-5 rounded-lg p-10 flex flex-col justify-between cursor-default"
+            style={glassStyle}
+          >
+            <div className="flex items-end gap-1.5 mb-8 h-20">
+              {[12, 24, 16, 32, 20, 38, 28].map((h, i) => (
+                <div
+                  key={i}
+                  className="flex-1 rounded-t-sm transition-all duration-500"
+                  style={{
+                    height: `${h * 2}px`,
+                    background:
+                      i === 5
+                        ? "var(--mm-gold-400)"
+                        : `rgba(230,195,100,${0.2 + i * 0.06})`,
+                  }}
+                />
+              ))}
+            </div>
+            <div>
+              <h3 className="font-heading text-2xl font-bold mb-3 text-foreground">
+                Growth Intelligence
+              </h3>
+              <p className="font-body text-muted-foreground leading-relaxed">
+                Track your brand&apos;s resonance and authority metrics across
+                the entire web ecosystem.
+              </p>
+            </div>
+          </div>
+
+          {/* And more */}
+          <div
+            className="md:col-span-7 rounded-lg p-10 flex items-center justify-between cursor-default"
+            style={{
+              background: "rgba(42,42,42,0.6)",
+              border: "1px solid rgba(255,255,255,0.05)",
+              borderTop: "1px solid rgba(255,255,255,0.06)",
+            }}
+          >
+            <div>
+              <h3 className="font-heading text-2xl font-bold mb-2 text-foreground">
+                And more&hellip;
+              </h3>
+              <p className="font-body text-muted-foreground leading-relaxed">
+                Collaborative vaults, semantic search, and brand voice cloning.
+              </p>
+            </div>
+            <div
+              className="w-14 h-14 rounded-full shrink-0 flex items-center justify-center"
+              style={{
+                border: "1px solid var(--mm-gold-400)",
+                color: "var(--mm-gold-400)",
+              }}
+            >
+              <Plus className="size-5" strokeWidth={1.5} />
+            </div>
+          </div>
+        </div>
+      </FadeInSection>
+    </section>
+  )
+}
+
+// ── Who It's For ──────────────────────────────────────────────────────────────
+
 function WhoItsForSection() {
   return (
-    <section className="py-20 px-4 border-t border-border">
-      <div className="max-w-3xl mx-auto text-center">
-        <FadeInSection className="mb-4">
-          <h2 className="text-xl font-semibold text-foreground mb-2">
-            For anyone who learns and wants to be known for it
+    <section
+      className="py-32 px-6"
+      style={{ background: "rgba(28,27,27,0.3)" }}
+    >
+      <div className="max-w-[1200px] mx-auto text-center">
+        <FadeInSection className="mb-12">
+          <h2 className="font-heading text-3xl font-bold tracking-tight text-foreground">
+            Who is Mintmark for?
           </h2>
-          <p className="text-sm text-muted-foreground">
-            If you&apos;re building expertise and want the world to know,
-            Mintmark is for you.
-          </p>
         </FadeInSection>
 
         <FadeInSection delay={0.1}>
-          {/* Horizontal scroll on mobile, wrapped grid on desktop */}
-          <div
-            className="flex md:flex-wrap md:justify-center gap-2 overflow-x-auto py-2"
-            style={{ scrollbarWidth: "none" }}
-          >
-            {PERSONAS.map(({ Icon, label }) => (
+          <div className="flex flex-wrap justify-center gap-3 max-w-3xl mx-auto">
+            {PERSONAS.map((label) => (
               <motion.span
                 key={label}
-                whileHover={{ scale: 1.06, backgroundColor: "var(--gold-muted)" }}
+                whileHover={{ scale: 1.04 }}
                 transition={{ duration: 0.15 }}
-                className="flex-shrink-0 inline-flex items-center gap-1.5 rounded-full bg-muted border border-border text-muted-foreground text-xs px-3 py-1.5 whitespace-nowrap cursor-default"
+                className="px-5 py-2.5 rounded-full font-mono text-xs text-foreground cursor-default transition-colors duration-200 hover:text-neutral-950"
+                style={{
+                  background: "rgba(42,42,42,0.8)",
+                  border: "1px solid rgba(77,70,55,0.3)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "var(--mm-gold-400)"
+                  e.currentTarget.style.border = "1px solid var(--mm-gold-400)"
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(42,42,42,0.8)"
+                  e.currentTarget.style.border = "1px solid rgba(77,70,55,0.3)"
+                }}
               >
-                <Icon className="size-3 text-gold" aria-hidden="true" />
-                <span>{label}</span>
+                {label}
               </motion.span>
             ))}
           </div>
@@ -249,6 +750,73 @@ function WhoItsForSection() {
     </section>
   )
 }
+
+// ── FAQ ───────────────────────────────────────────────────────────────────────
+
+function FAQSection() {
+  const [open, setOpen] = useState<number | null>(0)
+
+  return (
+    <section className="py-32 px-6 max-w-3xl mx-auto">
+      <FadeInSection className="text-center mb-16">
+        <h2 className="font-heading text-3xl font-bold tracking-tight text-foreground">
+          Frequently Asked Questions
+        </h2>
+      </FadeInSection>
+
+      <div className="space-y-3">
+        {FAQS_DATA.map(({ q, a }, i) => (
+          <FadeInSection key={i} delay={i * 0.07}>
+            <div
+              className="rounded-lg overflow-hidden cursor-pointer"
+              style={{
+                background: "rgba(32,31,31,0.55)",
+                backdropFilter: "blur(12px)",
+                borderTop: "1px solid rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.05)",
+              }}
+              onClick={() => setOpen(open === i ? null : i)}
+            >
+              <div className="flex items-center justify-between p-6 gap-4">
+                <h3 className="font-heading font-semibold text-foreground text-sm md:text-base">
+                  {q}
+                </h3>
+                <motion.div
+                  animate={{ rotate: open === i ? 180 : 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="shrink-0"
+                >
+                  <ChevronDown className="size-4 text-muted-foreground" />
+                </motion.div>
+              </div>
+              <AnimatePresence initial={false}>
+                {open === i && (
+                  <motion.div
+                    key="answer"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: SNAP }}
+                    className="overflow-hidden"
+                  >
+                    <p
+                      className="font-body text-sm text-muted-foreground px-6 pt-2 pb-4 leading-relaxed"
+                      style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}
+                    >
+                      {a}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </FadeInSection>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+// ── Social Proof ──────────────────────────────────────────────────────────────
 
 const CAPACITY = 1000
 
@@ -265,34 +833,29 @@ function SocialProofSection() {
   const pct = count !== null ? Math.min((count / CAPACITY) * 100, 100) : 0
 
   return (
-    <section className="py-20 px-4 border-t border-border">
+    <section className="py-20 px-6 border-t border-border">
       <div className="max-w-sm mx-auto text-center">
         <FadeInSection>
-          <p className="text-xs font-semibold text-gold uppercase tracking-widest mb-3">
+          <p className="font-mono text-[10px] font-semibold text-gold uppercase tracking-widest mb-3">
             Early access
           </p>
-          <h2 className="text-lg font-semibold text-foreground mb-1">
+          <h2 className="font-heading text-xl font-semibold text-foreground mb-1">
             Spots are limited
           </h2>
-
           {count === null ? (
             <div className="flex justify-center mb-6">
               <div className="h-4 w-48 rounded bg-neutral-800 animate-pulse" />
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground mb-6">
-              {count.toLocaleString()} of {CAPACITY.toLocaleString()} spots
-              claimed
+            <p className="font-body text-sm text-muted-foreground mb-6">
+              {count.toLocaleString()} of {CAPACITY.toLocaleString()} spots claimed
             </p>
           )}
-
-          {/* Progress bar */}
           <div className="relative h-1.5 w-full rounded-full bg-neutral-800 overflow-hidden">
             <motion.div
               className="absolute inset-y-0 left-0 rounded-full"
               style={{
-                background:
-                  "linear-gradient(to right, var(--mm-gold-700), var(--mm-gold-400))",
+                background: "linear-gradient(to right, var(--mm-gold-700), var(--mm-gold-400))",
               }}
               initial={{ width: 0 }}
               whileInView={{ width: `${pct}%` }}
@@ -306,38 +869,92 @@ function SocialProofSection() {
   )
 }
 
+// ── Footer ────────────────────────────────────────────────────────────────────
+
 function Footer() {
   return (
-    <footer className="border-t border-border py-8 px-4">
-      <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-        {/* Brand */}
-        <div className="flex items-center gap-2.5">
-          <LogoMark size={20} />
-          <span className="text-sm font-semibold text-foreground">
-            Mintmark
-          </span>
-          <span className="text-neutral-700 hidden sm:block">·</span>
-          <span className="text-xs text-muted-foreground hidden sm:block">
-            Stamp your knowledge on the internet
-          </span>
+    <footer
+      className="py-14 px-6"
+      style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+    >
+      <div className="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+        {/* Brand — spans 2 cols */}
+        <div className="md:col-span-2">
+          <div className="flex items-center gap-2.5 mb-6">
+            <LogoMark size={28} />
+            <span className="font-heading text-xl font-bold tracking-tighter text-gold">
+              Mintmark
+            </span>
+          </div>
+          <p className="font-body text-sm text-muted-foreground max-w-xs mb-8 leading-relaxed">
+            The premium curation engine for the modern intellectual. Stamping
+            your authority on the digital frontier.
+          </p>
+          <div className="flex gap-3">
+            <a
+              href="https://x.com/mintmark"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-gold transition-colors"
+              aria-label="Mintmark on X"
+            >
+              <Share2 className="size-4" strokeWidth={1.5} />
+            </a>
+          </div>
         </div>
 
-        {/* Links */}
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-          <a
-            href="/legal/privacy"
-            className="hover:text-foreground transition-colors cursor-pointer"
-          >
-            Privacy Policy
-          </a>
-          <a
-            href="/legal/terms"
-            className="hover:text-foreground transition-colors cursor-pointer"
-          >
-            Terms
-          </a>
-          <span>© 2025 Mintmark</span>
+        {/* Navigation */}
+        <div>
+          <h4 className="font-mono text-[10px] uppercase tracking-widest text-gold mb-6">
+            Navigation
+          </h4>
+          <ul className="space-y-3 font-body text-sm text-muted-foreground">
+            {["Home", "Features", "About Us", "Waitlist"].map((link) => (
+              <li key={link}>
+                <a href="#" className="hover:text-foreground transition-colors">
+                  {link}
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
+
+        {/* Legal */}
+        <div>
+          <h4 className="font-mono text-[10px] uppercase tracking-widest text-gold mb-6">
+            Legal
+          </h4>
+          <ul className="space-y-3 font-body text-sm text-muted-foreground">
+            <li>
+              <a href="/legal/privacy" className="hover:text-foreground transition-colors">
+                Privacy Policy
+              </a>
+            </li>
+            <li>
+              <a href="/legal/terms" className="hover:text-foreground transition-colors">
+                Terms of Service
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:text-foreground transition-colors">
+                Cookie Policy
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Bottom bar */}
+      <div
+        className="max-w-[1200px] mx-auto mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4"
+        style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}
+      >
+        <p className="font-mono text-[10px] text-muted-foreground/50 uppercase tracking-widest">
+          © 2025 Mintmark Technologies. All Rights Reserved.
+        </p>
+        <p className="font-mono text-[10px] text-muted-foreground/50 uppercase tracking-widest">
+          Crafted for Creators
+        </p>
       </div>
     </footer>
   )
@@ -347,72 +964,14 @@ function Footer() {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ background: "#0A0A0A" }}>
       <CursorSpotlight />
-
-      {/* ── Hero ── */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-4 py-16">
-        {/* Ambient glow — like light catching the face of a coin */}
-        <motion.div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(ellipse 80% 55% at 50% -5%, oklch(0.78 0.155 82 / 11%), transparent 70%)",
-          }}
-          animate={{ opacity: [0.45, 1, 0.45] }}
-          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-        />
-
-        {/* Hero content — staggered entrance */}
-        <motion.div
-          className="relative z-10 w-full max-w-xl mx-auto text-center"
-          variants={heroContainer}
-          initial="hidden"
-          animate="visible"
-        >
-          {/* Logo mark */}
-          <motion.div
-            variants={heroItem}
-            className="flex justify-center mb-6"
-          >
-            <LogoMark size={48} />
-          </motion.div>
-
-          {/* Product name */}
-          <motion.h1
-            variants={heroItem}
-            className="text-5xl sm:text-6xl font-bold text-foreground tracking-tight mb-4"
-          >
-            Mintmark
-          </motion.h1>
-
-          {/* Tagline */}
-          <motion.p
-            variants={heroItem}
-            className="text-xl sm:text-2xl font-semibold text-foreground mb-3"
-          >
-            Stamp your knowledge on the internet
-          </motion.p>
-
-          {/* Subline */}
-          <motion.p
-            variants={heroItem}
-            className="text-sm text-muted-foreground max-w-sm mx-auto mb-10"
-            style={{ lineHeight: "1.625" }}
-          >
-            Turn what you learn into content that builds your personal brand.
-            LinkedIn, X, and Medium — all at once.
-          </motion.p>
-
-          {/* Waitlist form */}
-          <motion.div variants={heroItem} className="w-full">
-            <WaitlistForm />
-          </motion.div>
-        </motion.div>
-      </section>
-
+      <HeroSection />
       <HowItWorksSection />
+      <OutputPreviewSection />
+      <BentoFeaturesSection />
       <WhoItsForSection />
+      <FAQSection />
       <SocialProofSection />
       <Footer />
     </div>

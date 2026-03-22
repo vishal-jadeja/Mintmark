@@ -1,0 +1,101 @@
+/*
+ * Mintmark Design System — Raw Brand Tokens
+ * ==========================================
+ * These are immutable constants. They NEVER change between themes.
+ * All semantic tokens (in themes.css) reference these.
+ * Tailwind utilities (in bridge.css) reference semantic tokens, not these directly.
+ *
+ * Naming: --mm-<category>-<variant>
+ */
+
+:root {
+  /* ── Gold / Amber scale (hue ~82°, OKLCH perceptual) ──────────────────── */
+  --mm-gold-50:  oklch(0.97 0.025 82);
+  --mm-gold-100: oklch(0.93 0.055 82);
+  --mm-gold-200: oklch(0.88 0.095 82);
+  --mm-gold-300: oklch(0.82 0.135 82);
+  --mm-gold-400: #e6c364;          /* primary accent — dark mode (matches Stitch primary) */
+  --mm-gold-500: oklch(0.72 0.165 80);
+  --mm-gold-600: oklch(0.64 0.155 78); /* primary accent — light mode */
+  --mm-gold-700: oklch(0.54 0.135 76);
+  --mm-gold-800: oklch(0.43 0.105 74);
+  --mm-gold-900: oklch(0.32 0.075 72);
+  --mm-gold-950: oklch(0.22 0.055 70);
+
+  /* ── Neutral dark scale (warm-tinted, hue ~82°) ───────────────────────── */
+  --mm-neutral-950: oklch(0.09 0.003 82);  /* deep background  */
+  --mm-neutral-900: oklch(0.12 0.003 82);  /* card / surface   */
+  --mm-neutral-850: oklch(0.145 0.003 82); /* elevated surface */
+  --mm-neutral-800: #11100f;               /* hover surface    */
+  --mm-neutral-750: oklch(0.21 0.003 82);  /* active / pressed */
+  --mm-neutral-700: oklch(0.265 0.003 82); /* subtle dividers  */
+  --mm-neutral-600: oklch(0.35 0.003 82);
+  --mm-neutral-500: oklch(0.46 0.003 82);  /* tertiary text    */
+  --mm-neutral-400: oklch(0.58 0.003 82);  /* secondary text   */
+  --mm-neutral-300: oklch(0.70 0.003 82);  /* muted text       */
+  --mm-neutral-200: oklch(0.82 0.003 82);
+  --mm-neutral-100: oklch(0.92 0.003 82);
+  --mm-neutral-50:  oklch(0.97 0.003 82);  /* near white       */
+
+  /* ── Status colors ────────────────────────────────────────────────────── */
+  --mm-red:    oklch(0.65 0.22 27);
+  --mm-green:  oklch(0.72 0.18 150);
+  --mm-blue:   oklch(0.65 0.18 245);
+  --mm-yellow: oklch(0.88 0.18 95);
+
+  /* ── Typography — font family fallbacks ──────────────────────────────── */
+  /* next/font injects --nf-* vars at runtime (see layout.tsx).            */
+  /* These are the string fallbacks if next/font hasn't loaded yet.        */
+  --mm-font-sans:    'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --mm-font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --mm-font-heading: 'Sora', ui-sans-serif, system-ui, sans-serif;
+  --mm-font-section: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  --mm-font-body:    'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --mm-font-mono:    'JetBrains Mono', 'Geist Mono', ui-monospace, 'Cascadia Code', monospace;
+
+  /* ── Type scale ───────────────────────────────────────────────────────── */
+  --mm-font-size-xs:   0.6875rem; /* 11px — labels, badges */
+  --mm-font-size-sm:   0.8125rem; /* 13px — secondary, meta */
+  --mm-font-size-base: 0.9375rem; /* 15px — body copy */
+  --mm-font-size-md:   1rem;      /* 16px */
+  --mm-font-size-lg:   1.125rem;  /* 18px */
+  --mm-font-size-xl:   1.25rem;   /* 20px */
+  --mm-font-size-2xl:  1.5rem;    /* 24px */
+  --mm-font-size-3xl:  1.875rem;  /* 30px */
+  --mm-font-size-4xl:  2.25rem;   /* 36px */
+
+  /* ── Type weights ─────────────────────────────────────────────────────── */
+  --mm-font-weight-normal:   400;
+  --mm-font-weight-medium:   500;
+  --mm-font-weight-semibold: 600;
+  --mm-font-weight-bold:     700;
+
+  /* ── Line heights ─────────────────────────────────────────────────────── */
+  --mm-line-height-tight:   1.25;
+  --mm-line-height-snug:    1.375;
+  --mm-line-height-normal:  1.5;
+  --mm-line-height-relaxed: 1.625;
+
+  /* ── Spacing (mirrors Tailwind 4px grid) ──────────────────────────────── */
+  --mm-spacing-1:  0.25rem; /*  4px */
+  --mm-spacing-2:  0.5rem;  /*  8px */
+  --mm-spacing-3:  0.75rem; /* 12px */
+  --mm-spacing-4:  1rem;    /* 16px */
+  --mm-spacing-5:  1.25rem; /* 20px */
+  --mm-spacing-6:  1.5rem;  /* 24px */
+  --mm-spacing-8:  2rem;    /* 32px */
+  --mm-spacing-10: 2.5rem;  /* 40px */
+  --mm-spacing-12: 3rem;    /* 48px */
+  --mm-spacing-16: 4rem;    /* 64px */
+
+  /* ── Border radius (6px base) ─────────────────────────────────────────── */
+  --mm-radius: 0.375rem; /* 6px */
+
+  /* ── Shadows ──────────────────────────────────────────────────────────── */
+  --mm-shadow-sm:      0 1px 2px oklch(0 0 0 / 40%);
+  --mm-shadow-md:      0 4px 8px oklch(0 0 0 / 50%), 0 1px 2px oklch(0 0 0 / 30%);
+  --mm-shadow-lg:      0 8px 24px oklch(0 0 0 / 60%), 0 2px 4px oklch(0 0 0 / 40%);
+  --mm-shadow-xl:      0 16px 48px oklch(0 0 0 / 70%), 0 4px 8px oklch(0 0 0 / 50%);
+  --mm-shadow-gold:    0 0 20px oklch(0.78 0.155 82 / 25%), 0 0 40px oklch(0.78 0.155 82 / 10%);
+  --mm-shadow-gold-sm: 0 0 8px oklch(0.78 0.155 82 / 20%);
+}

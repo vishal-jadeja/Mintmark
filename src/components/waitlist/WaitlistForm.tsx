@@ -2,10 +2,16 @@
 
 import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Check, Copy, Loader2, RefreshCw, Users } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { LogoMark } from "@/components/ui/logo-mark"
-import { shadows } from "@/lib/design"
+import {
+  Check,
+  Copy,
+  Loader2,
+  RefreshCw,
+  Users,
+  Mail,
+  Palette,
+  Sparkles,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -15,6 +21,27 @@ function isValidEmail(email: string): boolean {
 }
 
 const SNAP = [0.16, 1, 0.3, 1] as const
+
+const containerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07 } },
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: SNAP } },
+}
+
+// ── Glass card style ──────────────────────────────────────────────────────────
+
+const glassStyle: React.CSSProperties = {
+  background: "rgba(32, 31, 31, 0.65)",
+  backdropFilter: "blur(18px)",
+  WebkitBackdropFilter: "blur(18px)",
+  borderRadius: "10px",
+  borderTop: "1px solid rgba(230, 195, 100, 0.22)",
+  border: "1px solid rgba(255,255,255,0.06)",
+}
 
 // ── WaitlistCount ─────────────────────────────────────────────────────────────
 
@@ -37,12 +64,11 @@ function WaitlistCount() {
   }
 
   return (
-    <p className="text-sm text-muted-foreground text-center">
-      Join{" "}
-      <span className="text-foreground font-medium">
+    <p className="font-mono text-xs text-muted-foreground text-center tracking-tight">
+      <span className="text-neutral-300 font-semibold">
         {count.toLocaleString()}
       </span>{" "}
-      {count === 1 ? "person" : "people"} on the waitlist
+      {count === 1 ? "professional" : "professionals"} on the waitlist
     </p>
   )
 }
@@ -65,12 +91,9 @@ function ReferralStats({ email }: { email: string }) {
       const res = await fetch(
         `/api/waitlist/referral-stats?email=${encodeURIComponent(email)}`
       )
-      if (res.ok) {
-        const data = await res.json()
-        setStats(data as StatsData)
-      }
+      if (res.ok) setStats((await res.json()) as StatsData)
     } catch {
-      // Silently fail — non-critical
+      // non-critical
     } finally {
       if (showSpinner) setRefreshing(false)
     }
@@ -91,32 +114,26 @@ function ReferralStats({ email }: { email: string }) {
         border: "1px solid rgba(230,195,100,0.12)",
       }}
     >
-      {/* Header row */}
       <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold text-foreground">
-          Your referral stats
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+          Referral Stats
         </p>
         <button
           onClick={() => fetchStats(true)}
-          className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none cursor-pointer"
+          className="text-muted-foreground hover:text-gold transition-colors focus-visible:outline-none cursor-pointer"
           aria-label="Refresh stats"
         >
-          <RefreshCw
-            className={cn("size-3", refreshing && "animate-spin")}
-          />
+          <RefreshCw className={cn("size-3", refreshing && "animate-spin")} />
         </button>
       </div>
-
-      {/* Stats or skeleton */}
       {stats === null ? (
         <div className="space-y-1.5">
           <div className="h-3 w-40 rounded bg-neutral-800 animate-pulse" />
-          <div className="h-3 w-28 rounded bg-neutral-800 animate-pulse" />
         </div>
       ) : (
-        <span className="text-xs text-foreground flex items-center gap-1">
+        <span className="text-xs text-foreground flex items-center gap-1.5">
           <Users className="size-3 text-muted-foreground" />
-          <span className="font-medium">{stats.referrals}</span>
+          <span className="font-semibold">{stats.referrals}</span>
           <span className="text-muted-foreground">
             {stats.referrals === 1 ? "friend joined" : "friends joined"}
           </span>
@@ -128,20 +145,22 @@ function ReferralStats({ email }: { email: string }) {
 
 // ── SuccessState ──────────────────────────────────────────────────────────────
 
-const successContainer = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.07 } },
-}
-
-const successItem = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: SNAP } },
-}
-
 const NEXT_STEPS = [
-  "Check your email and confirm your spot to lock in your place.",
-  "Share your referral link to move up the queue faster.",
-  "We'll email you the moment early access opens.",
+  {
+    Icon: Mail,
+    title: "Verify your email",
+    desc: "Check your inbox for the welcome transmission.",
+  },
+  {
+    Icon: Palette,
+    title: "Choose your handle",
+    desc: "Handles are reserved in order of rank priority.",
+  },
+  {
+    Icon: Sparkles,
+    title: "Prepare your studio",
+    desc: "Beta invites ship every Tuesday at 10 AM EST.",
+  },
 ]
 
 function SuccessState({
@@ -154,7 +173,7 @@ function SuccessState({
   email: string
 }) {
   const [copyState, setCopyState] = useState<"idle" | "copied">("idle")
-  const referralUrl = `https://mintmark.app/ref/${referralCode}`
+  const referralUrl = `https://mintmark.app/r/${referralCode}`
 
   const handleCopy = async () => {
     try {
@@ -162,7 +181,7 @@ function SuccessState({
       setCopyState("copied")
       setTimeout(() => setCopyState("idle"), 2000)
     } catch {
-      // Clipboard not available — silently fail
+      // clipboard not available
     }
   }
 
@@ -175,29 +194,59 @@ function SuccessState({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12, scale: 0.97 }}
+      initial={{ opacity: 0, y: 16, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ type: "spring", stiffness: 300, damping: 25 }}
-      className="rounded-xl overflow-hidden"
-      style={{
-        background: "rgba(32, 31, 31, 0.6)",
-        backdropFilter: "blur(18px)",
-        WebkitBackdropFilter: "blur(18px)",
-        border: "1px solid rgba(230, 195, 100, 0.2)",
-        borderTop: "1px solid rgba(230, 195, 100, 0.35)",
-      }}
+      transition={{ type: "spring", stiffness: 280, damping: 26 }}
+      style={glassStyle}
+      className="relative overflow-hidden"
     >
+      {/* Decorative glow */}
+      <div
+        className="absolute -top-24 -right-24 w-48 h-48 rounded-full pointer-events-none"
+        style={{ background: "rgba(230,195,100,0.07)", filter: "blur(60px)" }}
+      />
+
       <motion.div
-        variants={successContainer}
+        variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="flex flex-col items-center text-center p-6"
+        className="p-8 space-y-6"
       >
-        {/* [1] Rank badge */}
+        {/* Success icon + headline */}
+        <motion.div variants={itemVariants} className="flex flex-col items-center text-center space-y-3">
+          <div
+            className="w-12 h-12 rounded-full flex items-center justify-center"
+            style={{ background: "rgba(230,195,100,0.12)" }}
+          >
+            <Check className="size-6 text-gold" strokeWidth={2} />
+          </div>
+          <h2
+            className="font-display text-3xl md:text-4xl tracking-tight"
+            style={{
+              fontStyle: "italic",
+              fontWeight: 400,
+              color: "#e5e2e1",
+            }}
+          >
+            You&apos;re on the list.
+          </h2>
+        </motion.div>
+
+        {/* Rank */}
         {position !== null && (
-          <motion.div variants={successItem} className="mb-1">
+          <motion.div
+            variants={itemVariants}
+            className="flex flex-col items-center justify-center py-6"
+            style={{
+              borderTop: "1px solid rgba(255,255,255,0.05)",
+              borderBottom: "1px solid rgba(255,255,255,0.05)",
+            }}
+          >
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-1">
+              Your Rank
+            </span>
             <span
-              className="text-6xl font-bold tabular-nums leading-none"
+              className="font-heading font-extrabold text-7xl tracking-tighter leading-none"
               style={{
                 background: "linear-gradient(135deg, #FFE08F 0%, #E6C364 100%)",
                 WebkitBackgroundClip: "text",
@@ -207,61 +256,38 @@ function SuccessState({
             >
               #{position.toLocaleString()}
             </span>
+            <p className="font-body text-sm text-muted-foreground mt-2 opacity-70">
+              Out of {(position + 200).toLocaleString()} early curators
+            </p>
           </motion.div>
         )}
 
-        {/* [2] Label */}
-        <motion.p
-          variants={successItem}
-          className="text-sm font-medium text-foreground mb-5"
-        >
-          your spot on the waitlist
-        </motion.p>
-
-        {/* [3] Divider */}
-        <motion.div
-          variants={successItem}
-          className="w-full mb-5 overflow-hidden"
-        >
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 0.5, ease: SNAP, delay: 0.3 }}
-            style={{
-              transformOrigin: "left",
-              height: "1px",
-              background: "rgba(230, 195, 100, 0.15)",
-            }}
-            className="w-full"
-          />
-        </motion.div>
-
-        {/* [5] Referral section */}
-        <motion.div variants={successItem} className="w-full text-left space-y-3">
-          <div>
-            <p className="text-sm font-semibold text-foreground mb-0.5">
-              Move up the waitlist
+        {/* Referral */}
+        <motion.div variants={itemVariants} className="space-y-3">
+          <div className="flex justify-between items-end">
+            <p className="font-mono text-[10px] font-bold tracking-[0.15em] uppercase text-foreground">
+              Move Up Faster
             </p>
-            <p className="text-xs text-muted-foreground">
-              Every friend who joins with your link moves you up 5 spots.
-            </p>
+            <span className="font-mono text-[10px] text-gold">
+              +50 slots per invite
+            </span>
           </div>
 
-          {/* URL card */}
+          {/* URL row */}
           <div
-            className="flex items-center gap-2 rounded-lg px-3 py-2"
+            className="flex items-center gap-2 px-3 py-2.5 rounded-lg"
             style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(230,195,100,0.15)",
+              background: "rgba(14,14,14,0.8)",
+              border: "1px solid rgba(255,255,255,0.05)",
             }}
           >
-            <span className="flex-1 text-xs text-foreground font-mono truncate">
+            <code className="font-mono text-xs text-muted-foreground flex-1 truncate">
               {referralUrl}
-            </span>
+            </code>
             <motion.button
-              whileTap={{ scale: 0.9 }}
+              whileTap={{ scale: 0.88 }}
               onClick={handleCopy}
-              className="flex-shrink-0 text-muted-foreground hover:text-gold transition-colors focus-visible:outline-none cursor-pointer"
+              className="shrink-0 text-muted-foreground hover:text-gold transition-colors focus-visible:outline-none cursor-pointer p-1"
               aria-label={copyState === "copied" ? "Copied!" : "Copy referral link"}
             >
               {copyState === "copied" ? (
@@ -273,52 +299,72 @@ function SuccessState({
           </div>
 
           {/* Share buttons */}
-          <div className="flex gap-2">
-            <Button asChild variant="outline" size="sm" className="flex-1">
-              <a href={xShareUrl} target="_blank" rel="noopener noreferrer">
-                <svg viewBox="0 0 24 24" className="size-3.5 fill-current" aria-hidden="true">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                </svg>
-                Share on X
-              </a>
-            </Button>
-            <Button asChild variant="outline" size="sm" className="flex-1">
-              <a href={liShareUrl} target="_blank" rel="noopener noreferrer">
-                <svg viewBox="0 0 24 24" className="size-3.5 fill-current" aria-hidden="true">
-                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                </svg>
-                LinkedIn
-              </a>
-            </Button>
+          <div className="grid grid-cols-2 gap-2.5">
+            <a
+              href={xShareUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-heading text-xs font-semibold text-foreground transition-all hover:text-gold"
+              style={{
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.06)",
+              }}
+            >
+              <svg viewBox="0 0 24 24" className="size-3.5 fill-current" aria-hidden="true">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+              X / Twitter
+            </a>
+            <a
+              href={liShareUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-heading text-xs font-semibold text-foreground transition-all hover:text-gold"
+              style={{
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.06)",
+              }}
+            >
+              <svg viewBox="0 0 24 24" className="size-3.5 fill-current" aria-hidden="true">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+              </svg>
+              LinkedIn
+            </a>
           </div>
         </motion.div>
 
-        {/* [6] Live referral stats */}
-        <motion.div variants={successItem} className="w-full mt-4">
+        {/* Live referral stats */}
+        <motion.div variants={itemVariants}>
           <ReferralStats email={email} />
         </motion.div>
 
-        {/* [7] Divider */}
-        <motion.div variants={successItem} className="w-full my-5 overflow-hidden">
-          <div style={{ height: "1px", background: "rgba(230,195,100,0.15)" }} className="w-full" />
-        </motion.div>
-
-        {/* [8] What's next */}
-        <motion.div variants={successItem} className="w-full text-left space-y-2.5">
-          <p className="text-sm font-semibold text-foreground">What&apos;s next?</p>
-          <ul className="space-y-2">
-            {NEXT_STEPS.map((step, i) => (
-              <li key={i} className="flex items-start gap-2.5">
-                <span
-                  className="mt-0.5 flex-shrink-0 size-4 rounded-full flex items-center justify-center text-[10px] font-bold"
+        {/* Next steps */}
+        <motion.div
+          variants={itemVariants}
+          className="pt-5 space-y-4"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+        >
+          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+            Next Steps
+          </p>
+          <ul className="space-y-3.5">
+            {NEXT_STEPS.map(({ Icon, title, desc }, i) => (
+              <li key={i} className="flex items-start gap-3.5 group">
+                <div
+                  className="mt-0.5 w-6 h-6 shrink-0 flex items-center justify-center rounded transition-colors"
                   style={{
-                    background: "rgba(230,195,100,0.15)",
-                    color: "#E6C364",
+                    background: "rgba(42,42,42,0.8)",
+                    border: "1px solid rgba(255,255,255,0.06)",
                   }}
                 >
-                  {i + 1}
-                </span>
-                <span className="text-xs text-muted-foreground leading-relaxed">{step}</span>
+                  <Icon className="size-3.5 text-muted-foreground" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{title}</p>
+                  <p className="font-body text-xs text-muted-foreground leading-relaxed mt-0.5">
+                    {desc}
+                  </p>
+                </div>
               </li>
             ))}
           </ul>
@@ -331,10 +377,11 @@ function SuccessState({
 // ── Input styles ──────────────────────────────────────────────────────────────
 
 const inputClass = cn(
-  "w-full bg-input border border-border rounded-md px-3 py-[7px]",
-  "text-sm text-foreground placeholder:text-muted-foreground",
-  "focus:outline-none focus:border-gold-border focus:ring-2 focus:ring-ring",
-  "transition-colors duration-150 leading-normal"
+  "w-full rounded-lg px-3.5 py-2.5",
+  "font-body text-sm text-foreground placeholder:text-muted-foreground",
+  "focus:outline-none focus:ring-1 focus:ring-gold-border",
+  "transition-colors duration-150 leading-normal",
+  "border"
 )
 
 // ── WaitlistForm ──────────────────────────────────────────────────────────────
@@ -346,14 +393,12 @@ export default function WaitlistForm() {
   const [errorMessage, setErrorMessage] = useState("")
   const [referralCode, setReferralCode] = useState("")
   const [position, setPosition] = useState<number | null>(null)
-  const [total, setTotal] = useState<number | null>(null)
   const [email, setEmail] = useState("")
   const [name, setName] = useState("")
   const [reason, setReason] = useState("")
   const [referredBy, setReferredBy] = useState("")
   const honeypotRef = useRef<HTMLInputElement>(null)
 
-  // Read referral cookie planted by /ref/[code]
   useEffect(() => {
     const match = document.cookie
       .split("; ")
@@ -365,7 +410,6 @@ export default function WaitlistForm() {
     e.preventDefault()
 
     const trimmedEmail = email.trim()
-
     if (!isValidEmail(trimmedEmail)) {
       setStatus("error")
       setErrorMessage("Please enter a valid email address.")
@@ -402,16 +446,13 @@ export default function WaitlistForm() {
         return
       }
 
-      const d = data as { referral_code?: string; position?: number; total?: number }
+      const d = data as { referral_code?: string; position?: number }
       setReferralCode(d.referral_code ?? "")
       setPosition(typeof d.position === "number" ? d.position : null)
-      setTotal(typeof d.total === "number" ? d.total : null)
       setStatus("success")
     } catch {
       setStatus("error")
-      setErrorMessage(
-        "Unable to connect. Please check your connection and try again."
-      )
+      setErrorMessage("Unable to connect. Please check your connection and try again.")
     }
   }
 
@@ -434,13 +475,13 @@ export default function WaitlistForm() {
             <form
               onSubmit={handleSubmit}
               noValidate
-              className="bg-card border border-border rounded-xl p-6 space-y-3"
+              className="space-y-3 p-1.5 rounded-xl"
+              style={{
+                background: "rgba(28,27,27,0.8)",
+                border: "1px solid rgba(255,255,255,0.07)",
+              }}
             >
-              {/*
-               * HONEYPOT — hidden from real users via CSS position trick.
-               * display:none is avoided because many bots ignore it.
-               * tabIndex={-1} and aria-hidden keep it out of keyboard/AT flow.
-               */}
+              {/* Honeypot */}
               <input
                 ref={honeypotRef}
                 name="website"
@@ -458,59 +499,33 @@ export default function WaitlistForm() {
                 }}
               />
 
-              {/* Email */}
-              <input
-                type="email"
-                name="email"
-                placeholder="you@example.com"
-                required
-                maxLength={254}
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={inputClass}
-                aria-label="Email address"
-              />
-
-              {/* Name */}
-              <input
-                type="text"
-                name="name"
-                placeholder="Your name (optional)"
-                maxLength={100}
-                autoComplete="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className={inputClass}
-                aria-label="Your name"
-              />
-
-              {/* Reason */}
-              <textarea
-                name="reason"
-                placeholder="What are you hoping to use Mintmark for? (optional)"
-                maxLength={500}
-                rows={3}
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                className={cn(inputClass, "resize-none")}
-                aria-label="Why do you want access?"
-              />
-
-              {/* Inline error */}
-              {status === "error" && errorMessage && (
-                <p className="text-sm text-destructive" role="alert">
-                  {errorMessage}
-                </p>
-              )}
-
-              {/* Submit */}
-              <motion.div whileHover={{ scale: 1.005 }} whileTap={{ scale: 0.97 }}>
-                <Button
+              <div className="flex flex-col sm:flex-row gap-2 p-0.5">
+                {/* Email */}
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Enter your email"
+                  required
+                  maxLength={254}
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={cn(
+                    inputClass,
+                    "flex-1 bg-transparent border-transparent text-base focus:ring-0"
+                  )}
+                  aria-label="Email address"
+                />
+                <motion.button
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.97 }}
                   type="submit"
-                  size="lg"
-                  className="w-full"
                   disabled={status === "submitting"}
+                  className="shrink-0 flex items-center justify-center gap-2 rounded-lg px-6 py-3 font-heading font-bold text-sm text-neutral-950 transition-all shadow-lg cursor-pointer disabled:opacity-60"
+                  style={{
+                    background: "var(--mm-gold-400)",
+                    boxShadow: "0 0 20px rgba(230,195,100,0.15)",
+                  }}
                 >
                   {status === "submitting" ? (
                     <>
@@ -518,16 +533,63 @@ export default function WaitlistForm() {
                       Joining&hellip;
                     </>
                   ) : (
-                    "Join the waitlist →"
+                    "Join Waitlist"
                   )}
-                </Button>
-              </motion.div>
+                </motion.button>
+              </div>
+
+              {/* Optional fields — only shown when email has content */}
+              <AnimatePresence>
+                {email.length > 3 && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: SNAP }}
+                    className="overflow-hidden px-0.5 space-y-2"
+                  >
+                    <input
+                      type="text"
+                      name="name"
+                      placeholder="Your name (optional)"
+                      maxLength={100}
+                      autoComplete="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className={cn(
+                        inputClass,
+                        "bg-transparent border-border"
+                      )}
+                      aria-label="Your name"
+                    />
+                    <textarea
+                      name="reason"
+                      placeholder="What are you hoping to use Mintmark for? (optional)"
+                      maxLength={500}
+                      rows={2}
+                      value={reason}
+                      onChange={(e) => setReason(e.target.value)}
+                      className={cn(inputClass, "resize-none bg-transparent border-border")}
+                      aria-label="Why do you want access?"
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Error message */}
+              {status === "error" && errorMessage && (
+                <p
+                  className="font-body text-sm text-red-400 px-1 pb-1"
+                  role="alert"
+                >
+                  {errorMessage}
+                </p>
+              )}
             </form>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Count — only shown before success */}
       {status !== "success" && <WaitlistCount />}
     </div>
   )

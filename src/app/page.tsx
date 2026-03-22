@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import LandingPage from "@/components/landing/LandingPage"
+import { FAQS_DATA } from "@/lib/faq-data"
 
 export const metadata: Metadata = {
   title: "Mintmark — Stamp your knowledge on the internet",
@@ -13,6 +14,24 @@ export const metadata: Metadata = {
   },
 }
 
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQS_DATA.map(({ q, a }) => ({
+    "@type": "Question",
+    name: q,
+    acceptedAnswer: { "@type": "Answer", text: a },
+  })),
+}
+
 export default function Page() {
-  return <LandingPage />
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <LandingPage />
+    </>
+  )
 }

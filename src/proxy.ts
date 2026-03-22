@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -40,7 +40,7 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except static files and images.
-     * Supabase auth requires the middleware to run on every navigation.
+     * Supabase auth requires the proxy to run on every navigation.
      */
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],

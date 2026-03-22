@@ -1,19 +1,26 @@
-import { Resend } from "resend"
+import { BrevoClient } from "@getbrevo/brevo"
+import { render } from "@react-email/render"
 import type { ReactElement } from "react"
 
-// Instantiated once at module level — RESEND_API_KEY never reaches the client bundle
-// because this file is only imported by server-side code (API routes, Server Components).
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Instantiated once — BREVO_API_KEY never reaches the client bundle because
+// this file is only imported by server-side code (API routes, Server Components).
+const brevoClient = new BrevoClient({
+  apiKey: process.env.BREVO_API_KEY!,
+})
+
+const FROM_EMAIL = process.env.EMAIL_FROM ?? "notifications@mintmark.app"
+const FROM_NAME = "Mintmark"
 
 interface SendEmailOptions {
   to: string
   subject: string
   react: ReactElement
-  text: string
+  /** Optional plain-text fallback. Auto-generated from the React template if omitted. */
+  text?: string
 }
 
 /**
- * Send a transactional email via Resend.
+ * Send a transactional email via Brevo.
  * Never throws — logs errors and returns { success: false } on failure.
  */
 export async function sendEmail({
@@ -23,13 +30,18 @@ export async function sendEmail({
   text,
 }: SendEmailOptions): Promise<{ success: boolean }> {
   try {
-    await resend.emails.send({
-      from: "Mintmark <notifications@mintmark.app>",
-      to,
+    // Render React component → HTML (and plain text if not provided)
+    const htmlContent = await render(react)
+    const textContent = text ?? (await render(react, { plainText: true }))
+
+    await brevoClient.transactionalEmails.sendTransacEmail({
+      sender: { name: FROM_NAME, email: FROM_EMAIL },
+      to: [{ email: to }],
       subject,
-      react,
-      text,
+      htmlContent,
+      textContent,
     })
+
     return { success: true }
   } catch (error) {
     console.error("[email/send] Failed to send email to", to, error)

@@ -1,0 +1,130 @@
+/*
+ * Mintmark Design System — Semantic Tokens
+ * ==========================================
+ * Semantic tokens swap per [data-theme]. They reference raw tokens from tokens.css.
+ * Components and utilities reference THESE tokens, never --mm-* directly.
+ *
+ * Theme is set via data-theme attribute on <html>. Dark is the default.
+ *   data-theme="dark"  → dark theme (default)
+ *   data-theme="light" → light theme override
+ */
+
+/* ── Dark theme (default) ─────────────────────────────────────────────────── */
+
+:root,
+[data-theme="dark"] {
+  /* Backgrounds */
+  --background:         var(--mm-neutral-950);
+  --foreground:         var(--mm-neutral-50);
+
+  /* Card */
+  --card:               var(--mm-neutral-900);
+  --card-foreground:    var(--mm-neutral-50);
+
+  /* Popover */
+  --popover:            var(--mm-neutral-900);
+  --popover-foreground: var(--mm-neutral-50);
+
+  /* Primary = Gold */
+  --primary:            var(--mm-gold-400);
+  --primary-foreground: var(--mm-neutral-950);
+
+  /* Secondary */
+  --secondary:          var(--mm-neutral-800);
+  --secondary-foreground: var(--mm-neutral-100);
+
+  /* Muted */
+  --muted:              var(--mm-neutral-800);
+  --muted-foreground:   var(--mm-neutral-400);
+
+  /* Accent */
+  --accent:             var(--mm-neutral-800);
+  --accent-foreground:  var(--mm-neutral-50);
+
+  /* Destructive */
+  --destructive:        var(--mm-red);
+
+  /* Border / input / ring */
+  --border:             oklch(1 0 0 / 9%);
+  --input:              oklch(1 0 0 / 12%);
+  --ring:               oklch(0.78 0.155 82 / 50%);
+
+  /* Radius */
+  --radius:             var(--mm-radius);
+
+  /* Mintmark-specific gold tokens */
+  --gold:               var(--mm-gold-400);
+  --gold-foreground:    var(--mm-neutral-950);
+  --gold-muted:         oklch(0.78 0.155 82 / 12%);
+  --gold-border:        oklch(0.78 0.155 82 / 25%);
+
+  /* Sidebar */
+  --sidebar:                    var(--mm-neutral-900);
+  --sidebar-foreground:         var(--mm-neutral-50);
+  --sidebar-primary:            var(--mm-gold-400);
+  --sidebar-primary-foreground: var(--mm-neutral-950);
+  --sidebar-accent:             var(--mm-neutral-800);
+  --sidebar-accent-foreground:  var(--mm-neutral-100);
+  --sidebar-border:             oklch(1 0 0 / 8%);
+  --sidebar-ring:               oklch(0.78 0.155 82 / 50%);
+
+  /* Charts */
+  --chart-1: var(--mm-gold-400);
+  --chart-2: var(--mm-gold-600);
+  --chart-3: var(--mm-neutral-400);
+  --chart-4: var(--mm-neutral-600);
+  --chart-5: var(--mm-neutral-700);
+}
+
+/* ── Light theme override ─────────────────────────────────────────────────── */
+
+[data-theme="light"] {
+  --background:         oklch(0.98 0.003 82);
+  --foreground:         var(--mm-neutral-950);
+
+  --card:               oklch(1 0 0);
+  --card-foreground:    var(--mm-neutral-950);
+
+  --popover:            oklch(1 0 0);
+  --popover-foreground: var(--mm-neutral-950);
+
+  --primary:            var(--mm-gold-600);
+  --primary-foreground: oklch(1 0 0);
+
+  --secondary:          #edebe7;
+  --secondary-foreground: var(--mm-neutral-900);
+
+  --muted:              oklch(0.94 0.005 82);
+  --muted-foreground:   var(--mm-neutral-500);
+
+  --accent:             oklch(0.94 0.005 82);
+  --accent-foreground:  var(--mm-neutral-900);
+
+  --destructive:        var(--mm-red);
+
+  --border:             oklch(0 0 0 / 10%);
+  --input:              oklch(0 0 0 / 8%);
+  --ring:               oklch(0.64 0.155 78 / 50%);
+
+  --radius:             var(--mm-radius);
+
+  --gold:               var(--mm-gold-600);
+  --gold-foreground:    oklch(1 0 0);
+  --gold-muted:         oklch(0.64 0.155 78 / 10%);
+  --gold-border:        oklch(0.64 0.155 78 / 30%);
+
+  --sidebar:                    oklch(0.96 0.004 82);
+  --sidebar-foreground:         var(--mm-neutral-950);
+  --sidebar-primary:            var(--mm-gold-600);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent:             oklch(0.92 0.005 82);
+  --sidebar-accent-foreground:  var(--mm-neutral-900);
+  --sidebar-border:             oklch(0 0 0 / 8%);
+  --sidebar-ring:               oklch(0.64 0.155 78 / 50%);
+
+  --chart-1: var(--mm-gold-600);
+  --chart-2: var(--mm-gold-400);
+  --chart-3: var(--mm-neutral-500);
+  --chart-4: var(--mm-neutral-300);
+  --chart-5: var(--mm-neutral-200);
+}
