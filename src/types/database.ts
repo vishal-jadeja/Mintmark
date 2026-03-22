@@ -145,6 +145,30 @@ export interface Database {
       }
 
       // -----------------------------------------------------------------------
+      // system_config
+      // -----------------------------------------------------------------------
+      system_config: {
+        Row: {
+          /** Config key, e.g. "early_access_limit" */
+          key: string
+          /** Serialised config value (always stored as text) */
+          value: string
+          updated_at: string
+        }
+        Insert: {
+          key: string
+          value: string
+          updated_at?: string
+        }
+        Update: {
+          key?: string
+          value?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+
+      // -----------------------------------------------------------------------
       // user_settings
       // -----------------------------------------------------------------------
       user_settings: {
@@ -258,3 +282,6 @@ export type InviteTokenRow = Tables<"invite_tokens">
 
 /** Convenience: a row from the user_settings table */
 export type UserSettingsRow = Tables<"user_settings">
+
+/** Convenience: a row from the system_config table */
+export type SystemConfigRow = Tables<"system_config">

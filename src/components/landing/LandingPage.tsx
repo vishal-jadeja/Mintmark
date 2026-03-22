@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { useWaitlistCount } from "@/lib/queries"
 import { motion, useMotionValue, useSpring, useMotionTemplate, AnimatePresence } from "framer-motion"
 import {
   BookOpen,
@@ -180,6 +181,8 @@ function GlassCard({
         borderRadius: "0.5rem",
         borderTop: "1px solid rgba(230, 195, 100, 0.18)",
         border: "1px solid rgba(255,255,255,0.05)",
+        boxShadow:
+          "0 4px 24px rgba(0,0,0,0.45), 0 1px 0 rgba(230,195,100,0.08) inset, 0 0 40px rgba(230,195,100,0.04)",
       }}
     >
       <div
@@ -196,42 +199,6 @@ function GlassCard({
   )
 }
 
-// ── GlowCard (border glow version) ───────────────────────────────────────────
-
-function GlowCard({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null)
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const el = ref.current
-    if (!el) return
-    const rect = el.getBoundingClientRect()
-    el.style.setProperty("--mx", `${e.clientX - rect.left}px`)
-    el.style.setProperty("--my", `${e.clientY - rect.top}px`)
-  }
-
-  return (
-    <motion.div
-      ref={ref}
-      whileHover={{ y: -3 }}
-      transition={{ type: "spring", stiffness: 300, damping: 25 }}
-      onMouseMove={handleMouseMove}
-      className="group relative p-px rounded-lg h-full cursor-default"
-      style={{ background: "var(--color-border)" }}
-    >
-      <div
-        aria-hidden
-        className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(180px circle at var(--mx, 50%) var(--my, 50%), oklch(0.78 0.155 82 / 50%), transparent 100%)",
-        }}
-      />
-      <div className="relative bg-card rounded-lg p-6 h-full flex flex-col shadow-md">
-        {children}
-      </div>
-    </motion.div>
-  )
-}
 
 // ── SocialAvatars ─────────────────────────────────────────────────────────────
 
@@ -254,7 +221,7 @@ function SocialAvatars({ count }: { count: number | null }) {
           </div>
         ))}
         <div className="w-10 h-10 rounded-full border-2 border-neutral-950 bg-neutral-800 flex items-center justify-center text-[10px] font-mono font-semibold text-neutral-400 shrink-0">
-          +1k
+          {count != null ? `+${count > 999 ? Math.floor(count / 1000) + "k" : count}` : "+1k"}
         </div>
       </div>
 
@@ -278,32 +245,23 @@ function ScrollIndicator() {
 // ── Hero ──────────────────────────────────────────────────────────────────────
 
 function HeroSection() {
-  const [count, setCount] = useState<number | null>(null)
-
-  useEffect(() => {
-    fetch("/api/waitlist/count")
-      .then((r) => r.json())
-      .then((d) => setCount(typeof d.count === "number" ? d.count : 0))
-      .catch(() => setCount(0))
-  }, [])
+  const { data: countData } = useWaitlistCount()
+  const count = countData?.count ?? null
 
   return (
     <section
-      className="relative min-h-screen flex flex-col items-center justify-center px-6 py-10 overflow-hidden"
+      className="relative min-h-screen flex flex-col items-center justify-center px-6 py-10 md:py-28 overflow-hidden"
       style={{
         background: "#0A0A0A",
       }}
     >
-      {/* Hero background texture (from Stitch design) */}
+      {/* Background — texture before join, solid color after */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           opacity: 0.18,
-          // repeat the bgimage 4 times
           backgroundImage: "url('/hero-bg.jpg')",
           backgroundSize: "550px 550px",
-          // backgroundSize: "cover",
-          // backgroundPosition: "center",
           filter: "blur(1px) brightness(0.7)",
           backgroundRepeat: "repeat",
         }}
@@ -592,6 +550,8 @@ function BentoFeaturesSection() {
     WebkitBackdropFilter: "blur(12px)",
     borderTop: "1px solid rgba(230,195,100,0.18)",
     border: "1px solid rgba(255,255,255,0.05)",
+    boxShadow:
+      "0 4px 24px rgba(0,0,0,0.45), 0 1px 0 rgba(230,195,100,0.08) inset, 0 0 40px rgba(230,195,100,0.04)",
   }
 
   return (
@@ -821,14 +781,8 @@ function FAQSection() {
 const CAPACITY = 1000
 
 function SocialProofSection() {
-  const [count, setCount] = useState<number | null>(null)
-
-  useEffect(() => {
-    fetch("/api/waitlist/count")
-      .then((r) => r.json())
-      .then((d) => setCount(typeof d.count === "number" ? d.count : 0))
-      .catch(() => setCount(0))
-  }, [])
+  const { data: countData } = useWaitlistCount()
+  const count = countData?.count ?? null
 
   const pct = count !== null ? Math.min((count / CAPACITY) * 100, 100) : 0
 
@@ -848,7 +802,7 @@ function SocialProofSection() {
             </div>
           ) : (
             <p className="font-body text-sm text-muted-foreground mb-6">
-              {count.toLocaleString()} of {CAPACITY.toLocaleString()} spots claimed
+              {count?.toLocaleString()} of {CAPACITY?.toLocaleString()} spots claimed
             </p>
           )}
           <div className="relative h-1.5 w-full rounded-full bg-neutral-800 overflow-hidden">

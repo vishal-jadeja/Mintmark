@@ -13,6 +13,13 @@ import {
   Sparkles,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { REFERRAL_SLOTS_BONUS } from "@/lib/config"
+import {
+  useWaitlistCount,
+  useJoinWaitlist,
+  useReferralStats,
+} from "@/lib/queries"
+import { useUIStore } from "@/stores"
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -41,70 +48,16 @@ const glassStyle: React.CSSProperties = {
   borderRadius: "10px",
   borderTop: "1px solid rgba(230, 195, 100, 0.22)",
   border: "1px solid rgba(255,255,255,0.06)",
-}
-
-// ── WaitlistCount ─────────────────────────────────────────────────────────────
-
-function WaitlistCount() {
-  const [count, setCount] = useState<number | null>(null)
-
-  useEffect(() => {
-    fetch("/api/waitlist/count")
-      .then((r) => r.json())
-      .then((d) => setCount(typeof d.count === "number" ? d.count : 0))
-      .catch(() => setCount(0))
-  }, [])
-
-  if (count === null) {
-    return (
-      <div className="flex justify-center">
-        <div className="h-4 w-44 rounded bg-neutral-800 animate-pulse" />
-      </div>
-    )
-  }
-
-  return (
-    <p className="font-mono text-xs text-muted-foreground text-center tracking-tight">
-      <span className="text-neutral-300 font-semibold">
-        {count.toLocaleString()}
-      </span>{" "}
-      {count === 1 ? "professional" : "professionals"} on the waitlist
-    </p>
-  )
+  boxShadow:
+    "0 8px 32px rgba(0,0,0,0.55), 0 1px 0 rgba(230,195,100,0.10) inset, 0 0 60px rgba(230,195,100,0.05)",
 }
 
 // ── ReferralStats ─────────────────────────────────────────────────────────────
-
-type StatsData = {
-  position: number | null
-  referrals: number
-  total: number
-}
+// Uses TanStack Query — polling handled by refetchInterval in the hook.
+// The refresh button calls refetch() directly.
 
 function ReferralStats({ email }: { email: string }) {
-  const [stats, setStats] = useState<StatsData | null>(null)
-  const [refreshing, setRefreshing] = useState(false)
-
-  const fetchStats = async (showSpinner = false) => {
-    if (showSpinner) setRefreshing(true)
-    try {
-      const res = await fetch(
-        `/api/waitlist/referral-stats?email=${encodeURIComponent(email)}`
-      )
-      if (res.ok) setStats((await res.json()) as StatsData)
-    } catch {
-      // non-critical
-    } finally {
-      if (showSpinner) setRefreshing(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchStats()
-    const id = setInterval(() => fetchStats(), 30_000)
-    return () => clearInterval(id)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [email])
+  const { data: stats, isLoading, isFetching, refetch } = useReferralStats(email)
 
   return (
     <div
@@ -119,14 +72,14 @@ function ReferralStats({ email }: { email: string }) {
           Referral Stats
         </p>
         <button
-          onClick={() => fetchStats(true)}
+          onClick={() => refetch()}
           className="text-muted-foreground hover:text-gold transition-colors focus-visible:outline-none cursor-pointer"
           aria-label="Refresh stats"
         >
-          <RefreshCw className={cn("size-3", refreshing && "animate-spin")} />
+          <RefreshCw className={cn("size-3", isFetching && "animate-spin")} />
         </button>
       </div>
-      {stats === null ? (
+      {isLoading || !stats ? (
         <div className="space-y-1.5">
           <div className="h-3 w-40 rounded bg-neutral-800 animate-pulse" />
         </div>
@@ -184,6 +137,9 @@ function SuccessState({
       // clipboard not available
     }
   }
+
+  // Only show "move up" incentive if there's room to climb
+  const canMoveUp = position === null || position > REFERRAL_SLOTS_BONUS
 
   const tweetText = encodeURIComponent(
     `Just joined the Mintmark waitlist! Turn what you learn into content for LinkedIn, X, and Medium — all at once.`
@@ -254,23 +210,33 @@ function SuccessState({
                 backgroundClip: "text",
               }}
             >
-              #{position.toLocaleString()}
+              #{position?.toLocaleString()}
             </span>
-            <p className="font-body text-sm text-muted-foreground mt-2 opacity-70">
-              Out of {(position + 200).toLocaleString()} early curators
-            </p>
           </motion.div>
         )}
 
         {/* Referral */}
         <motion.div variants={itemVariants} className="space-y-3">
           <div className="flex justify-between items-end">
-            <p className="font-mono text-[10px] font-bold tracking-[0.15em] uppercase text-foreground">
-              Move Up Faster
-            </p>
-            <span className="font-mono text-[10px] text-gold">
-              +50 slots per invite
-            </span>
+            {canMoveUp ? (
+              <>
+                <p className="font-mono text-[10px] font-bold tracking-[0.15em] uppercase text-foreground">
+                  Move Up Faster
+                </p>
+                <span className="font-mono text-[10px] text-gold">
+                  +{REFERRAL_SLOTS_BONUS} slots per invite
+                </span>
+              </>
+            ) : (
+              <>
+                <p className="font-mono text-[10px] font-bold tracking-[0.15em] uppercase text-foreground">
+                  You&apos;re near the top
+                </p>
+                <span className="font-mono text-[10px] text-gold">
+                  Share anyway — help a friend
+                </span>
+              </>
+            )}
           </div>
 
           {/* URL row */}
@@ -279,6 +245,7 @@ function SuccessState({
             style={{
               background: "rgba(14,14,14,0.8)",
               border: "1px solid rgba(255,255,255,0.05)",
+              boxShadow: "0 2px 12px rgba(0,0,0,0.4) inset",
             }}
           >
             <code className="font-mono text-xs text-muted-foreground flex-1 truncate">
@@ -351,7 +318,7 @@ function SuccessState({
             {NEXT_STEPS.map(({ Icon, title, desc }, i) => (
               <li key={i} className="flex items-start gap-3.5 group">
                 <div
-                  className="mt-0.5 w-6 h-6 shrink-0 flex items-center justify-center rounded transition-colors"
+                  className="mt-0.5 w-8 h-8 shrink-0 flex items-center justify-center rounded transition-colors"
                   style={{
                     background: "rgba(42,42,42,0.8)",
                     border: "1px solid rgba(255,255,255,0.06)",
@@ -359,9 +326,9 @@ function SuccessState({
                 >
                   <Icon className="size-3.5 text-muted-foreground" strokeWidth={1.5} />
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{title}</p>
-                  <p className="font-body text-xs text-muted-foreground leading-relaxed mt-0.5">
+                <div className="flex flex-col gap-0 items-start">
+                  <p className="text-sm font-normal text-foreground">{title}</p>
+                  <p className="font-body text-xs text-muted-foreground leading-relaxed">
                     {desc}
                   </p>
                 </div>
@@ -386,19 +353,28 @@ const inputClass = cn(
 
 // ── WaitlistForm ──────────────────────────────────────────────────────────────
 
-type FormStatus = "idle" | "submitting" | "success" | "error"
-
 export default function WaitlistForm() {
-  const [status, setStatus] = useState<FormStatus>("idle")
-  const [errorMessage, setErrorMessage] = useState("")
-  const [referralCode, setReferralCode] = useState("")
-  const [position, setPosition] = useState<number | null>(null)
+  // Controlled form inputs — local UI state, correct to keep as useState
   const [email, setEmail] = useState("")
   const [name, setName] = useState("")
   const [reason, setReason] = useState("")
+  // Client-side validation error (not from server — stays local)
+  const [clientError, setClientError] = useState("")
+  // Referral cookie — local, one-time read on mount
   const [referredBy, setReferredBy] = useState("")
   const honeypotRef = useRef<HTMLInputElement>(null)
 
+  // Server state via TanStack Query
+  const { mutate: join, isPending, isSuccess, data: joinData, error: mutationError } = useJoinWaitlist()
+  const { data: countData, isLoading: countLoading } = useWaitlistCount()
+
+  // Notify hero section to swap background/content when join succeeds
+  const setWaitlistJoined = useUIStore((s) => s.setWaitlistJoined)
+  useEffect(() => {
+    if (isSuccess && joinData) setWaitlistJoined(true)
+  }, [isSuccess, joinData, setWaitlistJoined])
+
+  // Read referral code from cookie (set by /ref/[code] page)
   useEffect(() => {
     const match = document.cookie
       .split("; ")
@@ -406,64 +382,35 @@ export default function WaitlistForm() {
     if (match) setReferredBy(decodeURIComponent(match.split("=")[1]))
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     const trimmedEmail = email.trim()
     if (!isValidEmail(trimmedEmail)) {
-      setStatus("error")
-      setErrorMessage("Please enter a valid email address.")
+      setClientError("Please enter a valid email address.")
       return
     }
+    setClientError("")
 
-    setStatus("submitting")
-    setErrorMessage("")
-
-    const honeypot = honeypotRef.current?.value ?? ""
-
-    try {
-      const res = await fetch("/api/waitlist/join", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: trimmedEmail.slice(0, 254),
-          name: name.trim().slice(0, 100) || null,
-          reason: reason.trim().slice(0, 500) || null,
-          website: honeypot,
-          referred_by: referredBy || undefined,
-        }),
-      })
-
-      const data = await res.json().catch(() => ({}))
-
-      if (!res.ok) {
-        setStatus("error")
-        setErrorMessage(
-          res.status === 429
-            ? "Too many requests. Please wait a moment and try again."
-            : (data as { error?: string }).error ?? "Something went wrong. Please try again."
-        )
-        return
-      }
-
-      const d = data as { referral_code?: string; position?: number }
-      setReferralCode(d.referral_code ?? "")
-      setPosition(typeof d.position === "number" ? d.position : null)
-      setStatus("success")
-    } catch {
-      setStatus("error")
-      setErrorMessage("Unable to connect. Please check your connection and try again.")
-    }
+    join({
+      email: trimmedEmail.slice(0, 254),
+      name: name.trim().slice(0, 100) || null,
+      reason: reason.trim().slice(0, 500) || null,
+      website: honeypotRef.current?.value ?? "",
+      referred_by: referredBy || undefined,
+    })
   }
+
+  const errorMessage = clientError || mutationError?.message
 
   return (
     <div className="w-full space-y-3">
       <AnimatePresence mode="wait">
-        {status === "success" ? (
+        {isSuccess && joinData ? (
           <SuccessState
             key="success"
-            referralCode={referralCode}
-            position={position}
+            referralCode={joinData.referral_code}
+            position={joinData.position}
             email={email}
           />
         ) : (
@@ -479,6 +426,8 @@ export default function WaitlistForm() {
               style={{
                 background: "rgba(28,27,27,0.8)",
                 border: "1px solid rgba(255,255,255,0.07)",
+                boxShadow:
+                  "0 4px 24px rgba(0,0,0,0.45), 0 1px 0 rgba(230,195,100,0.07) inset",
               }}
             >
               {/* Honeypot */}
@@ -520,14 +469,14 @@ export default function WaitlistForm() {
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.97 }}
                   type="submit"
-                  disabled={status === "submitting"}
+                  disabled={isPending}
                   className="shrink-0 flex items-center justify-center gap-2 rounded-lg px-6 py-3 font-heading font-bold text-sm text-neutral-950 transition-all shadow-lg cursor-pointer disabled:opacity-60"
                   style={{
                     background: "var(--mm-gold-400)",
                     boxShadow: "0 0 20px rgba(230,195,100,0.15)",
                   }}
                 >
-                  {status === "submitting" ? (
+                  {isPending ? (
                     <>
                       <Loader2 className="size-4 animate-spin" />
                       Joining&hellip;
@@ -556,10 +505,7 @@ export default function WaitlistForm() {
                       autoComplete="name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className={cn(
-                        inputClass,
-                        "bg-transparent border-border"
-                      )}
+                      className={cn(inputClass, "bg-transparent border-border")}
                       aria-label="Your name"
                     />
                     <textarea
@@ -577,11 +523,8 @@ export default function WaitlistForm() {
               </AnimatePresence>
 
               {/* Error message */}
-              {status === "error" && errorMessage && (
-                <p
-                  className="font-body text-sm text-red-400 px-1 pb-1"
-                  role="alert"
-                >
+              {errorMessage && (
+                <p className="font-body text-sm text-red-400 px-1 pb-1" role="alert">
                   {errorMessage}
                 </p>
               )}
@@ -590,7 +533,21 @@ export default function WaitlistForm() {
         )}
       </AnimatePresence>
 
-      {status !== "success" && <WaitlistCount />}
+      {/* Waitlist count — shown below form only when not in success state */}
+      {!isSuccess && (
+        countLoading ? (
+          <div className="flex justify-center">
+            <div className="h-4 w-44 rounded bg-neutral-800 animate-pulse" />
+          </div>
+        ) : (
+          <p className="font-mono text-xs text-muted-foreground text-center tracking-tight">
+            <span className="text-neutral-300 font-semibold">
+              {(countData?.count ?? 0)?.toLocaleString()}
+            </span>{" "}
+            {countData?.count === 1 ? "professional" : "professionals"} on the waitlist
+          </p>
+        )
+      )}
     </div>
   )
 }

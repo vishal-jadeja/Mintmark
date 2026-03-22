@@ -92,10 +92,19 @@ export async function POST(request: Request) {
     .maybeSingle()
 
   if (existing) {
-    return Response.json(
-      { message: "You're already on the list! Check your email." },
-      { status: 200 }
-    )
+    // Return their existing rank + referral link so the success state renders correctly
+    const { data: existingPosition } = await supabase.rpc("get_waitlist_position", {
+      p_email: email,
+    })
+    const { count: existingTotal } = await supabase
+      .from("waitlist")
+      .select("*", { count: "exact", head: true })
+    return Response.json({
+      message: "Welcome back! Here's your referral link.",
+      referral_code: existing.referral_code,
+      position: existingPosition ?? null,
+      total: existingTotal ?? 0,
+    })
   }
 
   // 6. Generate 6-char alphanumeric verification token

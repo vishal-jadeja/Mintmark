@@ -20,7 +20,7 @@ Mintmark is a personal branding and productivity platform that turns what you le
 <br />
 <br />
 
-[![Next.js](https://img.shields.io/badge/Next.js-16.1-black?style=flat-square&logo=next.js)](https://nextjs.org)
+[![Next.js](https://img.shields.io/badge/Next.js-16.2-black?style=flat-square&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?style=flat-square&logo=typescript&logoColor=white)](https://typescriptlang.org)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38bdf8?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
@@ -156,7 +156,7 @@ A modular widget dashboard you control. Show what you need, hide what you don't.
 
 ### ✦ Early Access System
 
-Waitlist landing page with referral-based queue movement, invite-only signup with single-use token verification, and an admin dashboard for batch approvals.
+Waitlist landing page with referral-based queue movement (each referral moves you up 5 positions, minimum position 1), invite-only signup with single-use token verification (48-hour expiry), configurable invite cap adjustable at runtime via the admin dashboard (stored in `system_config` DB table — no redeploy needed), and an admin panel for individual and batch approvals.
 
 ---
 
@@ -195,16 +195,18 @@ Waitlist landing page with referral-based queue movement, invite-only signup wit
 
 | Layer                     | Technology                                           |
 | ------------------------- | ---------------------------------------------------- |
-| **Framework**             | Next.js 16.1 + React 19.2 + TypeScript               |
-| **Styling**               | Tailwind CSS + shadcn/ui                             |
+| **Framework**             | Next.js 16.2 + React 19.2 + TypeScript               |
+| **Styling**               | Tailwind CSS v4 + shadcn/ui                          |
 | **Animations**            | Framer Motion                                        |
+| **State Management**      | TanStack Query v5 (server state) · Zustand v5 (UI state) |
+| **HTTP Client**           | Axios                                                |
 | **Auth**                  | NextAuth.js v5 (App Router)                          |
 | **Database**              | Supabase (PostgreSQL + pgvector + Realtime)          |
 | **Storage**               | Supabase Storage                                     |
 | **Background Jobs**       | Trigger.dev v3                                       |
 | **Cache + Rate Limiting** | Upstash Redis                                        |
 | **AI Adapter**            | Unified BYOK layer — Anthropic, OpenAI, Gemini, Groq |
-| **Email**                 | Resend                                               |
+| **Email**                 | Brevo (React Email templates)                        |
 | **PWA**                   | next-pwa                                             |
 | **Chrome Extension**      | Manifest V3                                          |
 | **VS Code Extension**     | Separate package (Phase 4)                           |
