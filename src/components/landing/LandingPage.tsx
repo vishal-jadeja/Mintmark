@@ -307,7 +307,7 @@ function HeroSection() {
             color: "#e5e2e1",
           }}
         >
-          Know what{" "}
+          The{" "}
           <em
             className="not-italic"
             style={{
@@ -315,10 +315,10 @@ function HeroSection() {
               fontWeight: 400,
             }}
           >
-            you know.
+            Digital
           </em>
           <br />
-          Share when you&apos;re ready.
+          Curator
         </motion.h1>
 
         {/* Subheadline */}
@@ -327,7 +327,7 @@ function HeroSection() {
           className="font-body text-lg md:text-xl max-w-lg mx-auto mb-12 leading-relaxed"
           style={{ color: "#d0c5b2" }}
         >
-          Mintmark watches your learning life and surfaces what you know — so when you&apos;re ready to post, the hard work is already done.
+          Stamping your knowledge and identity onto the internet.
         </motion.p>
 
         {/* Waitlist form */}
