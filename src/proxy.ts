@@ -1,7 +1,31 @@
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
+import { getToken } from "next-auth/jwt"
 
 export async function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // ── Admin route protection ────────────────────────────────────────────────
+  // Check NextAuth JWT before doing any Supabase work.
+  // getToken uses jose (Edge-compatible) — no Node.js bcrypt import needed here.
+  if (pathname.startsWith("/admin")) {
+    const token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET,
+    })
+
+    if (!token) {
+      return NextResponse.redirect(new URL("/login", request.url))
+    }
+    if (token.role !== "admin") {
+      // Authenticated but not admin — redirect away, never 404
+      return NextResponse.redirect(new URL("/dashboard", request.url))
+    }
+  }
+
+  // ── Supabase SSR cookie refresh ───────────────────────────────────────────
+  // Required on every request so Supabase session cookies stay fresh.
+  // IMPORTANT: Do NOT add any logic between createServerClient and getUser().
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
