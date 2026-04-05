@@ -191,26 +191,40 @@ Waitlist landing page with referral-based queue movement (each referral moves yo
 
 ---
 
+## Current Status
+
+Phase 1 — Early Access. Waitlist open.
+
+- [x] Waitlist landing page with referral tracking
+- [x] Referral queue mechanics (each referral = move up 5 spots, min position 1)
+- [x] Configurable invite cap (runtime-adjustable via `system_config` table)
+- [x] Email infrastructure (Brevo + React Email templates)
+- [x] State management (TanStack Query v5 + Zustand v5)
+- [x] Invite acceptance page (`/invite/[token]`) — single-use token, 48h expiry
+- [x] Login page with NextAuth.js v5 Credentials provider
+- [x] Admin dashboard (`/admin`) — waitlist management, individual + batch invites, inline config editor
+- [ ] Onboarding flow (platform connections, AI instructions)
+- [ ] Main app (Content Studio, Heatmap, AI Assistant, Notes)
+
+---
+
 ## Tech Stack
 
-| Layer                     | Technology                                           |
-| ------------------------- | ---------------------------------------------------- |
-| **Framework**             | Next.js 16.2 + React 19.2 + TypeScript               |
-| **Styling**               | Tailwind CSS v4 + shadcn/ui                          |
-| **Animations**            | Framer Motion                                        |
+| Layer                     | Technology                                               |
+| ------------------------- | -------------------------------------------------------- |
+| **Framework**             | Next.js 16.2 + React 19.2 + TypeScript                   |
+| **Styling**               | Tailwind CSS v4 + shadcn/ui                              |
+| **Animations**            | Framer Motion                                            |
 | **State Management**      | TanStack Query v5 (server state) · Zustand v5 (UI state) |
-| **HTTP Client**           | Axios                                                |
-| **Auth**                  | NextAuth.js v5 (App Router)                          |
-| **Database**              | Supabase (PostgreSQL + pgvector + Realtime)          |
-| **Storage**               | Supabase Storage                                     |
-| **Background Jobs**       | Trigger.dev v3                                       |
-| **Cache + Rate Limiting** | Upstash Redis                                        |
-| **AI Adapter**            | Unified BYOK layer — Anthropic, OpenAI, Gemini, Groq |
-| **Email**                 | Brevo (React Email templates)                        |
-| **PWA**                   | next-pwa                                             |
-| **Chrome Extension**      | Manifest V3                                          |
-| **VS Code Extension**     | Separate package (Phase 4)                           |
-| **Deployment**            | Vercel (frontend) + Supabase (backend)               |
+| **HTTP Client**           | Axios (shared instance, `withCredentials: true`)         |
+| **Auth**                  | NextAuth.js v5 beta (Credentials provider, JWT strategy) |
+| **Database**              | Supabase (PostgreSQL + pgvector + RLS)                   |
+| **Storage**               | Supabase Storage                                         |
+| **Background Jobs**       | Trigger.dev v3                                           |
+| **Cache + Rate Limiting** | Upstash Redis                                            |
+| **AI Adapter**            | Unified BYOK layer — Anthropic, OpenAI, Gemini, Groq     |
+| **Email**                 | Brevo (React Email templates)                            |
+| **Deployment**            | Vercel (frontend) + Supabase (backend)                   |
 
 ---
 
@@ -221,7 +235,7 @@ Waitlist landing page with referral-based queue movement (each referral moves yo
 - Node.js 20+
 - A Supabase project
 - An Upstash Redis database
-- A Resend account (for email)
+- A Brevo account (for transactional email)
 
 ### Installation
 
@@ -237,13 +251,9 @@ npm install
 cp .env.example .env.local
 ```
 
-Fill in your environment variables (see [Environment Variables](#environment-variables) below), then:
+Fill in your environment variables (see [Environment Variables](#environment-variables) below), then run the SQL in `supabase/schema.sql` against your Supabase project, and start the dev server:
 
 ```bash
-# Run database migrations
-npm run db:migrate
-
-# Start the development server
 npm run dev
 ```
 
@@ -256,30 +266,30 @@ Open [http://localhost:3000](http://localhost:3000).
 Create a `.env.local` file at the project root. Never commit this file.
 
 ```env
-# Auth
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your_nextauth_secret_here
-
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_KEY=your_supabase_service_role_key
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
+SUPABASE_SECRET_KEY=your_supabase_service_role_key
 
-# Encryption (AES-256 for OAuth token storage)
-ENCRYPTION_KEY=your_32_byte_encryption_key_here
+# Auth (NextAuth.js v5)
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_nextauth_secret_here        # openssl rand -hex 32
 
-# Email
-RESEND_API_KEY=your_resend_api_key
+# Encryption (AES-256 for sensitive data)
+ENCRYPTION_KEY=your_64_hex_char_key_here         # openssl rand -hex 32
+
+# Email (Brevo)
+BREVO_API_KEY=your_brevo_api_key
+EMAIL_FROM=notifications@yourdomain.com
 
 # Upstash Redis
 UPSTASH_REDIS_REST_URL=your_upstash_redis_url
 UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_token
 
-# Trigger.dev
-TRIGGER_API_KEY=your_trigger_dev_api_key
-TRIGGER_API_URL=https://api.trigger.dev
+# App URL (used in email links)
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-# Platform OAuth (add the ones you want to enable)
+# Platform OAuth (add the ones you want to enable — Phase 2+)
 LINKEDIN_CLIENT_ID=
 LINKEDIN_CLIENT_SECRET=
 TWITTER_CLIENT_ID=
@@ -292,37 +302,34 @@ NOTION_CLIENT_ID=
 NOTION_CLIENT_SECRET=
 ```
 
-> **Security note:** `NEXTAUTH_SECRET`, `SUPABASE_SERVICE_KEY`, `ENCRYPTION_KEY`, and `RESEND_API_KEY` must **never** be exposed to the client bundle. All are server-only.
+> **Security note:** `SUPABASE_SECRET_KEY`, `NEXTAUTH_SECRET`, and `ENCRYPTION_KEY` are server-only. They must never reach the client bundle — never prefix them with `NEXT_PUBLIC_`.
 
 ---
 
 ## Database Setup
 
-Mintmark uses Supabase with Row Level Security enabled on every table. Run migrations in order:
+Mintmark uses Supabase with Row Level Security enabled on every table. Apply the schema by running the SQL in `supabase/schema.sql` in your Supabase project's SQL editor.
 
-```bash
-# Apply all migrations
-npm run db:migrate
-
-# Or apply manually via Supabase CLI
-supabase db push
-```
+The schema is a single cumulative file — run it top-to-bottom on a fresh project. Re-running it is safe; all statements use `CREATE IF NOT EXISTS` / `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`.
 
 ### Key tables
 
-| Table                              | Purpose                                |
-| ---------------------------------- | -------------------------------------- |
-| `users`                            | Core user records                      |
-| `platform_connections`             | Encrypted OAuth tokens per platform    |
-| `platform_instructions`            | Per-platform AI tone and format rules  |
-| `content_inputs`                   | Raw learning inputs                    |
-| `generated_content`                | AI-generated posts (draft → published) |
-| `unified_activity`                 | Single source of truth for the heatmap |
-| `notes`                            | User notes with pgvector embeddings    |
-| `ai_conversations` / `ai_messages` | AI assistant history                   |
-| `waitlist` / `invite_tokens`       | Early access system                    |
+| Table           | Purpose                                                     |
+| --------------- | ----------------------------------------------------------- |
+| `users`         | Authenticated user records (created on invite acceptance)   |
+| `user_settings` | Per-user preferences (theme, timezone, active platforms)    |
+| `waitlist`      | Early access signups with referral codes and queue position |
+| `invite_tokens` | Single-use invite tokens (48h expiry)                       |
+| `system_config` | Runtime-editable config (`invite_cap`, `referral_bonus`)    |
 
-Full schema is in [`/supabase/migrations`](./supabase/migrations).
+### Key database functions
+
+| Function                   | Purpose                                                 |
+| -------------------------- | ------------------------------------------------------- |
+| `generate_referral_code()` | Trigger — auto-generates unique 8-char referral code    |
+| `get_waitlist_position()`  | Returns effective queue position accounting for bonuses |
+| `accept_invite_account()`  | Atomically creates user + settings + marks token used   |
+| `get_admin_waitlist()`     | Paginated waitlist with referral counts (no N+1)        |
 
 ---
 
@@ -330,46 +337,47 @@ Full schema is in [`/supabase/migrations`](./supabase/migrations).
 
 ```
 mintmark/
-├── app/                        # Next.js App Router
-│   ├── (auth)/                 # Auth routes (login, signup, invite)
-│   ├── (dashboard)/            # Main app (protected)
-│   │   ├── dashboard/          # Widget grid
-│   │   ├── studio/             # Content generation
-│   │   ├── assistant/          # AI chat interface
-│   │   ├── heatmap/            # Unified activity heatmap
-│   │   ├── notes/              # Notes editor
-│   │   └── settings/           # Platform connections, API keys
-│   ├── api/                    # API route handlers
-│   │   ├── auth/               # NextAuth routes
-│   │   ├── content/            # Generation and publish endpoints
-│   │   ├── heatmap/            # Heatmap data endpoints
-│   │   ├── assistant/          # RAG query endpoints
-│   │   └── webhooks/           # Incoming platform webhooks
-│   └── u/[username]/           # Public portfolio pages
-│
-├── components/                 # Shared UI components
-│   ├── dashboard/              # Widget components
-│   ├── studio/                 # Content studio components
-│   ├── heatmap/                # Heatmap renderer (D3)
-│   └── ui/                     # shadcn/ui base components
-│
-├── lib/                        # Core utilities
-│   ├── ai/                     # Unified BYOK AI adapter
-│   ├── encryption/             # AES-256 token encryption
-│   ├── supabase/               # DB client + typed queries
-│   ├── redis/                  # Upstash rate limiting + cache
-│   └── platforms/              # LinkedIn, X, Medium API clients
-│
-├── jobs/                       # Trigger.dev background jobs
-│   ├── heatmap-sync/           # Per-source activity sync jobs
-│   ├── notion-sync/            # Two-way Notion sync
-│   ├── rss-fetch/              # RSS feed polling
-│   └── email/                  # All email send jobs
+├── src/
+│   ├── app/
+│   │   ├── admin/              # Admin dashboard (role-protected)
+│   │   ├── invite/[token]/     # Invite acceptance page
+│   │   ├── login/              # Login page (NextAuth)
+│   │   ├── ref/[code]/         # Referral code tracking
+│   │   ├── api/
+│   │   │   ├── auth/           # NextAuth handlers + verify-token + accept-invite
+│   │   │   ├── admin/          # Admin API routes (stats, waitlist, invites, config)
+│   │   │   └── waitlist/       # Public waitlist API (join, count, referral-stats, verify)
+│   │   ├── layout.tsx          # Root layout (QueryProvider, fonts, dark theme)
+│   │   └── page.tsx            # Landing page
+│   │
+│   ├── components/
+│   │   ├── admin/              # AdminDashboard component
+│   │   ├── auth/               # InviteSignupForm
+│   │   ├── landing/            # LandingPage, sections, GlassCard
+│   │   ├── waitlist/           # WaitlistForm
+│   │   └── ui/                 # shadcn/ui base components + LogoMark
+│   │
+│   ├── lib/
+│   │   ├── auth/               # requireAdmin server guard
+│   │   ├── email/              # send.ts + React Email templates
+│   │   ├── queries/            # TanStack Query hooks (waitlist, admin, tokens)
+│   │   ├── supabase/           # admin.ts, server.ts, client.ts
+│   │   ├── axios.ts            # Shared Axios instance
+│   │   ├── config.ts           # REFERRAL_SLOTS_BONUS, getEarlyAccessLimit()
+│   │   ├── design.ts           # Design tokens for Framer Motion
+│   │   └── rate-limit.ts       # Upstash rate limiters
+│   │
+│   ├── middleware.ts           # Admin route protection (NextAuth JWT)
+│   ├── auth.ts                 # NextAuth v5 config
+│   ├── providers/              # QueryProvider (TanStack Query)
+│   ├── stores/                 # Zustand stores (uiStore, adminStore)
+│   ├── styles/                 # tokens.css, themes.css, bridge.css
+│   └── types/                  # database.ts, next-auth.d.ts
 │
 ├── supabase/
-│   └── migrations/             # SQL migrations in order
+│   └── schema.sql              # Single cumulative schema file
 │
-└── public/                     # Static assets + PWA manifest
+└── public/                     # Static assets (mintmark-logo.png)
 ```
 
 ---
@@ -383,11 +391,12 @@ Mintmark treats security as a first-class concern, not an afterthought.
 - **Row Level Security** — enabled on every single Supabase table. Application layer also filters by `user_id` — RLS is the safety net, not the only guard.
 - **PKCE flow** — used for all OAuth connections (LinkedIn, X, Medium, GitHub, Notion).
 - **Refresh token rotation** — rotated on every use.
-- **Rate limiting** — 100 req/min per user on all API routes via Upstash. 10 waitlist signups per IP per hour.
+- **Rate limiting** — dedicated Upstash limiters on every sensitive endpoint (waitlist join: 10/hr, invite verify: 20/hr, invite accept: 5/hr, admin stats: inherited from API limiter).
 - **CSRF protection** — on all mutation endpoints.
 - **Input sanitization** — before any DB write or AI prompt.
 - **Webhook signature verification** — for all incoming platform webhooks.
-- **Single-use invite tokens** — expire in 48 hours, marked used immediately on signup.
+- **Single-use invite tokens** — 32-byte hex, expire in 48 hours, marked used atomically in a Postgres transaction.
+- **Admin role guard** — `src/middleware.ts` checks NextAuth JWT `role` claim on all `/admin/*` routes; returns redirect (never 404) to prevent route enumeration.
 - **AI assistant isolation** — every RAG query scopes to `user_id` first. No cross-tenant data access is architecturally possible.
 
 ---
@@ -396,14 +405,14 @@ Mintmark treats security as a first-class concern, not an afterthought.
 
 | Phase       | Status         | Focus                                                                            |
 | ----------- | -------------- | -------------------------------------------------------------------------------- |
-| **Phase 1** | 🟡 In Progress | Content studio, platform connections, productivity widgets, early access         |
-| **Phase 2** | 🔲 Planned     | Notes editor, Notion sync, AI assistant, knowledge graph, RSS tracker            |
-| **Phase 3** | 🔲 Planned     | Chrome extension, YouTube tracking, unified heatmap, voice-to-content            |
-| **Phase 4** | 🔲 Planned     | Gmail, GitHub commits, LeetCode, Codeforces, VS Code extension, public portfolio |
+| **Phase 1** | ✅ Complete    | Early access system — waitlist, invites, admin dashboard                         |
+| **Phase 2** | 🟡 In Progress | Onboarding, platform connections (LinkedIn/X/Medium), Content Studio, AI         |
+| **Phase 3** | 🔲 Planned     | Notes editor, Notion sync, AI assistant, Unified Heatmap, Chrome extension       |
+| **Phase 4** | 🔲 Planned     | GitHub, YouTube, LeetCode tracking, VS Code extension, public portfolio          |
 | **Phase 5** | 🔲 Planned     | Weekly digest, trending topics, LinkedIn analytics, content calendar             |
 | **Phase 6** | 🔲 Planned     | XP system, streak gamification, milestone posts, open source release             |
 
-See the [full project intelligence document](./MINTMARK_PROJECT_INTELLIGENCE.md) for detailed specs on every phase.
+See [`mintmark-project-intelligence.md`](./mintmark-project-intelligence.md) for detailed specs on every phase.
 
 ---
 

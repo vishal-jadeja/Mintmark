@@ -4,22 +4,26 @@ import type { WaitlistStatus } from "@/types/database"
 type StatusFilter = "all" | WaitlistStatus
 
 interface AdminStore {
-  statusFilter: StatusFilter
-  page: number
+  // Table filter state
+  selectedTab: StatusFilter
   searchQuery: string
-  setStatusFilter: (filter: StatusFilter) => void
-  setPage: (page: number) => void
+  currentPage: number
+
+  // Setters
+  setSelectedTab: (tab: StatusFilter) => void
   setSearchQuery: (q: string) => void
+  setCurrentPage: (page: number) => void
   resetFilters: () => void
 }
 
 export const useAdminStore = create<AdminStore>()((set) => ({
-  statusFilter: "all",
-  page: 1,
+  selectedTab: "all",
   searchQuery: "",
+  currentPage: 1,
+
   // Changing filter or search always resets to page 1
-  setStatusFilter: (statusFilter) => set({ statusFilter, page: 1 }),
-  setPage: (page) => set({ page }),
-  setSearchQuery: (searchQuery) => set({ searchQuery, page: 1 }),
-  resetFilters: () => set({ statusFilter: "all", page: 1, searchQuery: "" }),
+  setSelectedTab: (selectedTab) => set({ selectedTab, currentPage: 1 }),
+  setSearchQuery: (searchQuery) => set({ searchQuery, currentPage: 1 }),
+  setCurrentPage: (currentPage) => set({ currentPage }),
+  resetFilters: () => set({ selectedTab: "all", searchQuery: "", currentPage: 1 }),
 }))

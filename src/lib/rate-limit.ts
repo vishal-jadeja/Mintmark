@@ -30,6 +30,22 @@ export const statsLimiter = new Ratelimit({
   prefix: "mintmark:stats",
 })
 
+/** 20 token verifications per IP per hour */
+export const verifyTokenLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(20, "1 h"),
+  analytics: true,
+  prefix: "mintmark:verify-token",
+})
+
+/** 5 invite acceptance attempts per IP per hour */
+export const acceptInviteLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(5, "1 h"),
+  analytics: true,
+  prefix: "mintmark:accept-invite",
+})
+
 export async function checkRateLimit(
   identifier: string,
   limiter: Ratelimit

@@ -199,7 +199,7 @@ function SuccessState({
             }}
           >
             <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-1">
-              Your Rank
+              Your position
             </span>
             <span
               className="font-heading font-extrabold text-7xl tracking-tighter leading-none"
@@ -221,7 +221,7 @@ function SuccessState({
             {canMoveUp ? (
               <>
                 <p className="font-mono text-[10px] font-bold tracking-[0.15em] uppercase text-foreground">
-                  Move Up Faster
+                  Move up the queue
                 </p>
                 <span className="font-mono text-[10px] text-gold">
                   +{REFERRAL_SLOTS_BONUS} slots per invite
@@ -255,7 +255,7 @@ function SuccessState({
               whileTap={{ scale: 0.88 }}
               onClick={handleCopy}
               className="shrink-0 text-muted-foreground hover:text-gold transition-colors focus-visible:outline-none cursor-pointer p-1"
-              aria-label={copyState === "copied" ? "Copied!" : "Copy referral link"}
+              aria-label={copyState === "copied" ? "Copied!" : "Copy link"}
             >
               {copyState === "copied" ? (
                 <Check className="size-3.5 text-gold" />
@@ -482,7 +482,7 @@ export default function WaitlistForm() {
                       Joining&hellip;
                     </>
                   ) : (
-                    "Join Waitlist"
+                    "Join the waitlist"
                   )}
                 </motion.button>
               </div>
@@ -544,7 +544,7 @@ export default function WaitlistForm() {
             <span className="text-neutral-300 font-semibold">
               {(countData?.count ?? 0)?.toLocaleString()}
             </span>{" "}
-            {countData?.count === 1 ? "professional" : "professionals"} on the waitlist
+            people already on the waitlist
           </p>
         )
       )}

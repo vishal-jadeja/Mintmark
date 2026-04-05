@@ -17,10 +17,17 @@ export {
   useAdminWaitlist,
   useSendInvite,
   useBatchInvite,
-  useUpdateCapacity,
+  useUpdateConfig,
 } from "./admin"
 
-export type { WaitlistFilters, AdminStats, AdminWaitlistEntry } from "./admin"
+export type {
+  WaitlistFilters,
+  AdminStats,
+  AdminWaitlistEntry,
+  WaitlistPage,
+  BatchInviteResult,
+  ConfigUpdate,
+} from "./admin"
 
 export { tokenKeys, useVerifyToken } from "./tokens"
 export type { TokenVerifyResponse } from "./tokens"

@@ -269,3 +269,134 @@ animate={{ boxShadow: [shadows.goldSm, shadows.gold, shadows.goldSm] }}
 // accent color transitions
 animate={{ color: colors.gold[400] }}
 ```
+
+---
+
+## Creative North Star: "The Digital Curator"
+
+This design system is not a utility; it is a gallery. Mintmark treats personal branding with the same reverence as a high-end editorial spread. The Creative North Star is **"The Digital Curator"** — a philosophy that favors intentional negative space, asymmetrical balance, and the physical sensation of layered materials (glass, fine paper, and gold leaf).
+
+To move beyond the "SaaS template" look, we reject rigid grids in favor of **Dynamic Composition**. Layouts should feel like a premium magazine: large, authoritative typography paired with "floating" glass modules that overlap and breathe. We do not "box" content; we stage it.
+
+---
+
+## Surface Architecture
+
+### Themes
+
+| Name | Base | Character |
+|------|------|-----------|
+| **Vault** (default dark) | `#0A0A0A` | Signature prestige expression |
+| **Midnight** | `#070810` | Deep ink canvas, cooler and high-contrast |
+| **Studio** | `#F5F2ED` | Warm gallery white, organic and tactile |
+| **Daylight** | `#F8F6F2` | High-clarity light mode for focused editing |
+
+### The "No-Line" Rule
+
+**Explicit prohibition:** Never use 1px solid borders to define sections. Sectioning must be achieved through:
+
+1. **Background Shifts** — move from `surface` to `surface-container-low`.
+2. **Tonal Transitions** — subtle 1–2% luminosity shifts to indicate a change in context.
+
+### Surface Hierarchy & Nesting
+
+Treat the UI as a physical stack. Each inner container uses a progressively higher or lower tier:
+
+| Level | Surface Token | Role |
+|-------|--------------|------|
+| **Level 0** | `surface` | Base |
+| **Level 1** | `surface-container-low` / `surface-container-lowest` | Sectioning |
+| **Level 2** | `surface-container-high` | Active modules (glassmorphism applied here) |
+
+### The "Glass & Gradient" Rule
+
+Floating elements (modals, hover cards, navigation) must use **Glassmorphism**:
+
+- **Fill:** Semi-transparent surface colors (e.g. `surface-variant` at 60% opacity)
+- **Effect:** `backdrop-blur` of **12px–18px**
+- **Highlight:** A "Gloss Edge" on the top 1px only, using `primary` at 20% opacity
+
+---
+
+## Typography: The Editorial Voice
+
+Typography creates a hierarchy of authority.
+
+| Role | Font | Size / Token | Logic |
+|:-----|:-----|:-------------|:------|
+| **Display** | Sora | 3.5rem / `display-lg` | Asymmetrical hero titles |
+| **Headline** | Sora | 2rem / `headline-lg` | Section headers with generous tracking |
+| **Body** | DM Sans | 1rem / `body-lg` | Primary reading weight — never exceed weight `600` |
+| **Label** | JetBrains Mono | 0.75rem / `label-md` | Metadata, timestamps, status indicators |
+
+**Body constraint:** DM Sans provides the "warmth" required for a personal branding platform. Never exceed weight `600`. Use for all long-form content.
+
+**Label usage:** JetBrains Mono is reserved for "behind the scenes" data — metrics, timestamps, technical precision. It adds depth to the artisanal aesthetic.
+
+---
+
+## Elevation & Depth: Tonal Layering
+
+Traditional drop shadows are too "digital." We use **Ambient Depth**.
+
+- **The Layering Principle:** Place a `surface-container-lowest` card on a `surface-container-low` section. This creates a soft, natural recessed or lifted look without synthetic shadows.
+- **Ambient Shadows:** For floating elements (primary CTAs, modals), use wide-spread blur (24px–40px) at 4–8% opacity. The shadow color must be a tinted version of `on-surface` — never pure black.
+- **The "Ghost Border" Fallback:** If accessibility requires a container edge, use the `outline-variant` token at **15% opacity**. 100% opaque borders are strictly forbidden.
+
+---
+
+## Component Rules
+
+### Primary Action (Button)
+
+- **Style:** Filled with `primary` (`#E6C364` in Vault theme)
+- **Gloss:** Subtle linear-gradient from `primary` to `primary-container`
+- **Glow:** Outer glow using `primary` at 20% opacity on hover
+- **Corner Radius:** `md` (10px)
+
+### Glass Cards
+
+- **Background:** `surface-container` with 12px blur
+- **Highlight:** 1px "Gloss" top-edge border (linear-gradient: `outline-variant` to transparent)
+- **Spacing:** `spacing.5` (1.7rem) internal padding for an editorial feel
+- **Rule:** No dividers. Use white space or `surface-container-highest` for internal nesting.
+
+### Input Fields
+
+- **Style:** Minimalist. No bottom line. Subtle `surface-container-lowest` fill.
+- **Focus State:** The gloss top-edge shifts to 100% `primary` opacity.
+- **Typography:** Labels use `label-md` (JetBrains Mono) for a "technical data" feel.
+
+### Status Chips
+
+- **Style:** Low-profile. `secondary-container` background with `on-secondary-container` text.
+- **Shape:** `full` (pill).
+
+---
+
+## Do's and Don'ts
+
+### Do
+
+- **Embrace Asymmetry** — offset images and text blocks to create a custom, high-end look.
+- **Use Generous Leading** — increase line-height in body text to 1.6 for readability and "breathability."
+- **Layer Containers** — use the surface tiers (`lowest` to `highest`) to guide the eye.
+
+### Don't
+
+- **No "SaaS Blue"** — avoid purples, teals, or overly saturated vibrant gradients.
+- **No Heavy Borders** — never use high-contrast 1px lines for layouts.
+- **No Default Grids** — don't let the grid dictate the design; let the content define the grid.
+- **No Harsh Shadows** — avoid tight, dark drop shadows.
+
+---
+
+## Editorial Spacing Scale
+
+Supplements the standard Tailwind 4px grid with editorial rhythm naming:
+
+| Name | Tailwind token | Value | Use |
+|------|---------------|-------|-----|
+| Micro | `0.5` | 0.175rem | Internal component details |
+| Standard | `3` | 1rem | General grouping |
+| Editorial | `8`–`16` | 2.75rem–5.5rem | Vertical rhythm between major sections |

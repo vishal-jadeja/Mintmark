@@ -1,10 +1,3 @@
-/**
- * Admin query hooks — stubs ready for Step 7 (admin dashboard).
- *
- * These are intentionally minimal. Flesh them out when building
- * src/app/admin/page.tsx and the /api/admin/* routes.
- */
-
 import {
   useQuery,
   useMutation,
@@ -20,6 +13,7 @@ import type { WaitlistStatus } from "@/types/database"
 export interface WaitlistFilters {
   statusFilter?: "all" | WaitlistStatus
   page?: number
+  limit?: number
   searchQuery?: string
 }
 
@@ -33,26 +27,36 @@ export const adminKeys = {
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface AdminStats {
-  total: number
-  verified: number
-  invited: number
-  joined: number
-  capacity: number
+  totalWaitlist: number
+  waitingCount: number
+  invitedCount: number
+  joinedCount: number
+  totalUsers: number
+  pendingTokens: number
+  expiredTokens: number
+  currentInviteCap: number
+  referralBonus: number
 }
 
 export interface AdminWaitlistEntry {
   id: string
   email: string
-  name: string | null
+  referral_code: string
+  referred_by: string | null
   position: number | null
-  referral_count: number
   status: WaitlistStatus
-  email_verified: boolean
   created_at: string
+  referral_count: number
+}
+
+export interface WaitlistPage {
+  data: AdminWaitlistEntry[]
+  total: number
+  page: number
+  totalPages: number
 }
 
 // ── useAdminStats ─────────────────────────────────────────────────────────────
-// TODO (Step 7): implement GET /api/admin/stats route
 
 export function useAdminStats() {
   return useQuery<AdminStats>({
@@ -61,24 +65,24 @@ export function useAdminStats() {
       const { data } = await api.get<AdminStats>("/api/admin/stats")
       return data
     },
-    staleTime: 1000 * 60,
+    staleTime: 1000 * 30,
   })
 }
 
 // ── useAdminWaitlist ──────────────────────────────────────────────────────────
-// TODO (Step 7): implement GET /api/admin/waitlist route
 
 export function useAdminWaitlist(filters: WaitlistFilters) {
-  return useQuery<{ rows: AdminWaitlistEntry[]; total: number }>({
+  return useQuery<WaitlistPage>({
     queryKey: adminKeys.waitlist(filters),
     queryFn: async () => {
       const params = new URLSearchParams()
       if (filters.statusFilter && filters.statusFilter !== "all")
         params.set("status", filters.statusFilter)
       if (filters.page) params.set("page", String(filters.page))
-      if (filters.searchQuery) params.set("q", filters.searchQuery)
+      if (filters.limit) params.set("limit", String(filters.limit))
+      if (filters.searchQuery) params.set("search", filters.searchQuery)
 
-      const { data } = await api.get<{ rows: AdminWaitlistEntry[]; total: number }>(
+      const { data } = await api.get<WaitlistPage>(
         `/api/admin/waitlist?${params}`
       )
       return data
@@ -89,28 +93,22 @@ export function useAdminWaitlist(filters: WaitlistFilters) {
 }
 
 // ── useSendInvite ─────────────────────────────────────────────────────────────
-// TODO (Step 7): implement POST /api/admin/send-invite route
 
 export function useSendInvite() {
   const queryClient = useQueryClient()
 
-  return useMutation<
-    { success: boolean; expiresAt: string; slotsRemaining: number },
-    Error,
-    string
-  >({
+  return useMutation<{ success: boolean }, Error, string>({
     mutationFn: async (email) => {
       try {
-        const { data } = await api.post<{
-          success: boolean
-          expiresAt: string
-          slotsRemaining: number
-        }>("/api/admin/send-invite", { email })
+        const { data } = await api.post<{ success: boolean }>(
+          "/api/admin/send-invite",
+          { email }
+        )
         return data
       } catch (err) {
         if (isAxiosError(err)) {
           throw new Error(
-            (err.response?.data as { error?: string })?.error ?? "Failed to send invite"
+            (err.response?.data as { error?: string })?.error ?? "Failed to send invite."
           )
         }
         throw err
@@ -124,28 +122,27 @@ export function useSendInvite() {
 }
 
 // ── useBatchInvite ────────────────────────────────────────────────────────────
-// TODO (Step 7): implement POST /api/admin/batch-invite route
+
+export interface BatchInviteResult {
+  invited: number
+  failed: string[]
+}
 
 export function useBatchInvite() {
   const queryClient = useQueryClient()
 
-  return useMutation<
-    { sent: number; failed: number; emails: string[] },
-    Error,
-    { count: number; strategy: "position" | "referrals" }
-  >({
+  return useMutation<BatchInviteResult, Error, { count: number }>({
     mutationFn: async (payload) => {
       try {
-        const { data } = await api.post<{
-          sent: number
-          failed: number
-          emails: string[]
-        }>("/api/admin/batch-invite", payload)
+        const { data } = await api.post<BatchInviteResult>(
+          "/api/admin/batch-invite",
+          payload
+        )
         return data
       } catch (err) {
         if (isAxiosError(err)) {
           throw new Error(
-            (err.response?.data as { error?: string })?.error ?? "Batch invite failed"
+            (err.response?.data as { error?: string })?.error ?? "Batch invite failed."
           )
         }
         throw err
@@ -158,23 +155,25 @@ export function useBatchInvite() {
   })
 }
 
-// ── useUpdateCapacity ─────────────────────────────────────────────────────────
-// Updates the early_access_limit key in the system_config table.
-// TODO (Step 7): implement PATCH /api/admin/config route
+// ── useUpdateConfig ───────────────────────────────────────────────────────────
 
-export function useUpdateCapacity() {
+export interface ConfigUpdate {
+  key: "invite_cap" | "referral_bonus"
+  value: number
+}
+
+export function useUpdateConfig() {
   const queryClient = useQueryClient()
 
-  return useMutation<void, Error, number>({
-    mutationFn: async (limit) => {
+  return useMutation<void, Error, ConfigUpdate>({
+    mutationFn: async (payload) => {
       try {
-        await api.patch("/api/admin/config", {
-          key: "early_access_limit",
-          value: String(limit),
-        })
+        await api.patch("/api/admin/config", payload)
       } catch (err) {
         if (isAxiosError(err)) {
-          throw new Error("Failed to update capacity")
+          throw new Error(
+            (err.response?.data as { error?: string })?.error ?? "Failed to update config."
+          )
         }
         throw err
       }

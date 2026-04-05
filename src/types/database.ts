@@ -40,6 +40,10 @@ export interface Database {
           email: string
           name: string | null
           avatar: string | null
+          /** bcrypt hash; set by accept_invite_account RPC only */
+          password_hash: string
+          /** 'user' | 'admin' — default 'user' */
+          role: UserRole
           created_at: string
         }
         Insert: {
@@ -48,6 +52,8 @@ export interface Database {
           email: string
           name?: string | null
           avatar?: string | null
+          password_hash: string
+          role?: UserRole
           /** Defaults to now() */
           created_at?: string
         }
@@ -56,6 +62,8 @@ export interface Database {
           email?: string
           name?: string | null
           avatar?: string | null
+          password_hash?: string
+          role?: UserRole
           created_at?: string
         }
         Relationships: []
@@ -176,16 +184,22 @@ export interface Database {
           /** PK and FK → users.id */
           user_id: string
           theme: UserTheme
+          timezone: string
+          active_platforms: string
           created_at: string
         }
         Insert: {
           user_id: string
           theme?: UserTheme
+          timezone?: string
+          active_platforms?: string
           created_at?: string
         }
         Update: {
           user_id?: string
           theme?: UserTheme
+          timezone?: string
+          active_platforms?: string
           created_at?: string
         }
         Relationships: [
@@ -230,6 +244,33 @@ export interface Database {
         }
         Returns: number | null
       }
+
+      /**
+       * Atomically creates a user account from a valid invite token.
+       * Returns { error: string } on failure or { user_id, email, name } on success.
+       */
+      accept_invite_account: {
+        Args: {
+          p_token: string
+          p_name: string
+          p_password_hash: string
+          p_timezone?: string
+        }
+        Returns: Json
+      }
+
+      /**
+       * Returns paginated waitlist rows with referral counts (no N+1).
+       */
+      get_admin_waitlist: {
+        Args: {
+          p_page?: number
+          p_limit?: number
+          p_status?: string | null
+          p_search?: string | null
+        }
+        Returns: Json
+      }
     }
 
     Enums: {
@@ -249,6 +290,8 @@ export interface Database {
 export type WaitlistStatus = "waiting" | "invited" | "joined"
 
 export type UserTheme = "dark" | "light"
+
+export type UserRole = "user" | "admin"
 
 // =============================================================================
 // Helper type aliases — mirror the Supabase CLI output pattern

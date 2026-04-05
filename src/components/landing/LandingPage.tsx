@@ -51,23 +51,23 @@ const HOW_IT_WORKS = [
   {
     Icon: BookOpen,
     phase: "Phase 01",
-    title: "Learn",
+    title: "Observe",
     description:
-      "Connect your bookmarks, drafts, and readings. Mintmark digests your unique perspective.",
+      "Mintmark quietly tracks your sessions, notes, and learning activity. No manual logging required.",
   },
   {
     Icon: Zap,
     phase: "Phase 02",
-    title: "Generate",
+    title: "Understand",
     description:
-      "Transform insights into curated threads, articles, and briefs that sound exactly like you.",
+      "Every day, the intelligence layer finds what was notable, what patterns are forming, and what you're ready to share.",
   },
   {
     Icon: TrendingUp,
     phase: "Phase 03",
-    title: "Publish",
+    title: "Share",
     description:
-      "Distribute your expertise across the digital landscape with a single, intentional click.",
+      "When you're ready, Mintmark generates posts for only the platforms you use — formatted correctly, in your voice.",
   },
 ]
 
@@ -293,7 +293,7 @@ function HeroSection() {
             }}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-gold shrink-0" />
-            Early Access
+            Now in early access
           </span>
         </motion.div>
 
@@ -307,7 +307,7 @@ function HeroSection() {
             color: "#e5e2e1",
           }}
         >
-          The{" "}
+          Know what{" "}
           <em
             className="not-italic"
             style={{
@@ -315,10 +315,10 @@ function HeroSection() {
               fontWeight: 400,
             }}
           >
-            Digital
+            you know.
           </em>
           <br />
-          Curator
+          Share when you&apos;re ready.
         </motion.h1>
 
         {/* Subheadline */}
@@ -327,7 +327,7 @@ function HeroSection() {
           className="font-body text-lg md:text-xl max-w-lg mx-auto mb-12 leading-relaxed"
           style={{ color: "#d0c5b2" }}
         >
-          Stamping your knowledge and identity onto the internet.
+          Mintmark watches your learning life and surfaces what you know — so when you&apos;re ready to post, the hard work is already done.
         </motion.p>
 
         {/* Waitlist form */}
@@ -356,7 +356,7 @@ function HowItWorksSection() {
           The Process
         </p>
         <h2 className="font-heading text-3xl md:text-5xl font-bold tracking-tight mb-4 text-foreground">
-          Crafting Your Mark
+          How Mintmark works
         </h2>
         <p className="font-body text-muted-foreground text-lg">
           Three steps to authoritative digital presence.
@@ -907,7 +907,7 @@ function Footer() {
           © 2025 Mintmark Technologies. All Rights Reserved.
         </p>
         <p className="font-mono text-[10px] text-muted-foreground/50 uppercase tracking-widest">
-          Crafted for Creators
+          Stamp your knowledge on the internet.
         </p>
       </div>
     </footer>

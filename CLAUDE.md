@@ -59,7 +59,10 @@ refetchOnReconnect: false
 | `src/stores/adminStore.ts`        | Admin table filters + pagination                    |
 | `src/types/database.ts`           | Supabase TypeScript types                           |
 | `src/providers/QueryProvider.tsx` | React Query global config                           |
-| `src/proxy.ts`                    | Next.js 16 middleware (replaces `middleware.ts`)    |
+| `src/middleware.ts`               | Next.js middleware — admin route protection (NextAuth JWT) |
+| `src/proxy.ts`                    | Supabase SSR cookie helper (not active middleware)  |
+| `src/auth.ts`                     | NextAuth v5 config — Credentials provider + JWT    |
+| `src/lib/auth/requireAdmin.ts`    | Server-side admin guard for API routes              |
 
 ---
 
@@ -94,3 +97,29 @@ refetchOnReconnect: false
 - Named exports for components; default exports for pages, layouts, and providers.
 - Comments only where logic is non-obvious.
 - No unused variables, dead code, or backwards-compat shims.
+
+---
+
+## Current Development State
+
+### Phase 1 — Early Access System ✅ Complete
+
+| Step | Feature | Status |
+|------|---------|--------|
+| Step 1–5 | Waitlist landing, referral tracking, API routes, TanStack Query | ✅ |
+| Step 6 | Invite acceptance page `/invite/[token]`, login page, NextAuth v5 | ✅ |
+| Step 7 | Admin dashboard `/admin`, 5 API routes, middleware protection | ✅ |
+
+---
+
+## Phase 1 Early Access — Complete
+
+All early access infrastructure is shipped. What to begin next:
+
+**Step 8 — Onboarding**
+- Platform connections: LinkedIn, X, Medium (OAuth)
+- Active platform selection (user picks which platforms they post on)
+- Per-platform AI instructions (tone, format, length per platform)
+- Onboarding data pump (critical first-run flow)
+
+See `mintmark-project-intelligence.md` for the full onboarding spec.

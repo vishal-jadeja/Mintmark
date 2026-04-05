@@ -1,7 +1,5 @@
 -- =============================================================================
 -- Mintmark — Early Access Database Schema
--- Run this in the Supabase SQL Editor (Dashboard → SQL Editor → New query)
--- Safe to re-run: uses CREATE TABLE IF NOT EXISTS and CREATE OR REPLACE
 -- =============================================================================
 
 
@@ -326,6 +324,168 @@ CREATE POLICY "user_settings: service role all"
   TO service_role
   USING (true)
   WITH CHECK (true);
+
+
+-- =============================================================================
+-- STEP 6 MIGRATIONS — Invite Acceptance Flow
+-- =============================================================================
+
+-- ---------------------------------------------------------------------------
+-- system_config seed rows (idempotent — skipped if key already exists)
+-- ---------------------------------------------------------------------------
+INSERT INTO public.system_config (key, value, updated_at)
+VALUES
+  ('invite_cap',       '100', now()),
+  ('referral_bonus',   '5',   now()),
+  ('early_access_limit', '100', now())
+ON CONFLICT (key) DO NOTHING;
+
+-- Add password storage to users (populated by accept_invite_account RPC only)
+ALTER TABLE public.users
+  ADD COLUMN IF NOT EXISTS password_hash text NOT NULL DEFAULT '';
+
+-- Step 7: Admin role field
+ALTER TABLE public.users
+  ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 'user'
+  CHECK (role IN ('user', 'admin'));
+
+-- Add user preference fields to user_settings
+ALTER TABLE public.user_settings
+  ADD COLUMN IF NOT EXISTS timezone text NOT NULL DEFAULT 'UTC',
+  ADD COLUMN IF NOT EXISTS active_platforms text NOT NULL DEFAULT '[]';
+
+-- ---------------------------------------------------------------------------
+-- accept_invite_account(p_token, p_name, p_password_hash, p_timezone)
+-- Atomically creates a user account from a valid invite token.
+--
+-- Returns json:
+--   { "error": "invalid_token" }        — token not found, used, or expired
+--   { "error": "already_registered" }   — email already has a users row
+--   { "user_id": uuid, "email": text, "name": text }  — success
+--
+-- SECURITY DEFINER so it runs as the owner (postgres) regardless of the
+-- calling role. The p_token value is never echoed in any return value.
+-- ---------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.accept_invite_account(
+  p_token         text,
+  p_name          text,
+  p_password_hash text,
+  p_timezone      text DEFAULT 'UTC'
+)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_invite  public.invite_tokens%ROWTYPE;
+  v_user_id uuid;
+  v_now     timestamptz := now();
+BEGIN
+  -- 1. Lock the token row (FOR UPDATE prevents concurrent double-redemption)
+  SELECT * INTO v_invite
+  FROM public.invite_tokens
+  WHERE token    = p_token
+    AND used_at  IS NULL
+    AND expires_at > v_now
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RETURN json_build_object('error', 'invalid_token');
+  END IF;
+
+  -- 2. Guard: reject if a users row already exists for this email
+  IF EXISTS (SELECT 1 FROM public.users WHERE email = v_invite.email) THEN
+    RETURN json_build_object('error', 'already_registered');
+  END IF;
+
+  -- 3. Create the user row
+  INSERT INTO public.users (email, name, password_hash)
+  VALUES (v_invite.email, p_name, p_password_hash)
+  RETURNING id INTO v_user_id;
+
+  -- 4. Create user_settings row (theme defaults to 'dark')
+  INSERT INTO public.user_settings (user_id, timezone, active_platforms)
+  VALUES (v_user_id, p_timezone, '[]');
+
+  -- 5. Mark token as consumed
+  UPDATE public.invite_tokens
+  SET used_at = v_now
+  WHERE id = v_invite.id;
+
+  -- 6. Advance waitlist status
+  UPDATE public.waitlist
+  SET status = 'joined'
+  WHERE email = v_invite.email;
+
+  RETURN json_build_object(
+    'user_id', v_user_id::text,
+    'email',   v_invite.email,
+    'name',    p_name
+  );
+END;
+$$;
+
+
+-- ---------------------------------------------------------------------------
+-- get_admin_waitlist(p_page, p_limit, p_status, p_search)
+-- Returns paginated waitlist rows with per-row referral counts.
+-- Uses a self-join to avoid N+1 queries.
+-- SECURITY DEFINER — called only by admin API routes using service role.
+-- ---------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.get_admin_waitlist(
+  p_page    integer DEFAULT 1,
+  p_limit   integer DEFAULT 50,
+  p_status  text    DEFAULT NULL,
+  p_search  text    DEFAULT NULL
+)
+RETURNS json
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_total     integer;
+  v_data      json;
+  v_offset    integer := (p_page - 1) * p_limit;
+BEGIN
+  SELECT COUNT(*)
+  INTO v_total
+  FROM public.waitlist w
+  WHERE
+    (p_status IS NULL OR w.status = p_status)
+    AND (p_search IS NULL OR w.email ILIKE '%' || p_search || '%');
+
+  SELECT COALESCE(json_agg(row_to_json(t)), '[]'::json)
+  INTO v_data
+  FROM (
+    SELECT
+      w.id,
+      w.email,
+      w.referral_code,
+      w.referred_by,
+      w.position,
+      w.status,
+      w.created_at,
+      COUNT(w2.id)::integer AS referral_count
+    FROM public.waitlist w
+    LEFT JOIN public.waitlist w2 ON w2.referred_by = w.referral_code
+    WHERE
+      (p_status IS NULL OR w.status = p_status)
+      AND (p_search IS NULL OR w.email ILIKE '%' || p_search || '%')
+    GROUP BY w.id, w.email, w.referral_code, w.referred_by, w.position, w.status, w.created_at
+    ORDER BY COALESCE(w.position, 999999) ASC, w.created_at ASC
+    LIMIT p_limit
+    OFFSET v_offset
+  ) t;
+
+  RETURN json_build_object(
+    'data',       v_data,
+    'total',      v_total,
+    'page',       p_page,
+    'totalPages', CEIL(v_total::float / GREATEST(p_limit, 1))::integer
+  );
+END;
+$$;
 
 
 -- =============================================================================
