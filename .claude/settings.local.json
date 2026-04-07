@@ -24,7 +24,10 @@
       "Bash(curl -L \"https://lh3.googleusercontent.com/aida-public/AB6AXuAzTZkUXSY3QoHYqLmDl-kBvSfZlUNiUyRVRjKFOhuRBkhNB1yagxjqyOCXX6Puz8I8Lu4IEkpoe8-h4_GkKpazkXJz8c_4aZUveoCNfqnhBKawGPrnc8VW4f11ObKCLuHAf0ln6pNKuCONYIvIT60htoUazXbjOEnyPZR1tmzdShMKxiGHUUGix5M7uRzEvjOZxbK92lthJEoccHnvc7YAekkNk3NgkL10o_xuALF_i_UHzhJrx0Z8e1wIhoU_guU_ItrbHEkAeEc\" -o \"D:/Projects for Internship/mintmark/public/hero-bg.jpg\")",
       "Bash(npm uninstall:*)",
       "Bash(npm run:*)",
-      "WebFetch(domain:lh3.googleusercontent.com)"
+      "WebFetch(domain:lh3.googleusercontent.com)",
+      "Bash(curl -L \"https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sX2RkZDA4ZjkyZGExZjRjMjQ4OGE1ZDAyMmVjMWFlYTdjEgsSBxC0zu7NmhQYAZIBIwoKcHJvamVjdF9pZBIVQhMzMDE3NzE1NzEzNzU5Njg5NDk4&filename=&opi=89354086\" -o /tmp/admin_dashboard.html)",
+      "Bash(curl -L \"https://lh3.googleusercontent.com/aida/ADBb0ujbZ7l_4VX_KSFCdu3FJ0FsyPgYYdui8r2WqN0raM5Z8Nyejdmg7ohLbisldMWQIiH1Lyjvx8fBpxFcyD-PW05TaKDxpf8OYLcN4SY6uub2WOA-N1552IIFdut7WEaOItxJOBWVCdbsp_J30Ty1sovttGvzXAsDeSsiE9GDUXZf9jJMQgPYhGmKsef7BZByoVlglT9EumvoMQs_-VFA8y8J3lwxp0rK0fp_i6C3OZQXw46f0K6wmDra_KE\" -o /tmp/waitlist_screenshot.png)",
+      "Bash(curl -L \"https://lh3.googleusercontent.com/aida/ADBb0uikLIgK3gEy2FxbiKkxcVxE1_VQxJr8Brbueu1-g5zYLMx-O_GIelM2n4t_J8xraZCPocnMMI4Y3NAQPIKZKAVApjnpiZhiPkmtfvw-2TyM1_5W-MXd1-7wcAjRCSFnpj6_cifyy7htfwbHaLBPVS3MTV_rBbR3kANik7-4plk1ABYYSohtJs00Grzkhgs0dNNQSFjAKb8qjMOroWBstg1MCM-P1rl5DgpwIHcVqyDi78drsoZhy87SRw\" -o /tmp/admin_screenshot.png)"
     ]
   }
 }
