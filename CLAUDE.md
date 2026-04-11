@@ -59,8 +59,7 @@ refetchOnReconnect: false
 | `src/stores/adminStore.ts`        | Admin table filters + pagination                    |
 | `src/types/database.ts`           | Supabase TypeScript types                           |
 | `src/providers/QueryProvider.tsx` | React Query global config                           |
-| `src/middleware.ts`               | Next.js middleware — admin route protection (NextAuth JWT) |
-| `src/proxy.ts`                    | Supabase SSR cookie helper (not active middleware)  |
+| `src/proxy.ts`                    | Next.js 16 Proxy (formerly middleware) — admin + app route protection (NextAuth JWT + Supabase SSR cookie refresh) |
 | `src/auth.ts`                     | NextAuth v5 config — Credentials provider + JWT    |
 | `src/lib/auth/requireAdmin.ts`    | Server-side admin guard for API routes              |
 

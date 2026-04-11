@@ -31,3 +31,5 @@ export type {
 
 export { tokenKeys, useVerifyToken } from "./tokens"
 export type { TokenVerifyResponse } from "./tokens"
+
+export { useUpdateOnboarding } from "./onboarding"

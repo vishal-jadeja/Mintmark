@@ -23,6 +23,42 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  // ── Admin API route protection ─────────────────────────────────────────────
+  // /api/admin/* returns JSON 403, not a redirect — it's an API route.
+  else if (pathname.startsWith("/api/admin")) {
+    const token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET,
+    })
+    if (!token) return NextResponse.redirect(new URL("/login", request.url))
+    if ((token.role as string) !== "admin") {
+      return Response.json(
+        { error: "You do not have permission to access this resource." },
+        { status: 403 }
+      )
+    }
+  }
+
+  // ── App route protection (authenticated users only) ────────────────────────
+  else if (
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/onboarding") ||
+    pathname.startsWith("/api/user")
+  ) {
+    const token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET,
+    })
+    if (!token) {
+      const callbackUrl = encodeURIComponent(
+        request.nextUrl.pathname + request.nextUrl.search
+      )
+      return NextResponse.redirect(
+        new URL(`/login?callbackUrl=${callbackUrl}`, request.url)
+      )
+    }
+  }
+
   // ── Supabase SSR cookie refresh ───────────────────────────────────────────
   // Required on every request so Supabase session cookies stay fresh.
   // IMPORTANT: Do NOT add any logic between createServerClient and getUser().
