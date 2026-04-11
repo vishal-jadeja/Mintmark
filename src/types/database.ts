@@ -185,21 +185,34 @@ export interface Database {
           user_id: string
           theme: UserTheme
           timezone: string
-          active_platforms: string
+          /**
+           * jsonb in DB. Typed as string[] for ergonomics — the Supabase client
+           * deserialises jsonb arrays to JS arrays at runtime so no cast needed.
+           * e.g. ["linkedin", "x"]
+           */
+          active_platforms: string[]
+          /** Set to true when the user completes all onboarding steps. */
+          onboarding_completed: boolean
+          /** Current wizard step (1–4). Persisted so users can resume mid-flow. */
+          onboarding_step: number
           created_at: string
         }
         Insert: {
           user_id: string
           theme?: UserTheme
           timezone?: string
-          active_platforms?: string
+          active_platforms?: string[]
+          onboarding_completed?: boolean
+          onboarding_step?: number
           created_at?: string
         }
         Update: {
           user_id?: string
           theme?: UserTheme
           timezone?: string
-          active_platforms?: string
+          active_platforms?: string[]
+          onboarding_completed?: boolean
+          onboarding_step?: number
           created_at?: string
         }
         Relationships: [
@@ -207,6 +220,270 @@ export interface Database {
             foreignKeyName: "user_settings_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+
+      // -----------------------------------------------------------------------
+      // api_keys
+      // -----------------------------------------------------------------------
+      api_keys: {
+        Row: {
+          id: string
+          user_id: string
+          /** One of: 'anthropic' | 'openai' | 'gemini' | 'groq' */
+          provider: ApiProvider
+          /**
+           * AES-256-GCM ciphertext. Format: iv:authTag:ciphertext (base64).
+           * Use src/lib/encryption.ts to decrypt. NEVER send to client.
+           */
+          encrypted_key: string
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          provider: ApiProvider
+          encrypted_key: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          provider?: ApiProvider
+          encrypted_key?: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_keys_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+
+      // -----------------------------------------------------------------------
+      // platform_connections
+      // -----------------------------------------------------------------------
+      platform_connections: {
+        Row: {
+          id: string
+          user_id: string
+          /** One of: 'github' | 'linkedin' | 'x' | 'medium' */
+          platform: Platform
+          /** AES-256-GCM ciphertext — format: iv:authTag:ciphertext (base64). */
+          access_token: string
+          /** AES-256-GCM ciphertext. null for GitHub PAT (no refresh token). */
+          refresh_token: string | null
+          /** null for GitHub PAT (does not expire). */
+          token_expires_at: string | null
+          /**
+           * Shape: { username: string, display_name: string,
+           *   avatar_url: string, profile_url: string, backfill_complete?: boolean }
+           */
+          profile_data: Json
+          is_active: boolean
+          connected_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          platform: Platform
+          access_token: string
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          profile_data?: Json
+          is_active?: boolean
+          connected_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          platform?: Platform
+          access_token?: string
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          profile_data?: Json
+          is_active?: boolean
+          connected_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_connections_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+
+      // -----------------------------------------------------------------------
+      // platform_instructions
+      // -----------------------------------------------------------------------
+      platform_instructions: {
+        Row: {
+          id: string
+          user_id: string
+          /** Content platforms only: 'linkedin' | 'x' | 'medium' */
+          platform: ContentPlatform
+          /** Free-form user instructions to the AI. null = not yet set. */
+          instruction_text: string | null
+          /** null = not yet set by user. */
+          tone: PlatformTone | null
+          /** User-defined format constraints. null = not yet set. */
+          format_rules: string | null
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          platform: ContentPlatform
+          instruction_text?: string | null
+          tone?: PlatformTone | null
+          format_rules?: string | null
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          platform?: ContentPlatform
+          instruction_text?: string | null
+          tone?: PlatformTone | null
+          format_rules?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_instructions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+
+      // -----------------------------------------------------------------------
+      // unified_activity
+      // -----------------------------------------------------------------------
+      unified_activity: {
+        Row: {
+          id: string
+          user_id: string
+          /** ISO date string e.g. '2026-04-11'. One row per (user, date, source). */
+          activity_date: string
+          source: ActivitySource
+          /** Discrete event count for this source on this date. Always >= 1. */
+          activity_count: number
+          /**
+           * 0 = no activity, 1 = low, 2 = medium, 3 = high, 4 = very high.
+           * Computed on write. GitHub thresholds: 0=0, 1=1-3, 2=4-7, 3=8-14, 4=15+.
+           */
+          intensity: number
+          /**
+           * Source-specific payload.
+           * github:  { commit_shas: string[] }
+           * session: { session_id: string, topic: string, duration_minutes: number }
+           */
+          metadata: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          activity_date: string
+          source: ActivitySource
+          activity_count?: number
+          intensity?: number
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          activity_date?: string
+          source?: ActivitySource
+          activity_count?: number
+          intensity?: number
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unified_activity_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+
+      // -----------------------------------------------------------------------
+      // topic_nodes
+      // -----------------------------------------------------------------------
+      topic_nodes: {
+        Row: {
+          id: string
+          user_id: string
+          /**
+           * Lowercase, whitespace-trimmed. Application layer normalises before
+           * insert — not enforced at DB level.
+           */
+          topic: string
+          /** Incremented atomically: UPDATE SET post_count = post_count + 1 */
+          post_count: number
+          note_count: number
+          session_count: number
+          /** null until first activity is recorded. Drives "stale topic" queries. */
+          last_activity_at: string | null
+          created_at: string
+          // No updated_at — counters are incremented atomically, staleness
+          // tracked by last_activity_at.
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          topic: string
+          post_count?: number
+          note_count?: number
+          session_count?: number
+          last_activity_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          topic?: string
+          post_count?: number
+          note_count?: number
+          session_count?: number
+          last_activity_at?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topic_nodes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -293,6 +570,20 @@ export type UserTheme = "dark" | "light"
 
 export type UserRole = "user" | "admin"
 
+/** AI providers supported for BYOK key storage */
+export type ApiProvider = "anthropic" | "openai" | "gemini" | "groq"
+
+/** All platforms Mintmark can connect to (includes GitHub for activity tracking) */
+export type Platform = "github" | "linkedin" | "x" | "medium"
+
+/** Content platforms only — platforms that generate posts. GitHub excluded. */
+export type ContentPlatform = "linkedin" | "x" | "medium"
+
+/** All sources that can appear in unified_activity */
+export type ActivitySource = "github" | "session" | "linkedin" | "x" | "medium" | "notes"
+
+export type PlatformTone = "professional" | "casual" | "educational" | "storytelling"
+
 // =============================================================================
 // Helper type aliases — mirror the Supabase CLI output pattern
 // =============================================================================
@@ -328,3 +619,18 @@ export type UserSettingsRow = Tables<"user_settings">
 
 /** Convenience: a row from the system_config table */
 export type SystemConfigRow = Tables<"system_config">
+
+/** Convenience: a row from the api_keys table (encrypted_key never sent to client) */
+export type ApiKeyRow = Tables<"api_keys">
+
+/** Convenience: a row from the platform_connections table */
+export type PlatformConnectionRow = Tables<"platform_connections">
+
+/** Convenience: a row from the platform_instructions table */
+export type PlatformInstructionRow = Tables<"platform_instructions">
+
+/** Convenience: a row from the unified_activity table */
+export type UnifiedActivityRow = Tables<"unified_activity">
+
+/** Convenience: a row from the topic_nodes table */
+export type TopicNodeRow = Tables<"topic_nodes">

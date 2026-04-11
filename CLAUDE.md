@@ -122,4 +122,4 @@ All early access infrastructure is shipped. What to begin next:
 - Per-platform AI instructions (tone, format, length per platform)
 - Onboarding data pump (critical first-run flow)
 
-See `mintmark-project-intelligence.md` for the full onboarding spec.
+See `mintmark-project-intelligence.md` for the full spec.
