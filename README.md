@@ -203,8 +203,12 @@ Phase 1 — Early Access. Waitlist open.
 - [x] Invite acceptance page (`/invite/[token]`) — single-use token, 48h expiry
 - [x] Login page with NextAuth.js v5 Credentials provider
 - [x] Admin dashboard (`/admin`) — waitlist management, individual + batch invites, inline config editor
-- [ ] Onboarding flow (platform connections, AI instructions)
-- [ ] Main app (Content Studio, Heatmap, AI Assistant, Notes)
+- [x] Onboarding: database schema extension (`api_keys`, `platform_connections`, `platform_instructions`, `unified_activity`, `topic_nodes`)
+- [x] Onboarding: routing + 4-step wizard shell (Zustand store, progress indicator, proxy protection for `/onboarding` and `/dashboard`)
+- [ ] Onboarding: platform OAuth connections (GitHub, LinkedIn, X, Medium) + GitHub commit backfill
+- [ ] Onboarding: active platforms, per-platform AI instructions, BYOK API key
+- [ ] Dashboard scaffold (heatmap widget, week calendar, streak, empty state)
+- [ ] Main app (Content Studio, AI Assistant, Notes)
 
 ---
 
@@ -316,11 +320,16 @@ The schema is a single cumulative file — run it top-to-bottom on a fresh proje
 
 | Table           | Purpose                                                     |
 | --------------- | ----------------------------------------------------------- |
-| `users`         | Authenticated user records (created on invite acceptance)   |
-| `user_settings` | Per-user preferences (theme, timezone, active platforms)    |
-| `waitlist`      | Early access signups with referral codes and queue position |
-| `invite_tokens` | Single-use invite tokens (48h expiry)                       |
-| `system_config` | Runtime-editable config (`invite_cap`, `referral_bonus`)    |
+| `users`                   | Authenticated user records (created on invite acceptance)          |
+| `user_settings`           | Per-user preferences (theme, timezone, active platforms, onboarding state) |
+| `waitlist`                | Early access signups with referral codes and queue position        |
+| `invite_tokens`           | Single-use invite tokens (48h expiry)                              |
+| `system_config`           | Runtime-editable config (`invite_cap`, `referral_bonus`)           |
+| `api_keys`                | BYOK AI keys per provider (AES-256-GCM encrypted at rest)          |
+| `platform_connections`    | OAuth tokens per connected platform (encrypted at rest)            |
+| `platform_instructions`   | Per-platform AI tone, format, and instruction preferences          |
+| `unified_activity`        | Single source of truth for heatmap + calendar (all sources)        |
+| `topic_nodes`             | Knowledge graph nodes built up by the intelligence layer           |
 
 ### Key database functions
 
@@ -342,10 +351,12 @@ mintmark/
 │   │   ├── admin/              # Admin dashboard (role-protected)
 │   │   ├── invite/[token]/     # Invite acceptance page
 │   │   ├── login/              # Login page (NextAuth)
+│   │   ├── onboarding/         # 4-step onboarding wizard (layout + page)
 │   │   ├── ref/[code]/         # Referral code tracking
 │   │   ├── api/
 │   │   │   ├── auth/           # NextAuth handlers + verify-token + accept-invite
 │   │   │   ├── admin/          # Admin API routes (stats, waitlist, invites, config)
+│   │   │   ├── user/           # User API routes (onboarding PATCH)
 │   │   │   └── waitlist/       # Public waitlist API (join, count, referral-stats, verify)
 │   │   ├── layout.tsx          # Root layout (QueryProvider, fonts, dark theme)
 │   │   └── page.tsx            # Landing page
@@ -354,28 +365,30 @@ mintmark/
 │   │   ├── admin/              # AdminDashboard component
 │   │   ├── auth/               # InviteSignupForm
 │   │   ├── landing/            # LandingPage, sections, GlassCard
+│   │   ├── onboarding/         # OnboardingWizard, OnboardingProgress, step components
 │   │   ├── waitlist/           # WaitlistForm
 │   │   └── ui/                 # shadcn/ui base components + LogoMark
 │   │
 │   ├── lib/
 │   │   ├── auth/               # requireAdmin server guard
 │   │   ├── email/              # send.ts + React Email templates
-│   │   ├── queries/            # TanStack Query hooks (waitlist, admin, tokens)
+│   │   ├── queries/            # TanStack Query hooks (waitlist, admin, tokens, onboarding)
 │   │   ├── supabase/           # admin.ts, server.ts, client.ts
 │   │   ├── axios.ts            # Shared Axios instance
 │   │   ├── config.ts           # REFERRAL_SLOTS_BONUS, getEarlyAccessLimit()
 │   │   ├── design.ts           # Design tokens for Framer Motion
 │   │   └── rate-limit.ts       # Upstash rate limiters
 │   │
-│   ├── middleware.ts           # Admin route protection (NextAuth JWT)
+│   ├── proxy.ts                # Next.js 16 proxy — admin + app route protection (NextAuth JWT)
 │   ├── auth.ts                 # NextAuth v5 config
 │   ├── providers/              # QueryProvider (TanStack Query)
-│   ├── stores/                 # Zustand stores (uiStore, adminStore)
+│   ├── stores/                 # Zustand stores (uiStore, adminStore, onboardingStore)
 │   ├── styles/                 # tokens.css, themes.css, bridge.css
 │   └── types/                  # database.ts, next-auth.d.ts
 │
 ├── supabase/
-│   └── schema.sql              # Single cumulative schema file
+│   ├── schema.sql              # Phase 1 cumulative schema
+│   └── phase8_schema.sql       # Phase 8 schema extension (5 new tables)
 │
 └── public/                     # Static assets (mintmark-logo.png)
 ```
@@ -406,7 +419,7 @@ Mintmark treats security as a first-class concern, not an afterthought.
 | Phase       | Status         | Focus                                                                            |
 | ----------- | -------------- | -------------------------------------------------------------------------------- |
 | **Phase 1** | ✅ Complete    | Early access system — waitlist, invites, admin dashboard                         |
-| **Phase 2** | 🟡 In Progress | Onboarding, platform connections (LinkedIn/X/Medium), Content Studio, AI         |
+| **Phase 2** | 🟡 In Progress | Onboarding (Steps 8.1–8.2 done), platform OAuth, Content Studio, AI              |
 | **Phase 3** | 🔲 Planned     | Notes editor, Notion sync, AI assistant, Unified Heatmap, Chrome extension       |
 | **Phase 4** | 🔲 Planned     | GitHub, YouTube, LeetCode tracking, VS Code extension, public portfolio          |
 | **Phase 5** | 🔲 Planned     | Weekly digest, trending topics, LinkedIn analytics, content calendar             |

@@ -57,6 +57,7 @@ refetchOnReconnect: false
 | `src/lib/queries/`                | All TanStack Query hooks                            |
 | `src/stores/uiStore.ts`           | `waitlistJoined`, command palette, sidebar state    |
 | `src/stores/adminStore.ts`        | Admin table filters + pagination                    |
+| `src/stores/onboardingStore.ts`   | Onboarding wizard step, connected platforms state   |
 | `src/types/database.ts`           | Supabase TypeScript types                           |
 | `src/providers/QueryProvider.tsx` | React Query global config                           |
 | `src/proxy.ts`                    | Next.js 16 Proxy (formerly middleware) — admin + app route protection (NextAuth JWT + Supabase SSR cookie refresh) |
@@ -107,18 +108,19 @@ refetchOnReconnect: false
 |------|---------|--------|
 | Step 1–5 | Waitlist landing, referral tracking, API routes, TanStack Query | ✅ |
 | Step 6 | Invite acceptance page `/invite/[token]`, login page, NextAuth v5 | ✅ |
-| Step 7 | Admin dashboard `/admin`, 5 API routes, middleware protection | ✅ |
+| Step 7 | Admin dashboard `/admin`, 5 API routes, proxy protection | ✅ |
 
----
+### Phase 2 — Main App 🟡 In Progress
 
-## Phase 1 Early Access — Complete
+| Step | Feature | Status |
+|------|---------|--------|
+| Step 8 (Phase 8.1) | DB schema extension — 5 new tables (`supabase/phase8_schema.sql`) | ✅ |
+| Step 8 (Phase 8.2) | Routing + onboarding wizard shell — layout, wizard, store, PATCH route | ✅ |
+| Step 8 (Phase 8.3) | Platform OAuth connections (GitHub, LinkedIn, X, Medium) | ⬜ |
+| Step 8 (Phase 8.4) | GitHub commit backfill via Trigger.dev | ⬜ |
+| Step 8 (Phase 8.5) | Active platforms + per-platform AI instructions | ⬜ |
+| Step 8 (Phase 8.6) | First manual session log | ⬜ |
+| Step 8 (Phase 8.7) | BYOK API key (optional step) | ⬜ |
+| Step 8 (Phase 8.8) | Dashboard scaffold (heatmap, calendar, streak) | ⬜ |
 
-All early access infrastructure is shipped. What to begin next:
-
-**Step 8 — Onboarding**
-- Platform connections: LinkedIn, X, Medium (OAuth)
-- Active platform selection (user picks which platforms they post on)
-- Per-platform AI instructions (tone, format, length per platform)
-- Onboarding data pump (critical first-run flow)
-
-See `mintmark-project-intelligence.md` for the full spec.
+See `mintmark-step8-onboarding.md` for the full Step 8 spec and `mintmark-project-intelligence.md` for the broader roadmap.
