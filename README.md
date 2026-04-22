@@ -290,20 +290,26 @@ EMAIL_FROM=notifications@yourdomain.com
 UPSTASH_REDIS_REST_URL=your_upstash_redis_url
 UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_token
 
-# App URL (used in email links)
+# App URL (used in email links and OAuth redirect URIs)
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-# Platform OAuth (add the ones you want to enable — Phase 2+)
-LINKEDIN_CLIENT_ID=
-LINKEDIN_CLIENT_SECRET=
-TWITTER_CLIENT_ID=
-TWITTER_CLIENT_SECRET=
-MEDIUM_CLIENT_ID=
-MEDIUM_CLIENT_SECRET=
+# Trigger.dev (background jobs)
+TRIGGER_PROJECT_ID=proj_your_project_id
+TRIGGER_SECRET_KEY=tr_dev_your_secret_key
+
+# Platform OAuth — observation sources
 GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET=
-NOTION_CLIENT_ID=
-NOTION_CLIENT_SECRET=
+GMAIL_CLIENT_ID=
+GMAIL_CLIENT_SECRET=
+
+# Platform OAuth — publishing platforms
+LINKEDIN_CLIENT_ID=
+LINKEDIN_CLIENT_SECRET=
+X_CLIENT_ID=
+X_CLIENT_SECRET=
+MEDIUM_CLIENT_ID=
+MEDIUM_CLIENT_SECRET=
 ```
 
 > **Security note:** `SUPABASE_SECRET_KEY`, `NEXTAUTH_SECRET`, and `ENCRYPTION_KEY` are server-only. They must never reach the client bundle — never prefix them with `NEXT_PUBLIC_`.
@@ -356,6 +362,7 @@ mintmark/
 │   │   ├── api/
 │   │   │   ├── auth/           # NextAuth handlers + verify-token + accept-invite
 │   │   │   ├── admin/          # Admin API routes (stats, waitlist, invites, config)
+│   │   │   ├── connections/    # Platform OAuth (GET list, DELETE, authorize, callback)
 │   │   │   ├── user/           # User API routes (onboarding PATCH)
 │   │   │   └── waitlist/       # Public waitlist API (join, count, referral-stats, verify)
 │   │   ├── layout.tsx          # Root layout (QueryProvider, fonts, dark theme)
@@ -370,9 +377,10 @@ mintmark/
 │   │   └── ui/                 # shadcn/ui base components + LogoMark
 │   │
 │   ├── lib/
-│   │   ├── auth/               # requireAdmin server guard
+│   │   ├── auth/               # requireAdmin + requireSession server guards
 │   │   ├── email/              # send.ts + React Email templates
-│   │   ├── queries/            # TanStack Query hooks (waitlist, admin, tokens, onboarding)
+│   │   ├── oauth/              # providers.ts — OAuth config + profile normalisation
+│   │   ├── queries/            # TanStack Query hooks (waitlist, admin, tokens, onboarding, connections)
 │   │   ├── supabase/           # admin.ts, server.ts, client.ts
 │   │   ├── axios.ts            # Shared Axios instance
 │   │   ├── config.ts           # REFERRAL_SLOTS_BONUS, getEarlyAccessLimit()
@@ -402,9 +410,9 @@ Mintmark treats security as a first-class concern, not an afterthought.
 - **Encrypted token storage** — all OAuth tokens encrypted with AES-256 before hitting Supabase. The encryption key never leaves the server.
 - **httpOnly cookies only** — no tokens in `localStorage` or client-accessible storage, ever.
 - **Row Level Security** — enabled on every single Supabase table. Application layer also filters by `user_id` — RLS is the safety net, not the only guard.
-- **PKCE flow** — used for all OAuth connections (LinkedIn, X, Medium, GitHub, Notion).
+- **PKCE flow** — used for OAuth connections that require it (LinkedIn, X); state cookie CSRF protection on all platforms.
 - **Refresh token rotation** — rotated on every use.
-- **Rate limiting** — dedicated Upstash limiters on every sensitive endpoint (waitlist join: 10/hr, invite verify: 20/hr, invite accept: 5/hr, admin stats: inherited from API limiter).
+- **Rate limiting** — dedicated Upstash limiters on every sensitive endpoint (waitlist join: 10/hr, invite verify: 20/hr, invite accept: 5/hr, OAuth connect/disconnect: 20/hr, admin stats: inherited from API limiter).
 - **CSRF protection** — on all mutation endpoints.
 - **Input sanitization** — before any DB write or AI prompt.
 - **Webhook signature verification** — for all incoming platform webhooks.

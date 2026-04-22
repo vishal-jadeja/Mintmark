@@ -116,8 +116,8 @@ refetchOnReconnect: false
 |------|---------|--------|
 | Step 8 (Phase 8.1) | DB schema extension — 5 new tables (`supabase/phase8_schema.sql`) | ✅ |
 | Step 8 (Phase 8.2) | Routing + onboarding wizard shell — layout, wizard, store, PATCH route | ✅ |
-| Step 8 (Phase 8.3) | Platform OAuth connections (GitHub, LinkedIn, X, Medium) | ⬜ |
-| Step 8 (Phase 8.4) | GitHub commit backfill via Trigger.dev | ⬜ |
+| Step 8 (Phase 8.3) | Platform OAuth connections (GitHub, Gmail, LinkedIn, X, Medium) | ✅ |
+| Step 8 (Phase 8.4) | GitHub commit backfill via Trigger.dev | ✅ |
 | Step 8 (Phase 8.5) | Active platforms + per-platform AI instructions | ⬜ |
 | Step 8 (Phase 8.6) | First manual session log | ⬜ |
 | Step 8 (Phase 8.7) | BYOK API key (optional step) | ⬜ |

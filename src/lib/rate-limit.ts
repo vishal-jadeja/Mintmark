@@ -38,6 +38,14 @@ export const verifyTokenLimiter = new Ratelimit({
   prefix: "mintmark:verify-token",
 })
 
+/** 20 OAuth connect/disconnect operations per user per hour */
+export const connectionsLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(20, "1 h"),
+  analytics: true,
+  prefix: "mintmark:connections",
+})
+
 /** 5 invite acceptance attempts per IP per hour */
 export const acceptInviteLimiter = new Ratelimit({
   redis,

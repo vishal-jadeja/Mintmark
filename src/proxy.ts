@@ -43,7 +43,8 @@ export async function proxy(request: NextRequest) {
   else if (
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/onboarding") ||
-    pathname.startsWith("/api/user")
+    pathname.startsWith("/api/user") ||
+    pathname.startsWith("/api/connections")
   ) {
     const token = await getToken({
       req: request,

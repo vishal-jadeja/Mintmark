@@ -4,6 +4,7 @@ import type { Platform } from "@/types/database"
 interface OnboardingStore {
   currentStep: number
   githubConnected: boolean
+  gmailConnected: boolean
   linkedinConnected: boolean
   xConnected: boolean
   mediumConnected: boolean
@@ -19,6 +20,7 @@ interface OnboardingStore {
 export const useOnboardingStore = create<OnboardingStore>()((set) => ({
   currentStep: 1,
   githubConnected: false,
+  gmailConnected: false,
   linkedinConnected: false,
   xConnected: false,
   mediumConnected: false,
@@ -31,6 +33,7 @@ export const useOnboardingStore = create<OnboardingStore>()((set) => ({
     set(() => {
       const map: Record<Platform, keyof OnboardingStore> = {
         github: "githubConnected",
+        gmail: "gmailConnected",
         linkedin: "linkedinConnected",
         x: "xConnected",
         medium: "mediumConnected",
@@ -46,6 +49,7 @@ export const useOnboardingStore = create<OnboardingStore>()((set) => ({
     set({
       currentStep: 1,
       githubConnected: false,
+      gmailConnected: false,
       linkedinConnected: false,
       xConnected: false,
       mediumConnected: false,

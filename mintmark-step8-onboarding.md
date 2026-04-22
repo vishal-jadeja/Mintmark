@@ -15,12 +15,12 @@ prerequisite for the next.
 ```
 Phase 8.1  →  Database schema extension                  ✅ DONE
 Phase 8.2  →  Routing, middleware, and onboarding shell  ✅ DONE
-Phase 8.3  →  OAuth platform connections                 ⬜ TODO
-Phase 8.4  →  GitHub backfill (Trigger.dev)              ⬜ TODO
-Phase 8.5  →  Active platforms + AI instructions         ⬜ TODO
+Phase 8.3  →  OAuth platform connections                 ✅ DONE
+Phase 8.4  →  GitHub backfill (Trigger.dev)              ✅ DONE
+Phase 8.5  →  Active platforms + AI instructions         ⬜ TODO  ← NEXT
 Phase 8.6  →  First manual session log                   ⬜ TODO
 Phase 8.7  →  BYOK API key (optional step)               ⬜ TODO
-Phase 8.8  →  Dashboard scaffold + heatmap + empty state ⬜ TODO
+Phase 8.8  →  Dashboard scaffold + heatmap + empty state 🟡 PARTIAL
 ```
 
 ---
@@ -105,8 +105,13 @@ Completed:
 - `OnboardingProgress.tsx` — 4-step progress indicator, Framer Motion transitions
 - `onboardingStore.ts` — Zustand store tracking step, connections, platforms, byokSkipped
 - `PATCH /api/user/onboarding` — updates step and completed flag
-- `/dashboard/page.tsx` + `/dashboard/layout.tsx` — protected stub pages
+- `src/app/(app)/layout.tsx` — app shell with sidebar + bottom nav (ahead of 8.8 spec)
+- `src/components/layout/AppSidebar.tsx` + `AppBottomNav.tsx` — built and wired
+- `src/app/(app)/dashboard/page.tsx` — protected stub (redirects to /onboarding if incomplete)
 - Onboarding step shell components (4 empty shells in `src/components/onboarding/steps/`)
+
+Note: The `(app)` layout, sidebar, and bottom nav are already built. Phase 8.8 only needs
+to replace the dashboard page stub with real content — the shell is done.
 
 ---
 
@@ -576,7 +581,7 @@ useDeleteApiKey(); // DELETE mutation
 
 ---
 
-## Phase 8.8 — Dashboard Scaffold + Heatmap + Empty State
+## Phase 8.8 — Dashboard Scaffold + Heatmap + Empty State 🟡 PARTIAL
 
 **Goal:** Build the `/dashboard` page users land on after onboarding completes.
 It answers one question clearly: _what have I been investing my mind in, and
@@ -605,12 +610,12 @@ Layout (desktop):
 
 Layout (mobile): single column, same components stacked.
 
-**Dashboard layout** (`src/app/dashboard/layout.tsx`)
+**Dashboard layout** (`src/app/(app)/layout.tsx`) ✅ Already built
 
-- Sidebar (desktop ≥768px): Dashboard, Notes, Studio, Assistant, Settings
-  Each item: icon + label. Active state: gold accent left border.
-- Bottom nav (mobile <768px): same 5 items, icon only, 44px tap targets.
-- Cmd+K trigger visible in sidebar header (desktop).
+- `src/components/layout/AppSidebar.tsx` — sidebar with nav items, gold accent active state ✅
+- `src/components/layout/AppBottomNav.tsx` — mobile bottom nav, 44px tap targets ✅
+- `src/components/layout/nav-items.ts` — nav item definitions ✅
+- Cmd+K trigger visible in sidebar header (desktop) — to confirm when wiring cmd+k.
 
 **Heatmap widget** (`src/components/dashboard/HeatmapWidget.tsx`)
 

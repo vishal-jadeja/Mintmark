@@ -573,8 +573,8 @@ export type UserRole = "user" | "admin"
 /** AI providers supported for BYOK key storage */
 export type ApiProvider = "anthropic" | "openai" | "gemini" | "groq"
 
-/** All platforms Mintmark can connect to (includes GitHub for activity tracking) */
-export type Platform = "github" | "linkedin" | "x" | "medium"
+/** All platforms Mintmark can connect to (includes GitHub + Gmail for activity tracking) */
+export type Platform = "github" | "gmail" | "linkedin" | "x" | "medium"
 
 /** Content platforms only — platforms that generate posts. GitHub excluded. */
 export type ContentPlatform = "linkedin" | "x" | "medium"

@@ -15,8 +15,15 @@ Step 5  → Referral system                                     ✅ DONE
 Step 6  → Invite token system + login + NextAuth v5           ✅ DONE
 Step 7  → Admin dashboard + NextAuth role protection          ✅ DONE
 ──────────────────────────────────────────────────────────────────────
-Step 8  → Onboarding (platform connections, active platforms, ⬅ YOU ARE HERE
-           per-platform AI instructions, onboarding data pump)
+Step 8  → Onboarding                                         🟡 IN PROGRESS ⬅ YOU ARE HERE
+           8.1 DB schema extension                            ✅ DONE
+           8.2 Routing + wizard shell + app layout            ✅ DONE
+           8.3 OAuth platform connections                     ⬜ TODO ← NEXT
+           8.4 GitHub commit backfill (Trigger.dev)           ⬜ TODO
+           8.5 Active platforms + AI instructions             ⬜ TODO
+           8.6 First manual session log                       ⬜ TODO
+           8.7 BYOK API key (optional step)                   ⬜ TODO
+           8.8 Dashboard scaffold + heatmap                   🟡 PARTIAL (layout done)
 Step 9  → Trigger.dev background jobs                         ⬜ TODO
 Step 10 → Deploy                                              ⬜ TODO
 ```
@@ -70,17 +77,30 @@ for DB-backed invite cap (default 100, editable from admin dashboard without red
 
 ### Remaining — what still needs to be built
 
-**Step 8 — Onboarding** (critical for tracking-first model — see CLAUDE.md spec)
-Platform connections: LinkedIn, X, Medium (OAuth).
-Active platform selection stored in `user_settings.active_platforms`.
-Per-platform AI instructions (tone, format, length per platform).
-Onboarding data pump — seeds unified_activity before user leaves onboarding.
+**Step 8 — Onboarding** (Phases 8.1–8.2 done; 8.8 partial — see `mintmark-step8-onboarding.md`)
+
+Phases 8.1 + 8.2 complete as of 2026-04-21. The (app) route group layout,
+`AppSidebar`, `AppBottomNav`, and dashboard stub were also built as part of 8.2.
+
+Remaining:
+- **8.3** — OAuth platform connections: GitHub, Gmail, LinkedIn, X, Medium.
+  `/api/connections` GET + DELETE. `/api/connections/[platform]/callback` per platform.
+  Encrypted token storage. `PlatformConnectionsStep.tsx` implementation.
+- **8.4** — GitHub commit backfill: Trigger.dev `github-backfill` task.
+  90 days → `unified_activity`. Backfill status polling endpoint.
+- **8.5** — Active platforms + per-platform AI instructions:
+  `/api/user/settings` GET + PATCH. `/api/user/platform-instructions` GET + POST.
+- **8.6** — First manual session log:
+  `/api/activity/session` POST → seeds `unified_activity` + `topic_nodes`.
+- **8.7** — BYOK API key: `/api/user/api-key` POST + DELETE, `/api/user/api-keys` GET.
+- **8.8** — Dashboard page components: D3.js heatmap, week calendar, topic distribution,
+  streak counter, empty state. `/api/dashboard/activity` GET. Layout shell already done.
 
 **Step 9** — Trigger.dev v3: `send-batch-invites` task, `cleanup-expired-tokens`
 daily schedule, `weekly-digest` stub.
 
-**Step 10** — Vercel deploy, Resend domain verification, Upstash Redis,
-Trigger.dev deploy.
+**Step 10** — Vercel deploy, Brevo domain verification, Upstash Redis, Trigger.dev deploy.
+Note: email provider is Brevo (not Resend — switched during build). Env var is `BREVO_API_KEY`.
 
 ---
 

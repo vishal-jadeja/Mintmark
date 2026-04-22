@@ -177,17 +177,20 @@ ACT (user-initiated, entirely optional)
 ✅ Invite acceptance page /invite/[token], login page, NextAuth v5 — Step 6
 ✅ Admin dashboard /admin, 5 API routes, NextAuth JWT proxy protection — Step 7
 
-**STEP 8 — ONBOARDING** 🟡 In Progress (Phases 8.1–8.2 of 8 complete)
+**STEP 8 — ONBOARDING** 🟡 In Progress (Phases 8.1–8.2 of 8 complete; 8.8 partial)
 ✅ Phase 8.1 — DB schema: api_keys, platform_connections, platform_instructions,
   unified_activity, topic_nodes (supabase/phase8_schema.sql)
 ✅ Phase 8.2 — Routing + wizard shell: /onboarding layout + page, 4-step wizard,
   progress indicator, onboardingStore, PATCH /api/user/onboarding, proxy protection
-⬜ Phase 8.3 — Platform OAuth connections (GitHub, LinkedIn, X, Medium)
+  Also built ahead of 8.8: (app) route group layout, AppSidebar, AppBottomNav,
+  nav-items.ts, dashboard stub page with onboarding guard
+⬜ Phase 8.3 — Platform OAuth connections (GitHub, Gmail, LinkedIn, X, Medium) ← NEXT
 ⬜ Phase 8.4 — GitHub commit backfill (Trigger.dev, 90 days → unified_activity)
 ⬜ Phase 8.5 — Active platforms + per-platform AI instructions
 ⬜ Phase 8.6 — First manual session log → unified_activity + topic_nodes
 ⬜ Phase 8.7 — BYOK API key (optional onboarding step)
-⬜ Phase 8.8 — Dashboard scaffold (heatmap, week calendar, streak, empty state)
+🟡 Phase 8.8 — Dashboard scaffold (heatmap, week calendar, streak, empty state)
+  Layout shell done. Dashboard page components + API route still needed.
 
 **MAIN APP** (post-Step-8)
 GitHub integration: OAuth connect + 90-day commit backfill → unified_activity
@@ -260,9 +263,9 @@ Full open source prep + case study writeup
 ## Current Development State
 
 > Update this section whenever a phase step completes or a major feature ships.
-> Last updated: 2026-04-16 — Step 8 in progress: Phases 8.1 + 8.2 complete.
-> Project intelligence updated to v2 — repositioned as AI layer on
-> intellectual life. Posting is a secondary output, not the primary mission.
+> Last updated: 2026-04-21 — Step 8 in progress: Phases 8.1 + 8.2 complete.
+> App shell (sidebar, bottom nav, (app) route group layout) built ahead of 8.8 spec.
+> Phase 8.3 is the active next step.
 
 ### What has been built
 
@@ -300,6 +303,11 @@ Full open source prep + case study writeup
 | Onboarding PATCH API route | src/app/api/user/onboarding/route.ts | ✅ Done |
 | Onboarding TanStack Query hooks | src/lib/queries/onboarding.ts | ✅ Done |
 | App route protection (/dashboard, /onboarding, /api/user) | src/proxy.ts | ✅ Done |
+| App shell layout (sidebar + bottom nav) | src/app/(app)/layout.tsx | ✅ Done |
+| Sidebar component | src/components/layout/AppSidebar.tsx | ✅ Done |
+| Bottom nav component | src/components/layout/AppBottomNav.tsx | ✅ Done |
+| Nav item definitions | src/components/layout/nav-items.ts | ✅ Done |
+| Dashboard page stub (with onboarding guard) | src/app/(app)/dashboard/page.tsx | ✅ Done (stub) |
 
 ### What's next
 
@@ -322,10 +330,11 @@ Remaining phases in order:
   - `/api/activity/session` POST → seeds `unified_activity` + `topic_nodes`
 - **Phase 8.7** — BYOK API key (optional onboarding step)
   - `/api/user/api-key` POST + DELETE, `/api/user/api-keys` GET
-- **Phase 8.8** — Dashboard scaffold
+- **Phase 8.8** — Dashboard scaffold (layout shell already done)
   - D3.js heatmap widget, week-at-a-glance (7 day cells), topic time
     distribution (ranked list), streak counter, empty state
   - `/api/dashboard/activity` GET route
+  - Replace `src/app/(app)/dashboard/page.tsx` stub with real server component
 
 **Step 9 — Trigger.dev background jobs**
 `send-batch-invites`, `cleanup-expired-tokens` (daily cron), stubs for
