@@ -2,6 +2,8 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { LogOut } from "lucide-react"
+import { signOut } from "next-auth/react"
 import { NAV_ITEMS } from "./nav-items"
 
 export function AppBottomNav() {
@@ -34,6 +36,16 @@ export function AppBottomNav() {
           </Link>
         )
       })}
+
+      <button
+        onClick={() => signOut({ callbackUrl: "/login" })}
+        className="flex flex-col items-center justify-center flex-1 gap-0.5 transition-colors"
+        style={{ color: "var(--muted-foreground)" }}
+        aria-label="Sign out"
+      >
+        <LogOut size={20} />
+        <span className="text-[10px] mt-0.5">Sign out</span>
+      </button>
     </nav>
   )
 }

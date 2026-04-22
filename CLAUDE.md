@@ -1,5 +1,61 @@
 @AGENTS.md
 
+## 1. Think Before Coding
+
+**Don't assume. Don't hide confusion. Surface tradeoffs.**
+
+Before implementing:
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them - don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
+
+## 2. Simplicity First
+
+**Minimum code that solves the problem. Nothing speculative.**
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+
+Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+
+## 3. Surgical Changes
+
+**Touch only what you must. Clean up only your own mess.**
+
+When editing existing code:
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it - don't delete it.
+
+When your changes create orphans:
+- Remove imports/variables/functions that YOUR changes made unused.
+- Don't remove pre-existing dead code unless asked.
+
+The test: Every changed line should trace directly to the user's request.
+
+## 4. Goal-Driven Execution
+
+**Define success criteria. Loop until verified.**
+
+Transform tasks into verifiable goals:
+- "Add validation" → "Write tests for invalid inputs, then make them pass"
+- "Fix the bug" → "Write a test that reproduces it, then make it pass"
+- "Refactor X" → "Ensure tests pass before and after"
+
+For multi-step tasks, state a brief plan:
+```
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+3. [Step] → verify: [check]
+```
+
+Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+
 # Mintmark — Project Instructions
 
 ## Project
@@ -74,6 +130,23 @@ refetchOnReconnect: false
 - Use `src/lib/supabase/client.ts` for client-side reads only.
 - Early access cap: `getEarlyAccessLimit()` checks `system_config` table → `EARLY_ACCESS_LIMIT` env var → default 100.
 - Referral bonus: `get_waitlist_position(p_email)` Postgres function subtracts `REFERRAL_SLOTS_BONUS (5)` per referral, minimum position 1.
+
+---
+
+## Supabase Implementation Rules
+
+**Before implementing any new Supabase feature, read the relevant source in `node_modules/@supabase/` first.** API signatures, method names, and SSR patterns have breaking changes that differ from training data — always verify against the installed version.
+
+Key naming convention (this project uses the new Supabase naming):
+
+| Env var | Role | Used in |
+|---------|------|---------|
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Anon key — respects RLS, safe for browser | `client.ts`, `server.ts`, `proxy.ts` |
+| `SUPABASE_SECRET_KEY` | Service role key — bypasses RLS, **server-side only** | `admin.ts` |
+
+- The admin client passes `SUPABASE_SECRET_KEY` as the `supabaseKey` arg to `createClient()`. The SDK automatically sets both the `apikey` and `Authorization: Bearer` headers from this arg — do not override them in `global.headers`.
+- In the proxy, always call `supabase.auth.getUser()` after `createServerClient()` to refresh session cookies. Never use `getSession()` in the proxy (it reads from cookies and is unverified).
+- Admin users have no `user_settings` row — never query `user_settings` without accounting for a `null` result from admins. The proxy redirects admins away from `/dashboard` and `/onboarding` to `/admin` before any page code runs.
 
 ---
 

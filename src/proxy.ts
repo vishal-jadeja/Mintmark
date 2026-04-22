@@ -58,6 +58,13 @@ export async function proxy(request: NextRequest) {
         new URL(`/login?callbackUrl=${callbackUrl}`, request.url)
       )
     }
+    // Admins have no user_settings row — send them to their own panel
+    if (
+      (pathname.startsWith("/dashboard") || pathname.startsWith("/onboarding")) &&
+      token.role === "admin"
+    ) {
+      return NextResponse.redirect(new URL("/admin", request.url))
+    }
   }
 
   // ── Supabase SSR cookie refresh ───────────────────────────────────────────

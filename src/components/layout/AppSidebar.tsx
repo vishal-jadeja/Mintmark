@@ -2,7 +2,8 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, LogOut } from "lucide-react"
+import { signOut } from "next-auth/react"
 import { LogoMark } from "@/components/ui/logo-mark"
 import { useUIStore } from "@/stores/uiStore"
 import { NAV_ITEMS } from "./nav-items"
@@ -114,6 +115,24 @@ export function AppSidebar({ userName, userAvatar }: AppSidebarProps) {
             </span>
           )}
         </div>
+
+        {/* Logout */}
+        <button
+          onClick={() => signOut({ callbackUrl: "/login" })}
+          className="flex items-center w-full h-8 rounded-md transition-colors hover:bg-white/5"
+          style={{
+            paddingLeft: sidebarCollapsed ? "0px" : "10px",
+            justifyContent: sidebarCollapsed ? "center" : "flex-start",
+            gap: sidebarCollapsed ? "0" : "10px",
+            color: "var(--muted-foreground)",
+          }}
+          aria-label="Sign out"
+        >
+          <LogOut size={15} style={{ flexShrink: 0 }} />
+          {!sidebarCollapsed && (
+            <span className="font-body text-sm">Sign out</span>
+          )}
+        </button>
 
         {/* Collapse toggle */}
         <button

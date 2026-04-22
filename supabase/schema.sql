@@ -463,7 +463,7 @@ BEGIN
       w.email,
       w.referral_code,
       w.referred_by,
-      w.position,
+      get_waitlist_position(w.email) AS position,
       w.status,
       w.created_at,
       COUNT(w2.id)::integer AS referral_count
@@ -472,8 +472,8 @@ BEGIN
     WHERE
       (p_status IS NULL OR w.status = p_status)
       AND (p_search IS NULL OR w.email ILIKE '%' || p_search || '%')
-    GROUP BY w.id, w.email, w.referral_code, w.referred_by, w.position, w.status, w.created_at
-    ORDER BY COALESCE(w.position, 999999) ASC, w.created_at ASC
+    GROUP BY w.id, w.email, w.referral_code, w.referred_by, w.status, w.created_at
+    ORDER BY get_waitlist_position(w.email) ASC, w.created_at ASC
     LIMIT p_limit
     OFFSET v_offset
   ) t;

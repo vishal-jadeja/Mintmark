@@ -7,7 +7,6 @@ import {
   Users,
   BarChart2,
   Send,
-  Settings,
   Search,
   Zap,
   Upload,
@@ -19,7 +18,9 @@ import {
   Sparkles,
   ChevronLeft,
   ChevronRight,
+  LogOut,
 } from "lucide-react"
+import { signOut } from "next-auth/react"
 import {
   useAdminStats,
   useAdminWaitlist,
@@ -473,7 +474,13 @@ function AdminSidebar({ onSendInvite }: { onSendInvite: () => void }) {
               admin@mintmark.com
             </p>
           </div>
-          <Settings className="size-4 text-neutral-600 cursor-pointer flex-shrink-0" />
+          <button
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="flex-shrink-0 transition-colors text-neutral-600 hover:text-neutral-300"
+            aria-label="Sign out"
+          >
+            <LogOut className="size-4" />
+          </button>
         </div>
       </div>
     </aside>
