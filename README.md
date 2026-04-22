@@ -205,8 +205,9 @@ Phase 1 — Early Access. Waitlist open.
 - [x] Admin dashboard (`/admin`) — waitlist management, individual + batch invites, inline config editor
 - [x] Onboarding: database schema extension (`api_keys`, `platform_connections`, `platform_instructions`, `unified_activity`, `topic_nodes`)
 - [x] Onboarding: routing + 4-step wizard shell (Zustand store, progress indicator, proxy protection for `/onboarding` and `/dashboard`)
-- [ ] Onboarding: platform OAuth connections (GitHub, LinkedIn, X, Medium) + GitHub commit backfill
-- [ ] Onboarding: active platforms, per-platform AI instructions, BYOK API key
+- [x] Onboarding: platform OAuth connections (GitHub, Gmail) + GitHub commit backfill
+- [x] Onboarding: active platforms + per-platform AI instructions (Content Studio output layer)
+- [ ] Onboarding: BYOK API key (step 4)
 - [ ] Dashboard scaffold (heatmap widget, week calendar, streak, empty state)
 - [ ] Main app (Content Studio, AI Assistant, Notes)
 
@@ -251,8 +252,8 @@ cd mintmark
 # Install dependencies
 npm install
 
-# Copy the environment variable template
-cp .env.example .env.local
+# Create your environment file (see Environment Variables below)
+cp .env .env.local
 ```
 
 Fill in your environment variables (see [Environment Variables](#environment-variables) below), then run the SQL in `supabase/schema.sql` against your Supabase project, and start the dev server:
@@ -322,6 +323,8 @@ Mintmark uses Supabase with Row Level Security enabled on every table. Apply the
 
 The schema is a single cumulative file — run it top-to-bottom on a fresh project. Re-running it is safe; all statements use `CREATE IF NOT EXISTS` / `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`.
 
+**Phase 8 tables:** After running `schema.sql`, also run `supabase/phase8_schema.sql` to add `api_keys`, `platform_connections`, `platform_instructions`, `unified_activity`, and `topic_nodes` tables, along with required `user_settings` column additions (`onboarding_step`, `onboarding_completed`, `updated_at`).
+
 ### Key tables
 
 | Table           | Purpose                                                     |
@@ -363,7 +366,7 @@ mintmark/
 │   │   │   ├── auth/           # NextAuth handlers + verify-token + accept-invite
 │   │   │   ├── admin/          # Admin API routes (stats, waitlist, invites, config)
 │   │   │   ├── connections/    # Platform OAuth (GET list, DELETE, authorize, callback)
-│   │   │   ├── user/           # User API routes (onboarding PATCH)
+│   │   │   ├── user/           # User API routes (onboarding, settings, platform-instructions)
 │   │   │   └── waitlist/       # Public waitlist API (join, count, referral-stats, verify)
 │   │   ├── layout.tsx          # Root layout (QueryProvider, fonts, dark theme)
 │   │   └── page.tsx            # Landing page
@@ -427,7 +430,7 @@ Mintmark treats security as a first-class concern, not an afterthought.
 | Phase       | Status         | Focus                                                                            |
 | ----------- | -------------- | -------------------------------------------------------------------------------- |
 | **Phase 1** | ✅ Complete    | Early access system — waitlist, invites, admin dashboard                         |
-| **Phase 2** | 🟡 In Progress | Onboarding (Steps 8.1–8.2 done), platform OAuth, Content Studio, AI              |
+| **Phase 2** | 🟡 In Progress | Onboarding (Steps 8.1–8.5 done), BYOK key, Dashboard scaffold, Content Studio, AI |
 | **Phase 3** | 🔲 Planned     | Notes editor, Notion sync, AI assistant, Unified Heatmap, Chrome extension       |
 | **Phase 4** | 🔲 Planned     | GitHub, YouTube, LeetCode tracking, VS Code extension, public portfolio          |
 | **Phase 5** | 🔲 Planned     | Weekly digest, trending topics, LinkedIn analytics, content calendar             |

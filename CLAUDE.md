@@ -191,7 +191,7 @@ Key naming convention (this project uses the new Supabase naming):
 | Step 8 (Phase 8.2) | Routing + onboarding wizard shell — layout, wizard, store, PATCH route | ✅ |
 | Step 8 (Phase 8.3) | Platform OAuth connections (GitHub, Gmail, LinkedIn, X, Medium) | ✅ |
 | Step 8 (Phase 8.4) | GitHub commit backfill via Trigger.dev | ✅ |
-| Step 8 (Phase 8.5) | Active platforms + per-platform AI instructions | ⬜ |
+| Step 8 (Phase 8.5) | Active platforms + per-platform AI instructions | ✅ |
 | Step 8 (Phase 8.6) | First manual session log | ⬜ |
 | Step 8 (Phase 8.7) | BYOK API key (optional step) | ⬜ |
 | Step 8 (Phase 8.8) | Dashboard scaffold (heatmap, calendar, streak) | ⬜ |

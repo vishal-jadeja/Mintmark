@@ -216,6 +216,7 @@ interface PlatformCardProps {
   onDisconnect: () => void
   disconnecting: boolean
   chip?: React.ReactNode
+  comingSoon?: boolean
 }
 
 function PlatformCard({
@@ -225,6 +226,7 @@ function PlatformCard({
   onDisconnect,
   disconnecting,
   chip,
+  comingSoon,
 }: PlatformCardProps) {
   return (
     <div
@@ -275,6 +277,17 @@ function PlatformCard({
                 {disconnecting ? "Disconnecting…" : "Disconnect"}
               </button>
             </div>
+          ) : comingSoon ? (
+            <span
+              className="inline-flex items-center rounded-md px-3 py-1.5 font-heading text-xs font-bold"
+              style={{
+                background: "rgba(255,255,255,0.05)",
+                color: "var(--muted-foreground)",
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
+            >
+              Coming soon
+            </span>
           ) : (
             <a
               href={meta.authorizeUrl}
@@ -436,6 +449,7 @@ export function PlatformConnectionsStep() {
                     profile={profileFor(platform)}
                     onDisconnect={() => disconnect(platform)}
                     disconnecting={disconnecting && disconnectingPlatform === platform}
+                    comingSoon={platform === "linkedin" || platform === "medium"}
                   />
                 ))}
               </div>

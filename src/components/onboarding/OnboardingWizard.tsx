@@ -90,39 +90,42 @@ export function OnboardingWizard({ initialStep }: OnboardingWizardProps) {
         </motion.div>
       </AnimatePresence>
 
-      <div className="mt-6 flex flex-col items-center gap-3">
-        <button
-          onClick={isLastStep ? handleComplete : handleContinue}
-          disabled={isPending}
-          className="w-full rounded-lg py-2.5 font-heading text-sm font-bold text-neutral-950 transition-opacity disabled:opacity-70 cursor-pointer disabled:cursor-not-allowed"
-          style={{
-            background: "var(--mm-gold-400, #e6c364)",
-            boxShadow: "0 0 20px rgba(230,195,100,0.15)",
-          }}
-        >
-          {isPending ? (
-            <span className="animate-pulse">Saving…</span>
-          ) : isLastStep ? (
-            "Finish setup"
-          ) : (
-            "Continue →"
-          )}
-        </button>
-
-        {isLastStep && (
+      {/* Step 2 (ActivePlatformsStep) owns its own Continue/Skip buttons */}
+      {displayStep !== 2 && (
+        <div className="mt-6 flex flex-col items-center gap-3">
           <button
-            onClick={handleComplete}
+            onClick={isLastStep ? handleComplete : handleContinue}
             disabled={isPending}
-            className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+            className="w-full rounded-lg py-2.5 font-heading text-sm font-bold text-neutral-950 transition-opacity disabled:opacity-70 cursor-pointer disabled:cursor-not-allowed"
+            style={{
+              background: "var(--mm-gold-400, #e6c364)",
+              boxShadow: "0 0 20px rgba(230,195,100,0.15)",
+            }}
           >
-            Skip for now →
+            {isPending ? (
+              <span className="animate-pulse">Saving…</span>
+            ) : isLastStep ? (
+              "Finish setup"
+            ) : (
+              "Continue →"
+            )}
           </button>
-        )}
 
-        {error && (
-          <p className="font-body text-sm text-red-400 text-center">{error}</p>
-        )}
-      </div>
+          {isLastStep && (
+            <button
+              onClick={handleComplete}
+              disabled={isPending}
+              className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+            >
+              Skip for now →
+            </button>
+          )}
+
+          {error && (
+            <p className="font-body text-sm text-red-400 text-center">{error}</p>
+          )}
+        </div>
+      )}
     </div>
   )
 }
