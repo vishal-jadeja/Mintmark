@@ -1,6 +1,24 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { isAxiosError } from "axios"
 import api from "@/lib/axios"
+import type { UnifiedActivityRow } from "@/types/database"
+
+interface DashboardActivityResponse {
+  activities: UnifiedActivityRow[]
+  streak: { current: number; longest: number }
+}
+
+export function useDashboardActivity(days = 365) {
+  return useQuery<DashboardActivityResponse>({
+    queryKey: ["dashboard-activity", days],
+    queryFn: async () => {
+      const { data } = await api.get<DashboardActivityResponse>(
+        `/api/dashboard/activity?days=${days}`
+      )
+      return data
+    },
+  })
+}
 
 interface LogSessionInput {
   topic: string

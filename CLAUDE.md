@@ -194,6 +194,6 @@ Key naming convention (this project uses the new Supabase naming):
 | Step 8 (Phase 8.5) | Active platforms + per-platform AI instructions | ✅ |
 | Step 8 (Phase 8.6) | First manual session log | ✅ |
 | Step 8 (Phase 8.7) | BYOK API key (optional step) | ✅ |
-| Step 8 (Phase 8.8) | Dashboard scaffold (heatmap, calendar, streak) | ⬜ |
+| Step 8 (Phase 8.8) | Dashboard scaffold (heatmap, calendar, streak) | ✅ |
 
 See `mintmark-step8-onboarding.md` for the full Step 8 spec and `mintmark-project-intelligence.md` for the broader roadmap.
