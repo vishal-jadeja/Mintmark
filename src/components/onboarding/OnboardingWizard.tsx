@@ -90,8 +90,8 @@ export function OnboardingWizard({ initialStep }: OnboardingWizardProps) {
         </motion.div>
       </AnimatePresence>
 
-      {/* Step 2 (ActivePlatformsStep) owns its own Continue/Skip buttons */}
-      {displayStep !== 2 && (
+      {/* Steps 2, 3, and 4 own their own Continue/Skip buttons */}
+      {displayStep !== 2 && displayStep !== 3 && displayStep !== 4 && (
         <div className="mt-6 flex flex-col items-center gap-3">
           <button
             onClick={isLastStep ? handleComplete : handleContinue}
