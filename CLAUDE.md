@@ -197,3 +197,14 @@ Key naming convention (this project uses the new Supabase naming):
 | Step 8 (Phase 8.8) | Dashboard scaffold (heatmap, calendar, streak) | ✅ |
 
 See `mintmark-step8-onboarding.md` for the full Step 8 spec and `mintmark-project-intelligence.md` for the broader roadmap.
+
+### Step 9 — Background Jobs (Trigger.dev) ✅ Complete
+
+| Phase | Feature | Status |
+|-------|---------|--------|
+| Phase 9.1 | `send-batch-invites` task | ✅ |
+| Phase 9.2 | `cleanup-expired-tokens` cron (2am UTC) | ✅ |
+| Phase 9.3 | `daily-intelligence` stub | ✅ |
+| Phase 9.4 | `topic-extraction` stub | ✅ |
+
+See `mintmark-step9-background-jobs.md` for the full Step 9 spec.
