@@ -231,3 +231,17 @@ See `mintmark-step10-deploy.md` for the full Step 10 spec and deployment checkli
 | Phase 11.6 | `PrivacyTab` — Phase 2 placeholder | ✅ |
 
 See `mintmark-step11-settings.md` for the full Step 11 spec.
+
+### Step 12 — Notes Page ✅ Complete
+
+| Phase | Feature | Status |
+|-------|---------|--------|
+| Phase 12.1 | DB schema — `folders` + `notes` tables, RLS, indexes (`supabase/phase12_schema.sql`) | ✅ |
+| Phase 12.2 | Types — `folders` + `notes` added to `src/types/database.ts` | ✅ |
+| Phase 12.3 | API routes — `GET/POST /api/notes`, `GET/PATCH/DELETE /api/notes/[id]`, `GET/POST /api/folders`, `DELETE /api/folders/[id]` | ✅ |
+| Phase 12.4 | Query hooks — `useNotes`, `useNote`, `useFolders`, `useCreateNote`, `useUpdateNote`, `useDeleteNote`, `useCreateFolder`, `useDeleteFolder` | ✅ |
+| Phase 12.5 | Notes page — `NotesClient` (split pane), `NotesSidebar` (folders + note list + search), `NoteEditor` (markdown editor + preview, ⌘S save, two-step delete) | ✅ |
+| Phase 12.6 | Proxy protection — `/notes`, `/api/notes`, `/api/folders`, `/api/activity` routes added | ✅ |
+| Phase 12.7 | Markdown preview styles — `.prose-notes` CSS in `globals.css` | ✅ |
+
+See `mintmark-step12-notes.md` for the full Step 12 spec.

@@ -217,7 +217,7 @@ Phase 2 — Main App in progress. Onboarding and dashboard complete.
 - [x] Background jobs: `send-batch-invites`, `cleanup-expired-tokens` (daily cron), `daily-intelligence` stub, `topic-extraction` stub
 - [x] Production config: security headers, Vercel config, `.env.example`
 - [x] Settings page (connections management, active platforms, BYOK key management, privacy placeholder)
-- [ ] Notes page (markdown editor, folder organization, search)
+- [x] Notes page (markdown editor, folder organization, search, unified_activity heatmap integration)
 - [ ] Content Studio (platform draft generation, BYOK AI)
 - [ ] AI Assistant (RAG pipeline, streaming, Phase 2)
 

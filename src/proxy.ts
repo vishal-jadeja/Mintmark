@@ -43,8 +43,12 @@ export async function proxy(request: NextRequest) {
   else if (
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/onboarding") ||
+    pathname.startsWith("/notes") ||
     pathname.startsWith("/api/user") ||
-    pathname.startsWith("/api/connections")
+    pathname.startsWith("/api/connections") ||
+    pathname.startsWith("/api/notes") ||
+    pathname.startsWith("/api/folders") ||
+    pathname.startsWith("/api/activity")
   ) {
     const token = await getToken({
       req: request,
@@ -60,7 +64,9 @@ export async function proxy(request: NextRequest) {
     }
     // Admins have no user_settings row — send them to their own panel
     if (
-      (pathname.startsWith("/dashboard") || pathname.startsWith("/onboarding")) &&
+      (pathname.startsWith("/dashboard") ||
+        pathname.startsWith("/onboarding") ||
+        pathname.startsWith("/notes")) &&
       token.role === "admin"
     ) {
       return NextResponse.redirect(new URL("/admin", request.url))

@@ -438,6 +438,100 @@ export interface Database {
       }
 
       // -----------------------------------------------------------------------
+      // folders
+      // -----------------------------------------------------------------------
+      folders: {
+        Row: {
+          id: string
+          user_id: string
+          /** Folder display name, 1–100 chars */
+          name: string
+          /** Optional CSS hex color, e.g. "#3b82f6". null = default grey. */
+          color: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          color?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          color?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "folders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+
+      // -----------------------------------------------------------------------
+      // notes
+      // -----------------------------------------------------------------------
+      notes: {
+        Row: {
+          id: string
+          user_id: string
+          /** null = unfiled (not in any folder) */
+          folder_id: string | null
+          /** Note title — may be empty string */
+          title: string
+          /** Raw markdown body */
+          body: string
+          /** Manual topic tags. Phase 2 adds auto-extraction. */
+          tags: string[]
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          folder_id?: string | null
+          title?: string
+          body?: string
+          tags?: string[]
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          folder_id?: string | null
+          title?: string
+          body?: string
+          tags?: string[]
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notes_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+
+      // -----------------------------------------------------------------------
       // topic_nodes
       // -----------------------------------------------------------------------
       topic_nodes: {
@@ -634,3 +728,9 @@ export type UnifiedActivityRow = Tables<"unified_activity">
 
 /** Convenience: a row from the topic_nodes table */
 export type TopicNodeRow = Tables<"topic_nodes">
+
+/** Convenience: a row from the folders table */
+export type FolderRow = Tables<"folders">
+
+/** Convenience: a row from the notes table */
+export type NoteRow = Tables<"notes">
