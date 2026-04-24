@@ -208,3 +208,13 @@ See `mintmark-step8-onboarding.md` for the full Step 8 spec and `mintmark-projec
 | Phase 9.4 | `topic-extraction` stub | ✅ |
 
 See `mintmark-step9-background-jobs.md` for the full Step 9 spec.
+
+### Step 10 — Deploy ✅ Complete
+
+| Phase | Feature | Status |
+|-------|---------|--------|
+| Phase 10.1 | Production config — `next.config.ts` (security headers, image config), `vercel.json` | ✅ |
+| Phase 10.2 | Environment variable reference — `.env.example` (all 22 vars documented) | ✅ |
+| Phase 10.3–10.9 | Vercel deploy, Supabase schema, Upstash, Trigger.dev cloud, OAuth apps, Brevo — see `mintmark-step10-deploy.md` | ⬜ (manual infra steps) |
+
+See `mintmark-step10-deploy.md` for the full Step 10 spec and deployment checklist.
