@@ -24,3 +24,73 @@
     @apply font-sans;
   }
 }
+
+/* Markdown preview styles for the notes editor */
+.prose-notes {
+  color: #c9c5c0;
+  font-family: var(--font-body, "DM Sans", sans-serif);
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+.prose-notes h1,
+.prose-notes h2,
+.prose-notes h3,
+.prose-notes h4 {
+  font-family: var(--font-heading, "Sora", sans-serif);
+  color: #e5e2e1;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+}
+.prose-notes h1 { font-size: 1.5rem; }
+.prose-notes h2 { font-size: 1.25rem; }
+.prose-notes h3 { font-size: 1.1rem; }
+.prose-notes p { margin-bottom: 0.75em; }
+.prose-notes strong { color: #e5e2e1; font-weight: 600; }
+.prose-notes em { color: #c9c5c0; font-style: italic; }
+.prose-notes code {
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+  font-size: 0.8125rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+  color: #e6c364;
+}
+.prose-notes pre {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 1em;
+  overflow-x: auto;
+  margin-bottom: 1em;
+}
+.prose-notes pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: #c9c5c0;
+}
+.prose-notes ul,
+.prose-notes ol {
+  margin-bottom: 0.75em;
+  padding-left: 1.5em;
+}
+.prose-notes li { margin-bottom: 0.25em; }
+.prose-notes a {
+  color: #e6c364;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.prose-notes blockquote {
+  border-left: 3px solid rgba(230,195,100,0.4);
+  padding-left: 1em;
+  color: rgba(201,197,192,0.7);
+  font-style: italic;
+  margin-bottom: 0.75em;
+}
+.prose-notes hr {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  margin: 1.5em 0;
+}

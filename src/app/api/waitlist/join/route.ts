@@ -144,10 +144,14 @@ export async function POST(request: Request) {
     )
   }
 
-  // 9. Get effective position (accounts for referral bonuses)
+  // 9. Get effective position (accounts for referral bonuses) and persist it
   const { data: position } = await supabase.rpc("get_waitlist_position", {
     p_email: email,
   })
+
+  if (position !== null) {
+    await supabase.from("waitlist").update({ position }).eq("email", email)
+  }
 
   // 10. Get total count
   const { count: total } = await supabase

@@ -42,6 +42,7 @@ export async function PATCH(request: Request) {
     .eq("user_id", session.user.id)
 
   if (error) {
+    console.error("[onboarding PATCH] Supabase error:", error.message)
     return Response.json({ error: "Failed to update onboarding." }, { status: 500 })
   }
 

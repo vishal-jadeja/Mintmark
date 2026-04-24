@@ -193,8 +193,9 @@ Waitlist landing page with referral-based queue movement (each referral moves yo
 
 ## Current Status
 
-Phase 1 — Early Access. Waitlist open.
+Phase 2 — Main App in progress. Onboarding and dashboard complete.
 
+**Phase 1 — Early Access ✅**
 - [x] Waitlist landing page with referral tracking
 - [x] Referral queue mechanics (each referral = move up 5 spots, min position 1)
 - [x] Configurable invite cap (runtime-adjustable via `system_config` table)
@@ -203,12 +204,22 @@ Phase 1 — Early Access. Waitlist open.
 - [x] Invite acceptance page (`/invite/[token]`) — single-use token, 48h expiry
 - [x] Login page with NextAuth.js v5 Credentials provider
 - [x] Admin dashboard (`/admin`) — waitlist management, individual + batch invites, inline config editor
-- [x] Onboarding: database schema extension (`api_keys`, `platform_connections`, `platform_instructions`, `unified_activity`, `topic_nodes`)
-- [x] Onboarding: routing + 4-step wizard shell (Zustand store, progress indicator, proxy protection for `/onboarding` and `/dashboard`)
-- [ ] Onboarding: platform OAuth connections (GitHub, LinkedIn, X, Medium) + GitHub commit backfill
-- [ ] Onboarding: active platforms, per-platform AI instructions, BYOK API key
-- [ ] Dashboard scaffold (heatmap widget, week calendar, streak, empty state)
-- [ ] Main app (Content Studio, AI Assistant, Notes)
+
+**Phase 2 — Main App 🟡**
+- [x] Onboarding: DB schema extension (5 new tables: `api_keys`, `platform_connections`, `platform_instructions`, `unified_activity`, `topic_nodes`)
+- [x] Onboarding: 4-step wizard (platform connections, active platforms, first session, BYOK key)
+- [x] Onboarding: GitHub + Gmail OAuth + GitHub 90-day commit backfill via Trigger.dev
+- [x] Onboarding: LinkedIn, X, Medium OAuth connections
+- [x] Onboarding: active platforms + per-platform AI instructions
+- [x] Onboarding: first manual session log
+- [x] Onboarding: BYOK API key (Anthropic, OpenAI, Gemini, Groq)
+- [x] Dashboard: heatmap widget (52-week grid, SVG), week calendar, streak counter, topic distribution, intelligence cards, empty state
+- [x] Background jobs: `send-batch-invites`, `cleanup-expired-tokens` (daily cron), `daily-intelligence` stub, `topic-extraction` stub
+- [x] Production config: security headers, Vercel config, `.env.example`
+- [x] Settings page (connections management, active platforms, BYOK key management, privacy placeholder)
+- [x] Notes page (markdown editor, folder organization, search, unified_activity heatmap integration)
+- [ ] Content Studio (platform draft generation, BYOK AI)
+- [ ] AI Assistant (RAG pipeline, streaming, Phase 2)
 
 ---
 
@@ -251,7 +262,7 @@ cd mintmark
 # Install dependencies
 npm install
 
-# Copy the environment variable template
+# Create your environment file
 cp .env.example .env.local
 ```
 
@@ -267,52 +278,40 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Environment Variables
 
-Create a `.env.local` file at the project root. Never commit this file.
+Copy `.env.example` to `.env.local` and fill in all values. Never commit
+`.env.local` or any file containing real secrets.
 
-```env
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
-SUPABASE_SECRET_KEY=your_supabase_service_role_key
-
-# Auth (NextAuth.js v5)
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your_nextauth_secret_here        # openssl rand -hex 32
-
-# Encryption (AES-256 for sensitive data)
-ENCRYPTION_KEY=your_64_hex_char_key_here         # openssl rand -hex 32
-
-# Email (Brevo)
-BREVO_API_KEY=your_brevo_api_key
-EMAIL_FROM=notifications@yourdomain.com
-
-# Upstash Redis
-UPSTASH_REDIS_REST_URL=your_upstash_redis_url
-UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_token
-
-# App URL (used in email links and OAuth redirect URIs)
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-
-# Trigger.dev (background jobs)
-TRIGGER_PROJECT_ID=proj_your_project_id
-TRIGGER_SECRET_KEY=tr_dev_your_secret_key
-
-# Platform OAuth — observation sources
-GITHUB_CLIENT_ID=
-GITHUB_CLIENT_SECRET=
-GMAIL_CLIENT_ID=
-GMAIL_CLIENT_SECRET=
-
-# Platform OAuth — publishing platforms
-LINKEDIN_CLIENT_ID=
-LINKEDIN_CLIENT_SECRET=
-X_CLIENT_ID=
-X_CLIENT_SECRET=
-MEDIUM_CLIENT_ID=
-MEDIUM_CLIENT_SECRET=
+```bash
+cp .env.example .env.local
 ```
 
-> **Security note:** `SUPABASE_SECRET_KEY`, `NEXTAUTH_SECRET`, and `ENCRYPTION_KEY` are server-only. They must never reach the client bundle — never prefix them with `NEXT_PUBLIC_`.
+The full reference with generation commands and source URLs is documented
+in `.env.example`. Key variables:
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | ✅ | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | ✅ | Supabase anon key |
+| `SUPABASE_SECRET_KEY` | ✅ | Supabase service role key — **server-only** |
+| `NEXTAUTH_SECRET` | ✅ | `openssl rand -hex 32` |
+| `NEXTAUTH_URL` | ✅ | Exact app URL (no trailing slash) |
+| `ENCRYPTION_KEY` | ✅ | `openssl rand -hex 32` — AES-256 for tokens at rest |
+| `BREVO_API_KEY` | ✅ | Brevo transactional email |
+| `EMAIL_FROM` | ✅ | Verified sending address |
+| `UPSTASH_REDIS_REST_URL` | ✅ | Upstash Redis REST API |
+| `UPSTASH_REDIS_REST_TOKEN` | ✅ | Upstash Redis token |
+| `NEXT_PUBLIC_APP_URL` | ✅ | `http://localhost:3000` or production URL |
+| `TRIGGER_PROJECT_ID` | ✅ | Trigger.dev project ID |
+| `TRIGGER_SECRET_KEY` | ✅ | Trigger.dev secret (`tr_dev_...` or `tr_prod_...`) |
+| `GITHUB_CLIENT_ID/SECRET` | ⬜ | GitHub OAuth (for GitHub connection) |
+| `GMAIL_CLIENT_ID/SECRET` | ⬜ | Google OAuth (for Gmail connection) |
+| `LINKEDIN_CLIENT_ID/SECRET` | ⬜ | LinkedIn OAuth |
+| `X_CLIENT_ID/SECRET` | ⬜ | X (Twitter) OAuth |
+| `MEDIUM_CLIENT_ID/SECRET` | ⬜ | Medium OAuth |
+| `EARLY_ACCESS_LIMIT` | ⬜ | Override invite cap (default 100) |
+
+> **Security:** `SUPABASE_SECRET_KEY`, `NEXTAUTH_SECRET`, and
+> `ENCRYPTION_KEY` are server-only. Never prefix with `NEXT_PUBLIC_`.
 
 ---
 
@@ -321,6 +320,8 @@ MEDIUM_CLIENT_SECRET=
 Mintmark uses Supabase with Row Level Security enabled on every table. Apply the schema by running the SQL in `supabase/schema.sql` in your Supabase project's SQL editor.
 
 The schema is a single cumulative file — run it top-to-bottom on a fresh project. Re-running it is safe; all statements use `CREATE IF NOT EXISTS` / `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`.
+
+**Phase 8 tables:** After running `schema.sql`, also run `supabase/phase8_schema.sql` to add `api_keys`, `platform_connections`, `platform_instructions`, `unified_activity`, and `topic_nodes` tables, along with required `user_settings` column additions (`onboarding_step`, `onboarding_completed`, `updated_at`).
 
 ### Key tables
 
@@ -363,7 +364,7 @@ mintmark/
 │   │   │   ├── auth/           # NextAuth handlers + verify-token + accept-invite
 │   │   │   ├── admin/          # Admin API routes (stats, waitlist, invites, config)
 │   │   │   ├── connections/    # Platform OAuth (GET list, DELETE, authorize, callback)
-│   │   │   ├── user/           # User API routes (onboarding PATCH)
+│   │   │   ├── user/           # User API routes (onboarding, settings, platform-instructions)
 │   │   │   └── waitlist/       # Public waitlist API (join, count, referral-stats, verify)
 │   │   ├── layout.tsx          # Root layout (QueryProvider, fonts, dark theme)
 │   │   └── page.tsx            # Landing page
@@ -427,7 +428,7 @@ Mintmark treats security as a first-class concern, not an afterthought.
 | Phase       | Status         | Focus                                                                            |
 | ----------- | -------------- | -------------------------------------------------------------------------------- |
 | **Phase 1** | ✅ Complete    | Early access system — waitlist, invites, admin dashboard                         |
-| **Phase 2** | 🟡 In Progress | Onboarding (Steps 8.1–8.2 done), platform OAuth, Content Studio, AI              |
+| **Phase 2** | 🟡 In Progress | Onboarding (Steps 8.1–8.5 done), BYOK key, Dashboard scaffold, Content Studio, AI |
 | **Phase 3** | 🔲 Planned     | Notes editor, Notion sync, AI assistant, Unified Heatmap, Chrome extension       |
 | **Phase 4** | 🔲 Planned     | GitHub, YouTube, LeetCode tracking, VS Code extension, public portfolio          |
 | **Phase 5** | 🔲 Planned     | Weekly digest, trending topics, LinkedIn analytics, content calendar             |

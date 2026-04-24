@@ -74,6 +74,13 @@
   --chart-3: var(--mm-neutral-400);
   --chart-4: var(--mm-neutral-600);
   --chart-5: var(--mm-neutral-700);
+
+  /* Activity heatmap intensity ramp */
+  --activity-empty: var(--mm-neutral-800);
+  --activity-1: oklch(0.78 0.10 82 / 35%);
+  --activity-2: oklch(0.78 0.135 82 / 58%);
+  --activity-3: oklch(0.78 0.155 82 / 80%);
+  --activity-4: var(--mm-gold-400);
 }
 
 /* ── Light theme override ─────────────────────────────────────────────────── */
@@ -127,4 +134,11 @@
   --chart-3: var(--mm-neutral-500);
   --chart-4: var(--mm-neutral-300);
   --chart-5: var(--mm-neutral-200);
+
+  /* Activity heatmap intensity ramp */
+  --activity-empty: oklch(0.90 0.005 82);
+  --activity-1: oklch(0.75 0.08 82 / 40%);
+  --activity-2: oklch(0.70 0.12 82 / 65%);
+  --activity-3: oklch(0.64 0.155 78 / 85%);
+  --activity-4: var(--mm-gold-600);
 }

@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS public.platform_connections (
   id               uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id          uuid        NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   platform         text        NOT NULL
-                               CHECK (platform IN ('github', 'linkedin', 'x', 'medium')),
+                               CHECK (platform IN ('github', 'gmail', 'linkedin', 'x', 'medium')),
   access_token     text        NOT NULL,
   refresh_token    text,
   token_expires_at timestamptz,
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS public.platform_instructions (
   id               uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id          uuid        NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   platform         text        NOT NULL
-                               CHECK (platform IN ('linkedin', 'x', 'medium')),
+                               CHECK (platform IN ('github', 'gmail', 'linkedin', 'x', 'medium')),
   instruction_text text,
   tone             text
                                CHECK (tone IN ('professional', 'casual', 'educational', 'storytelling')),
@@ -201,8 +201,9 @@ CREATE INDEX IF NOT EXISTS idx_topic_nodes_user_last_activity
 
 -- Add new onboarding state columns
 ALTER TABLE public.user_settings
-  ADD COLUMN IF NOT EXISTS onboarding_completed boolean NOT NULL DEFAULT false,
-  ADD COLUMN IF NOT EXISTS onboarding_step      int     NOT NULL DEFAULT 1
+  ADD COLUMN IF NOT EXISTS updated_at           timestamptz NOT NULL DEFAULT now(),
+  ADD COLUMN IF NOT EXISTS onboarding_completed boolean     NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS onboarding_step      int         NOT NULL DEFAULT 1
     CHECK (onboarding_step BETWEEN 1 AND 4);
 
 -- NOTE: If Phase 8.2 changes the wizard step count, update this CHECK constraint:

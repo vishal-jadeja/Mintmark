@@ -18,9 +18,9 @@ Phase 8.2  →  Routing, middleware, and onboarding shell  ✅ DONE
 Phase 8.3  →  OAuth platform connections                 ✅ DONE
 Phase 8.4  →  GitHub backfill (Trigger.dev)              ✅ DONE
 Phase 8.5  →  Active platforms + AI instructions         ⬜ TODO  ← NEXT
-Phase 8.6  →  First manual session log                   ⬜ TODO
-Phase 8.7  →  BYOK API key (optional step)               ⬜ TODO
-Phase 8.8  →  Dashboard scaffold + heatmap + empty state 🟡 PARTIAL
+Phase 8.6  →  First manual session log                   ✅ DONE
+Phase 8.7  →  BYOK API key (optional step)               ✅ DONE
+Phase 8.8  →  Dashboard scaffold + heatmap + empty state ✅ DONE
 ```
 
 ---

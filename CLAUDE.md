@@ -1,5 +1,61 @@
 @AGENTS.md
 
+## 1. Think Before Coding
+
+**Don't assume. Don't hide confusion. Surface tradeoffs.**
+
+Before implementing:
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them - don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
+
+## 2. Simplicity First
+
+**Minimum code that solves the problem. Nothing speculative.**
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+
+Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+
+## 3. Surgical Changes
+
+**Touch only what you must. Clean up only your own mess.**
+
+When editing existing code:
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it - don't delete it.
+
+When your changes create orphans:
+- Remove imports/variables/functions that YOUR changes made unused.
+- Don't remove pre-existing dead code unless asked.
+
+The test: Every changed line should trace directly to the user's request.
+
+## 4. Goal-Driven Execution
+
+**Define success criteria. Loop until verified.**
+
+Transform tasks into verifiable goals:
+- "Add validation" → "Write tests for invalid inputs, then make them pass"
+- "Fix the bug" → "Write a test that reproduces it, then make it pass"
+- "Refactor X" → "Ensure tests pass before and after"
+
+For multi-step tasks, state a brief plan:
+```
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+3. [Step] → verify: [check]
+```
+
+Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+
 # Mintmark — Project Instructions
 
 ## Project
@@ -77,6 +133,23 @@ refetchOnReconnect: false
 
 ---
 
+## Supabase Implementation Rules
+
+**Before implementing any new Supabase feature, read the relevant source in `node_modules/@supabase/` first.** API signatures, method names, and SSR patterns have breaking changes that differ from training data — always verify against the installed version.
+
+Key naming convention (this project uses the new Supabase naming):
+
+| Env var | Role | Used in |
+|---------|------|---------|
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Anon key — respects RLS, safe for browser | `client.ts`, `server.ts`, `proxy.ts` |
+| `SUPABASE_SECRET_KEY` | Service role key — bypasses RLS, **server-side only** | `admin.ts` |
+
+- The admin client passes `SUPABASE_SECRET_KEY` as the `supabaseKey` arg to `createClient()`. The SDK automatically sets both the `apikey` and `Authorization: Bearer` headers from this arg — do not override them in `global.headers`.
+- In the proxy, always call `supabase.auth.getUser()` after `createServerClient()` to refresh session cookies. Never use `getSession()` in the proxy (it reads from cookies and is unverified).
+- Admin users have no `user_settings` row — never query `user_settings` without accounting for a `null` result from admins. The proxy redirects admins away from `/dashboard` and `/onboarding` to `/admin` before any page code runs.
+
+---
+
 ## README.md — Standing Update Rule
 
 **Whenever a change affects any of the following, update `README.md` in the same task — do not wait to be asked:**
@@ -118,9 +191,57 @@ refetchOnReconnect: false
 | Step 8 (Phase 8.2) | Routing + onboarding wizard shell — layout, wizard, store, PATCH route | ✅ |
 | Step 8 (Phase 8.3) | Platform OAuth connections (GitHub, Gmail, LinkedIn, X, Medium) | ✅ |
 | Step 8 (Phase 8.4) | GitHub commit backfill via Trigger.dev | ✅ |
-| Step 8 (Phase 8.5) | Active platforms + per-platform AI instructions | ⬜ |
-| Step 8 (Phase 8.6) | First manual session log | ⬜ |
-| Step 8 (Phase 8.7) | BYOK API key (optional step) | ⬜ |
-| Step 8 (Phase 8.8) | Dashboard scaffold (heatmap, calendar, streak) | ⬜ |
+| Step 8 (Phase 8.5) | Active platforms + per-platform AI instructions | ✅ |
+| Step 8 (Phase 8.6) | First manual session log | ✅ |
+| Step 8 (Phase 8.7) | BYOK API key (optional step) | ✅ |
+| Step 8 (Phase 8.8) | Dashboard scaffold (heatmap, calendar, streak) | ✅ |
 
 See `mintmark-step8-onboarding.md` for the full Step 8 spec and `mintmark-project-intelligence.md` for the broader roadmap.
+
+### Step 9 — Background Jobs (Trigger.dev) ✅ Complete
+
+| Phase | Feature | Status |
+|-------|---------|--------|
+| Phase 9.1 | `send-batch-invites` task | ✅ |
+| Phase 9.2 | `cleanup-expired-tokens` cron (2am UTC) | ✅ |
+| Phase 9.3 | `daily-intelligence` stub | ✅ |
+| Phase 9.4 | `topic-extraction` stub | ✅ |
+
+See `mintmark-step9-background-jobs.md` for the full Step 9 spec.
+
+### Step 10 — Deploy ✅ Complete
+
+| Phase | Feature | Status |
+|-------|---------|--------|
+| Phase 10.1 | Production config — `next.config.ts` (security headers, image config), `vercel.json` | ✅ |
+| Phase 10.2 | Environment variable reference — `.env.example` (all 22 vars documented) | ✅ |
+| Phase 10.3–10.9 | Vercel deploy, Supabase schema, Upstash, Trigger.dev cloud, OAuth apps, Brevo — see `mintmark-step10-deploy.md` | ⬜ (manual infra steps) |
+
+See `mintmark-step10-deploy.md` for the full Step 10 spec and deployment checklist.
+
+### Step 11 — Settings Page ✅ Complete
+
+| Phase | Feature | Status |
+|-------|---------|--------|
+| Phase 11.1 | Query hooks — `useUserSettings`, `usePlatformInstructions`; fixed `invalidateQueries` on `useUpdateActivePlatforms` + `useUpsertPlatformInstruction` | ✅ |
+| Phase 11.2 | `/settings` server page + `SettingsClient` tab container (4 tabs, local state, `<Suspense>` for ConnectionsTab) | ✅ |
+| Phase 11.3 | `ConnectionsTab` — all 5 platforms flat, connect/disconnect, backfill chip | ✅ |
+| Phase 11.4 | `PublishingTab` — active platforms + AI instructions, seeded from queries with `initialized` guard | ✅ |
+| Phase 11.5 | `ApiKeysTab` — 4 provider cards, show/delete existing keys, two-step delete | ✅ |
+| Phase 11.6 | `PrivacyTab` — Phase 2 placeholder | ✅ |
+
+See `mintmark-step11-settings.md` for the full Step 11 spec.
+
+### Step 12 — Notes Page ✅ Complete
+
+| Phase | Feature | Status |
+|-------|---------|--------|
+| Phase 12.1 | DB schema — `folders` + `notes` tables, RLS, indexes (`supabase/phase12_schema.sql`) | ✅ |
+| Phase 12.2 | Types — `folders` + `notes` added to `src/types/database.ts` | ✅ |
+| Phase 12.3 | API routes — `GET/POST /api/notes`, `GET/PATCH/DELETE /api/notes/[id]`, `GET/POST /api/folders`, `DELETE /api/folders/[id]` | ✅ |
+| Phase 12.4 | Query hooks — `useNotes`, `useNote`, `useFolders`, `useCreateNote`, `useUpdateNote`, `useDeleteNote`, `useCreateFolder`, `useDeleteFolder` | ✅ |
+| Phase 12.5 | Notes page — `NotesClient` (split pane), `NotesSidebar` (folders + note list + search), `NoteEditor` (markdown editor + preview, ⌘S save, two-step delete) | ✅ |
+| Phase 12.6 | Proxy protection — `/notes`, `/api/notes`, `/api/folders`, `/api/activity` routes added | ✅ |
+| Phase 12.7 | Markdown preview styles — `.prose-notes` CSS in `globals.css` | ✅ |
+
+See `mintmark-step12-notes.md` for the full Step 12 spec.

@@ -55,7 +55,6 @@ function LoginPageInner() {
       password,
       redirect: false,
     })
-    console.log(result)
     if (result?.error) {
       setError("Invalid email or password.")
       setIsLoading(false)
