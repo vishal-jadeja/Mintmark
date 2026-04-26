@@ -8,7 +8,6 @@ import { WeekCalendarWidget } from "@/components/dashboard/WeekCalendarWidget"
 import { TopicDistribution } from "@/components/dashboard/TopicDistribution"
 import { IntelligenceCards } from "@/components/dashboard/IntelligenceCards"
 import { DashboardEmptyState } from "@/components/dashboard/DashboardEmptyState"
-
 export const dynamic = "force-dynamic"
 
 export default async function DashboardPage() {
@@ -59,6 +58,7 @@ export default async function DashboardPage() {
       ) : (
         <DashboardEmptyState />
       )}
+
     </div>
   )
 }
