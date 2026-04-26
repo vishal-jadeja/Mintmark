@@ -37,14 +37,28 @@ export function AppSidebar({ userName, userAvatar }: AppSidebarProps) {
         borderRight: "1px solid var(--sidebar-border)",
       }}
     >
-      {/* Logo */}
-      <div className="h-16 flex items-center px-4 border-b border-[var(--sidebar-border)]">
-        <LogoMark size={28} />
+      {/* Logo + collapse toggle */}
+      <div
+        className="h-16 flex items-center border-b border-[var(--sidebar-border)]"
+        style={{
+          padding: sidebarCollapsed ? "0" : "0 16px",
+          justifyContent: sidebarCollapsed ? "center" : "flex-start",
+        }}
+      >
+        {!sidebarCollapsed && <LogoMark size={28} />}
         {!sidebarCollapsed && (
-          <span className="ml-2.5 font-heading text-sm font-semibold text-foreground truncate">
+          <span className="ml-2.5 font-heading text-sm font-semibold text-foreground truncate flex-1">
             Mintmark
           </span>
         )}
+        <button
+          onClick={toggleSidebar}
+          className="flex items-center justify-center w-7 h-7 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-white/5 flex-shrink-0"
+          style={{ marginLeft: sidebarCollapsed ? "0" : "auto" }}
+          aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {sidebarCollapsed ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
+        </button>
       </div>
 
       {/* Navigation */}
@@ -134,18 +148,6 @@ export function AppSidebar({ userName, userAvatar }: AppSidebarProps) {
           )}
         </button>
 
-        {/* Collapse toggle */}
-        <button
-          onClick={toggleSidebar}
-          className="flex items-center justify-center w-full h-8 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-white/5"
-          aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {sidebarCollapsed ? (
-            <ChevronRight size={16} />
-          ) : (
-            <ChevronLeft size={16} />
-          )}
-        </button>
       </div>
     </aside>
   )

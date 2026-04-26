@@ -23,10 +23,10 @@
   --mm-gold-950: oklch(0.22 0.055 70);
 
   /* ── Neutral dark scale (warm-tinted, hue ~82°) ───────────────────────── */
-  --mm-neutral-950: oklch(0.09 0.003 82);  /* deep background  */
-  --mm-neutral-900: oklch(0.12 0.003 82);  /* card / surface   */
-  --mm-neutral-850: oklch(0.145 0.003 82); /* elevated surface */
-  --mm-neutral-800: #11100f;               /* hover surface    */
+  --mm-neutral-950: oklch(0.14 0.003 82);  /* deep background  */
+  --mm-neutral-900: oklch(0.18 0.003 82);  /* card / surface   */
+  --mm-neutral-850: oklch(0.215 0.003 82); /* elevated surface */
+  --mm-neutral-800: oklch(0.245 0.003 82); /* hover surface    */
   --mm-neutral-750: oklch(0.21 0.003 82);  /* active / pressed */
   --mm-neutral-700: oklch(0.265 0.003 82); /* subtle dividers  */
   --mm-neutral-600: oklch(0.35 0.003 82);

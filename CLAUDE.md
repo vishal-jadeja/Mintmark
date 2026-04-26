@@ -171,6 +171,26 @@ Key naming convention (this project uses the new Supabase naming):
 - Comments only where logic is non-obvious.
 - No unused variables, dead code, or backwards-compat shims.
 
+## Micro-animations
+
+Use Framer Motion to add micro-animations wherever they naturally improve feel. Apply them by default on all frontend work — don't wait to be asked. Treat them as part of the standard output, not an extra.
+
+Good candidates (non-exhaustive):
+- Buttons and interactive elements: subtle scale/opacity on hover and tap (`whileHover`, `whileTap`)
+- List items and cards entering the DOM: fade + slide-up (`initial`, `animate`, staggered with `variants`)
+- Modals, drawers, popovers: fade + scale or slide in/out (`AnimatePresence`)
+- Sidebar collapse/expand: already uses CSS transition — enhance only if Framer Motion is already imported in that file
+- Toast/alert notifications: slide in from edge, fade out
+- Empty states and loading skeletons: fade in when content arrives
+- Tab/page transitions: subtle cross-fade
+
+Rules:
+- Keep durations short: enter 150–250ms, exit 100–150ms. Never exceed 400ms.
+- Use `ease: [0.25, 0.1, 0.25, 1]` (ease-out) for enters; `ease: "easeIn"` for exits.
+- Never animate layout-shifting properties (width, height, padding) on hot paths — use opacity/transform only.
+- Don't add animations to elements that are already animated by a library (e.g., shadcn Radix primitives with their own transitions).
+- `AnimatePresence` is required whenever an element conditionally unmounts.
+
 ---
 
 ## Current Development State

@@ -57,26 +57,11 @@ function LoginPageInner() {
     <div
       className="min-h-screen flex items-center justify-center px-4 py-10"
       style={{
-        background: "var(--background)",
-        backgroundImage:
-          "radial-gradient(circle at 50% 50%, rgba(230,195,100,0.03) 0%, transparent 50%)",
+        backgroundImage: "linear-gradient(rgba(10,9,8,0.62), rgba(10,9,8,0.62)), url('/bg-texture.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
       }}
     >
-      {/* Decorative blobs */}
-      <div
-        className="fixed top-20 left-[10%] w-64 h-64 rounded-full -z-10"
-        style={{
-          background: "rgba(230,195,100,0.05)",
-          filter: "blur(120px)",
-        }}
-      />
-      <div
-        className="fixed bottom-20 right-[10%] w-80 h-80 rounded-full -z-10"
-        style={{
-          background: "rgba(230,195,100,0.05)",
-          filter: "blur(140px)",
-        }}
-      />
 
       <div className="w-full max-w-[400px] flex flex-col items-center gap-10">
         {/* Brand header */}

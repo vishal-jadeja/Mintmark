@@ -16,7 +16,11 @@ export default async function AppLayout({
   return (
     <div
       className="flex h-screen overflow-hidden"
-      style={{ background: "var(--background)" }}
+      style={{
+        background: "var(--background)",
+        backgroundImage:
+          "radial-gradient(circle at 15% 25%, rgba(230,195,100,0.10) 0%, transparent 45%), radial-gradient(circle at 85% 75%, rgba(230,195,100,0.07) 0%, transparent 45%)",
+      }}
     >
       <AppSidebar userName={userName} userAvatar={userAvatar} />
       <div className="flex-1 flex flex-col overflow-hidden">
