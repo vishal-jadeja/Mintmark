@@ -27,6 +27,7 @@ Phase 10.9  →  Smoke test checklist                                ⬜
 Adds security headers and image remote patterns. No functional changes.
 
 Security headers applied to every response:
+
 - `Strict-Transport-Security` — force HTTPS, preload-eligible
 - `X-Content-Type-Options: nosniff`
 - `X-Frame-Options: SAMEORIGIN`
@@ -35,6 +36,7 @@ Security headers applied to every response:
 - `Permissions-Policy` — camera, microphone, geolocation all blocked
 
 Image remote patterns (Next.js Image component):
+
 - `avatars.githubusercontent.com` — GitHub avatars
 - `lh3.googleusercontent.com` — Google/Gmail profile photos
 - `media.licdn.com` — LinkedIn profile photos
@@ -42,6 +44,7 @@ Image remote patterns (Next.js Image component):
 ### `vercel.json`
 
 Minimal config:
+
 - Framework: nextjs (tells Vercel build system)
 - API function max duration: 30s (default is 10s, too short for
   batch invite jobs and OAuth token exchanges)
@@ -80,7 +83,7 @@ Copy it to `.env.local` for local dev, populate all values.
 
 ### Environment variable notes
 
-- `NEXTAUTH_SECRET`: generate with `openssl rand -hex 32`
+- `AUTH_SECRET`: generate with `openssl rand -hex 32`
 - `ENCRYPTION_KEY`: generate with `openssl rand -hex 32`
 - `NEXT_PUBLIC_APP_URL`: must be the exact production URL including
   protocol, no trailing slash
@@ -261,36 +264,43 @@ Note: `EMAIL_FROM` must match the verified domain exactly.
 Run through this after deploying to production. Mark each item.
 
 ### Public routes
+
 - [ ] `GET /` — landing page loads, waitlist form visible
 - [ ] `POST /api/waitlist/join` — submission succeeds, email received
 - [ ] `GET /api/waitlist/count` — returns a number
 - [ ] `GET /ref/[code]` — redirects correctly, increments referral
 
 ### Auth routes
+
 - [ ] `/login` — login page loads
 - [ ] Invite email → `/invite/[token]` — form loads, account created
 - [ ] Login with created account — redirects to `/onboarding`
 
 ### Onboarding
+
 - [ ] Onboarding wizard loads, 4 steps work
 - [ ] Connect GitHub → OAuth flow completes → redirect back → GitHub shown as connected
 - [ ] Completing onboarding → redirects to `/dashboard`
 
 ### Dashboard
+
 - [ ] `/dashboard` loads with real data (or empty state if no activity)
 - [ ] Heatmap renders
 - [ ] Streak counter is correct
 
 ### Admin
+
 - [ ] `/admin` loads for admin account
 - [ ] Admin can send invite → email received → invite token valid
 
 ### Background jobs
+
 - [ ] Trigger.dev dashboard shows tasks as deployed
 - [ ] `cleanup-expired-tokens` schedule shows next run at 2am UTC
 - [ ] Manual trigger of `send-batch-invites` → invite sent
 
 ### Security
+
 - [ ] Response headers include HSTS, X-Content-Type-Options, etc.
 - [ ] `/admin` returns redirect for non-admin user, not 404
 - [ ] `/dashboard` redirects to `/login` for unauthenticated user
@@ -299,11 +309,11 @@ Run through this after deploying to production. Mark each item.
 
 ## Files created/modified in this step
 
-| File | Action |
-|------|--------|
-| `mintmark-step10-deploy.md` | New spec (this file) |
-| `vercel.json` | New |
-| `.env.example` | New |
-| `next.config.ts` | Modified — security headers + image config |
-| `CLAUDE.md` | Updated — Step 10 status |
-| `README.md` | Updated — current status + env var section |
+| File                        | Action                                     |
+| --------------------------- | ------------------------------------------ |
+| `mintmark-step10-deploy.md` | New spec (this file)                       |
+| `vercel.json`               | New                                        |
+| `.env.example`              | New                                        |
+| `next.config.ts`            | Modified — security headers + image config |
+| `CLAUDE.md`                 | Updated — Step 10 status                   |
+| `README.md`                 | Updated — current status + env var section |

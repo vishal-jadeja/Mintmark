@@ -196,6 +196,7 @@ Waitlist landing page with referral-based queue movement (each referral moves yo
 Phase 2 — Main App in progress. Onboarding and dashboard complete.
 
 **Phase 1 — Early Access ✅**
+
 - [x] Waitlist landing page with referral tracking
 - [x] Referral queue mechanics (each referral = move up 5 spots, min position 1)
 - [x] Configurable invite cap (runtime-adjustable via `system_config` table)
@@ -206,6 +207,7 @@ Phase 2 — Main App in progress. Onboarding and dashboard complete.
 - [x] Admin dashboard (`/admin`) — waitlist management, individual + batch invites, inline config editor
 
 **Phase 2 — Main App 🟡**
+
 - [x] Onboarding: DB schema extension (5 new tables: `api_keys`, `platform_connections`, `platform_instructions`, `unified_activity`, `topic_nodes`)
 - [x] Onboarding: 4-step wizard (platform connections, active platforms, first session, BYOK key)
 - [x] Onboarding: GitHub + Gmail OAuth + GitHub 90-day commit backfill via Trigger.dev
@@ -288,29 +290,29 @@ cp .env.example .env.local
 The full reference with generation commands and source URLs is documented
 in `.env.example`. Key variables:
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | ✅ | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | ✅ | Supabase anon key |
-| `SUPABASE_SECRET_KEY` | ✅ | Supabase service role key — **server-only** |
-| `NEXTAUTH_SECRET` | ✅ | `openssl rand -hex 32` |
-| `NEXTAUTH_URL` | ✅ | Exact app URL (no trailing slash) |
-| `ENCRYPTION_KEY` | ✅ | `openssl rand -hex 32` — AES-256 for tokens at rest |
-| `BREVO_API_KEY` | ✅ | Brevo transactional email |
-| `EMAIL_FROM` | ✅ | Verified sending address |
-| `UPSTASH_REDIS_REST_URL` | ✅ | Upstash Redis REST API |
-| `UPSTASH_REDIS_REST_TOKEN` | ✅ | Upstash Redis token |
-| `NEXT_PUBLIC_APP_URL` | ✅ | `http://localhost:3000` or production URL |
-| `TRIGGER_PROJECT_ID` | ✅ | Trigger.dev project ID |
-| `TRIGGER_SECRET_KEY` | ✅ | Trigger.dev secret (`tr_dev_...` or `tr_prod_...`) |
-| `GITHUB_CLIENT_ID/SECRET` | ⬜ | GitHub OAuth (for GitHub connection) |
-| `GMAIL_CLIENT_ID/SECRET` | ⬜ | Google OAuth (for Gmail connection) |
-| `LINKEDIN_CLIENT_ID/SECRET` | ⬜ | LinkedIn OAuth |
-| `X_CLIENT_ID/SECRET` | ⬜ | X (Twitter) OAuth |
-| `MEDIUM_CLIENT_ID/SECRET` | ⬜ | Medium OAuth |
-| `EARLY_ACCESS_LIMIT` | ⬜ | Override invite cap (default 100) |
+| Variable                               | Required | Description                                         |
+| -------------------------------------- | -------- | --------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | ✅       | Supabase project URL                                |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | ✅       | Supabase anon key                                   |
+| `SUPABASE_SECRET_KEY`                  | ✅       | Supabase service role key — **server-only**         |
+| `AUTH_SECRET`                          | ✅       | `openssl rand -hex 32`                              |
+| `NEXTAUTH_URL`                         | ✅       | Exact app URL (no trailing slash)                   |
+| `ENCRYPTION_KEY`                       | ✅       | `openssl rand -hex 32` — AES-256 for tokens at rest |
+| `BREVO_API_KEY`                        | ✅       | Brevo transactional email                           |
+| `EMAIL_FROM`                           | ✅       | Verified sending address                            |
+| `UPSTASH_REDIS_REST_URL`               | ✅       | Upstash Redis REST API                              |
+| `UPSTASH_REDIS_REST_TOKEN`             | ✅       | Upstash Redis token                                 |
+| `NEXT_PUBLIC_APP_URL`                  | ✅       | `http://localhost:3000` or production URL           |
+| `TRIGGER_PROJECT_ID`                   | ✅       | Trigger.dev project ID                              |
+| `TRIGGER_SECRET_KEY`                   | ✅       | Trigger.dev secret (`tr_dev_...` or `tr_prod_...`)  |
+| `GITHUB_CLIENT_ID/SECRET`              | ⬜       | GitHub OAuth (for GitHub connection)                |
+| `GMAIL_CLIENT_ID/SECRET`               | ⬜       | Google OAuth (for Gmail connection)                 |
+| `LINKEDIN_CLIENT_ID/SECRET`            | ⬜       | LinkedIn OAuth                                      |
+| `X_CLIENT_ID/SECRET`                   | ⬜       | X (Twitter) OAuth                                   |
+| `MEDIUM_CLIENT_ID/SECRET`              | ⬜       | Medium OAuth                                        |
+| `EARLY_ACCESS_LIMIT`                   | ⬜       | Override invite cap (default 100)                   |
 
-> **Security:** `SUPABASE_SECRET_KEY`, `NEXTAUTH_SECRET`, and
+> **Security:** `SUPABASE_SECRET_KEY`, `AUTH_SECRET`, and
 > `ENCRYPTION_KEY` are server-only. Never prefix with `NEXT_PUBLIC_`.
 
 ---
@@ -325,18 +327,18 @@ The schema is a single cumulative file — run it top-to-bottom on a fresh proje
 
 ### Key tables
 
-| Table           | Purpose                                                     |
-| --------------- | ----------------------------------------------------------- |
-| `users`                   | Authenticated user records (created on invite acceptance)          |
-| `user_settings`           | Per-user preferences (theme, timezone, active platforms, onboarding state) |
-| `waitlist`                | Early access signups with referral codes and queue position        |
-| `invite_tokens`           | Single-use invite tokens (48h expiry)                              |
-| `system_config`           | Runtime-editable config (`invite_cap`, `referral_bonus`)           |
-| `api_keys`                | BYOK AI keys per provider (AES-256-GCM encrypted at rest)          |
-| `platform_connections`    | OAuth tokens per connected platform (encrypted at rest)            |
-| `platform_instructions`   | Per-platform AI tone, format, and instruction preferences          |
-| `unified_activity`        | Single source of truth for heatmap + calendar (all sources)        |
-| `topic_nodes`             | Knowledge graph nodes built up by the intelligence layer           |
+| Table                   | Purpose                                                                    |
+| ----------------------- | -------------------------------------------------------------------------- |
+| `users`                 | Authenticated user records (created on invite acceptance)                  |
+| `user_settings`         | Per-user preferences (theme, timezone, active platforms, onboarding state) |
+| `waitlist`              | Early access signups with referral codes and queue position                |
+| `invite_tokens`         | Single-use invite tokens (48h expiry)                                      |
+| `system_config`         | Runtime-editable config (`invite_cap`, `referral_bonus`)                   |
+| `api_keys`              | BYOK AI keys per provider (AES-256-GCM encrypted at rest)                  |
+| `platform_connections`  | OAuth tokens per connected platform (encrypted at rest)                    |
+| `platform_instructions` | Per-platform AI tone, format, and instruction preferences                  |
+| `unified_activity`      | Single source of truth for heatmap + calendar (all sources)                |
+| `topic_nodes`           | Knowledge graph nodes built up by the intelligence layer                   |
 
 ### Key database functions
 
@@ -425,14 +427,14 @@ Mintmark treats security as a first-class concern, not an afterthought.
 
 ## Roadmap
 
-| Phase       | Status         | Focus                                                                            |
-| ----------- | -------------- | -------------------------------------------------------------------------------- |
-| **Phase 1** | ✅ Complete    | Early access system — waitlist, invites, admin dashboard                         |
+| Phase       | Status         | Focus                                                                             |
+| ----------- | -------------- | --------------------------------------------------------------------------------- |
+| **Phase 1** | ✅ Complete    | Early access system — waitlist, invites, admin dashboard                          |
 | **Phase 2** | 🟡 In Progress | Onboarding (Steps 8.1–8.5 done), BYOK key, Dashboard scaffold, Content Studio, AI |
-| **Phase 3** | 🔲 Planned     | Notes editor, Notion sync, AI assistant, Unified Heatmap, Chrome extension       |
-| **Phase 4** | 🔲 Planned     | GitHub, YouTube, LeetCode tracking, VS Code extension, public portfolio          |
-| **Phase 5** | 🔲 Planned     | Weekly digest, trending topics, LinkedIn analytics, content calendar             |
-| **Phase 6** | 🔲 Planned     | XP system, streak gamification, milestone posts, open source release             |
+| **Phase 3** | 🔲 Planned     | Notes editor, Notion sync, AI assistant, Unified Heatmap, Chrome extension        |
+| **Phase 4** | 🔲 Planned     | GitHub, YouTube, LeetCode tracking, VS Code extension, public portfolio           |
+| **Phase 5** | 🔲 Planned     | Weekly digest, trending topics, LinkedIn analytics, content calendar              |
+| **Phase 6** | 🔲 Planned     | XP system, streak gamification, milestone posts, open source release              |
 
 See [`mintmark-project-intelligence.md`](./mintmark-project-intelligence.md) for detailed specs on every phase.
 

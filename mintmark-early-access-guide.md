@@ -71,6 +71,7 @@ for DB-backed invite cap (default 100, editable from admin dashboard without red
 `POST /api/admin/send-invite`, `POST /api/admin/batch-invite`, `PATCH /api/admin/config`.
 `src/lib/auth/requireAdmin.ts` — server-side admin guard used in all admin routes.
 `src/middleware.ts` — Next.js middleware protecting `/admin` routes via NextAuth JWT role check.
+
 > Note: Implementation uses NextAuth JWT role-based protection instead of the ADMIN_SECRET
 > bearer token approach described in the original Step 7 prompt. The middleware reads the
 > JWT, checks `token.role === "admin"`, and redirects to `/login` if not authorized.
@@ -83,6 +84,7 @@ Phases 8.1 + 8.2 complete as of 2026-04-21. The (app) route group layout,
 `AppSidebar`, `AppBottomNav`, and dashboard stub were also built as part of 8.2.
 
 Remaining:
+
 - **8.3** — OAuth platform connections: GitHub, Gmail, LinkedIn, X, Medium.
   `/api/connections` GET + DELETE. `/api/connections/[platform]/callback` per platform.
   Encrypted token storage. `PlatformConnectionsStep.tsx` implementation.
@@ -192,7 +194,7 @@ the stamp a mint presses on a coin — authentic, certified, from a specific sou
 NEXT_PUBLIC_SUPABASE_URL=your_url
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...   # from Supabase dashboard → API Keys
 SUPABASE_SECRET_KEY=sb_secret_...                         # from Supabase dashboard → API Keys
-NEXTAUTH_SECRET=generate_with_openssl_rand_base64_32
+AUTH_SECRET=generate_with_openssl_rand_base64_32
 ENCRYPTION_KEY=generate_with_openssl_rand_base64_32
 ```
 
@@ -575,6 +577,7 @@ This makes the referral loop feel rewarding immediately.
 ### What exists already (added in Step 5 refactor)
 
 `src/lib/config.ts` — already created. Exports:
+
 - `REFERRAL_SLOTS_BONUS = 5` — must stay in sync with the `-5 per referral`
   logic in the `get_waitlist_position` DB function.
 - `getEarlyAccessLimit(supabase)` — reads `system_config` table key
@@ -854,7 +857,7 @@ Add TRIGGER_SECRET_KEY to the env vars list in the README.
    NEXT_PUBLIC_SUPABASE_URL
    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
    SUPABASE_SECRET_KEY
-   NEXTAUTH_SECRET
+   AUTH_SECRET
    NEXTAUTH_URL (your Vercel URL)
    ENCRYPTION_KEY
    RESEND_API_KEY
@@ -877,7 +880,7 @@ Check every file and flag any issues in these categories:
 SECURITY AUDIT:
 - Any env vars referenced in client components or client-side code
   that should be server-only (SUPABASE_SECRET_KEY, ENCRYPTION_KEY,
-  RESEND_API_KEY, NEXTAUTH_SECRET must NEVER appear in any file
+  RESEND_API_KEY, AUTH_SECRET must NEVER appear in any file
   that runs client-side)
 - Any API route missing rate limiting
 - Any DB query missing user_id scoping
@@ -911,19 +914,19 @@ Fix all P0 issues automatically.
 
 Copy this into your Vercel project settings:
 
-| Variable                             | Source                                               | Client?        |
-| ------------------------------------ | ---------------------------------------------------- | -------------- |
-| NEXT_PUBLIC_SUPABASE_URL             | Supabase dashboard → API Keys                        | ✅ yes         |
-| NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY | Supabase dashboard → API Keys (`sb_publishable_...`) | ✅ yes         |
-| SUPABASE_SECRET_KEY                  | Supabase dashboard → API Keys (`sb_secret_...`)      | ❌ server only |
-| NEXTAUTH_SECRET                      | `openssl rand -base64 32`                            | ❌ server only |
-| NEXTAUTH_URL                         | your domain                                          | ❌ server only |
-| ENCRYPTION_KEY                       | `openssl rand -hex 32`                               | ❌ server only |
-| RESEND_API_KEY                       | resend.com dashboard                                 | ❌ server only |
-| UPSTASH_REDIS_REST_URL               | upstash.com dashboard                                | ❌ server only |
-| UPSTASH_REDIS_REST_TOKEN             | upstash.com dashboard                                | ❌ server only |
-| ADMIN_SECRET                         | make up a strong password                            | ❌ server only |
-| TRIGGER_SECRET_KEY                   | trigger.dev dashboard                                | ❌ server only |
+| Variable                             | Source                                                                   | Client?        |
+| ------------------------------------ | ------------------------------------------------------------------------ | -------------- |
+| NEXT_PUBLIC_SUPABASE_URL             | Supabase dashboard → API Keys                                            | ✅ yes         |
+| NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY | Supabase dashboard → API Keys (`sb_publishable_...`)                     | ✅ yes         |
+| SUPABASE_SECRET_KEY                  | Supabase dashboard → API Keys (`sb_secret_...`)                          | ❌ server only |
+| AUTH_SECRET                          | `openssl rand -base64 32`                                                | ❌ server only |
+| NEXTAUTH_URL                         | your domain                                                              | ❌ server only |
+| ENCRYPTION_KEY                       | `openssl rand -hex 32`                                                   | ❌ server only |
+| RESEND_API_KEY                       | resend.com dashboard                                                     | ❌ server only |
+| UPSTASH_REDIS_REST_URL               | upstash.com dashboard                                                    | ❌ server only |
+| UPSTASH_REDIS_REST_TOKEN             | upstash.com dashboard                                                    | ❌ server only |
+| ADMIN_SECRET                         | make up a strong password                                                | ❌ server only |
+| TRIGGER_SECRET_KEY                   | trigger.dev dashboard                                                    | ❌ server only |
 | EARLY_ACCESS_LIMIT                   | number of invite slots (default 100, overridden by system_config DB row) | ❌ server only |
 
 ---

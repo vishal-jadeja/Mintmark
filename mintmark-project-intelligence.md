@@ -107,7 +107,7 @@ ACT (user-initiated, entirely optional)
 
 4. **`/dashboard` — Home**
    The page users open every day. Answers one question clearly:
-   *what have I been investing my mind in, and how is it going?*
+   _what have I been investing my mind in, and how is it going?_
    Components: week-at-a-glance (7 day cells with source dots),
    topic time distribution (ranked, honest numbers), streak counter,
    heatmap widget (compact), intelligence cards (max 2, only when
@@ -172,34 +172,34 @@ ACT (user-initiated, entirely optional)
 ✅ Referral queue mechanics (each referral = -5 positions, min 1)
 ✅ Configurable invite cap (runtime-adjustable via system_config table)
 ✅ API: /api/waitlist/join, /api/waitlist/count,
-        /api/waitlist/referral-stats, /api/waitlist/verify
+/api/waitlist/referral-stats, /api/waitlist/verify
 ✅ Existing users re-submitting get their rank + referral link
 ✅ Invite acceptance page /invite/[token], login page, NextAuth v5 — Step 6
 ✅ Admin dashboard /admin, 5 API routes, NextAuth JWT proxy protection — Step 7
 
 **STEP 8 — ONBOARDING** 🟡 In Progress (Phases 8.1–8.2 of 8 complete; 8.8 partial)
 ✅ Phase 8.1 — DB schema: api_keys, platform_connections, platform_instructions,
-  unified_activity, topic_nodes (supabase/phase8_schema.sql)
+unified_activity, topic_nodes (supabase/phase8_schema.sql)
 ✅ Phase 8.2 — Routing + wizard shell: /onboarding layout + page, 4-step wizard,
-  progress indicator, onboardingStore, PATCH /api/user/onboarding, proxy protection
-  Also built ahead of 8.8: (app) route group layout, AppSidebar, AppBottomNav,
-  nav-items.ts, dashboard stub page with onboarding guard
+progress indicator, onboardingStore, PATCH /api/user/onboarding, proxy protection
+Also built ahead of 8.8: (app) route group layout, AppSidebar, AppBottomNav,
+nav-items.ts, dashboard stub page with onboarding guard
 ⬜ Phase 8.3 — Platform OAuth connections (GitHub, Gmail, LinkedIn, X, Medium) ← NEXT
 ⬜ Phase 8.4 — GitHub commit backfill (Trigger.dev, 90 days → unified_activity)
 ⬜ Phase 8.5 — Active platforms + per-platform AI instructions
 ⬜ Phase 8.6 — First manual session log → unified_activity + topic_nodes
 ⬜ Phase 8.7 — BYOK API key (optional onboarding step)
 🟡 Phase 8.8 — Dashboard scaffold (heatmap, week calendar, streak, empty state)
-  Layout shell done. Dashboard page components + API route still needed.
+Layout shell done. Dashboard page components + API route still needed.
 
 **MAIN APP** (post-Step-8)
 GitHub integration: OAuth connect + 90-day commit backfill → unified_activity
 Manual session logger: log offline work → AI auto-tags into topics →
-  feeds unified_activity → visible on calendar immediately
+feeds unified_activity → visible on calendar immediately
 Dashboard: week-at-a-glance, topic time distribution, heatmap widget,
-  streak counter, intelligence cards (only when genuinely useful)
+streak counter, intelligence cards (only when genuinely useful)
 Content studio: paste or describe what you learned → generate drafts
-  only for active platforms → edit → schedule or publish
+only for active platforms → edit → schedule or publish
 Notes: markdown editor, auto-topic tagging, folder organization, search
 AI assistant scaffold: stub page + BYOK check, full RAG in Phase 2
 PWA: installable on mobile, offline support, bottom nav on mobile
@@ -209,30 +209,30 @@ Security: encrypted OAuth token storage, BYOK AI keys, RLS everywhere
 
 Daily intelligence job (Trigger.dev cron, midnight per user)
 AI assistant full implementation: RAG pipeline, pgvector, streaming,
-  topic graph queries, activity summaries, source citations
+topic graph queries, activity summaries, source citations
 Notes embedding: embed on save (debounced), pgvector search
 Topic extraction and tagging from notes (background job, debounced 10 min)
 Knowledge graph: D3 force layout, topic_nodes + topic_edges
 Calendar view: full month, activity overlay per source, task reminders,
-  scheduled posts display
+scheduled posts display
 Gmail intelligence widget on dashboard: surface newsletters, flag
-  important threads, one-click article → note
-  (Gmail connection established in onboarding; intelligence surfaced here)
+important threads, one-click article → note
+(Gmail connection established in onboarding; intelligence surfaced here)
 Auto-brief system: suggestion card when notable learning detected →
-  one-tap note save, never auto-saves silently
+one-tap note save, never auto-saves silently
 Weekly Learning Review: Monday card, 3–5 suggestions, stable all week,
-  generated Sunday night by Trigger.dev
+generated Sunday night by Trigger.dev
 Notion two-way sync: pull/push notes, conflict resolution, 30-min cron
 
 ### Phase 3 (Planned)
 
 Chrome Extension (Manifest V3)
-  Browser activity: domain + time, processed locally, category auto-tag
-  YouTube tracking: title, channel, duration, completion %, transcript
-    if watched > 50%
-  LeetCode: problem title, difficulty, topic tags, solve status
-  Privacy-first: raw URLs never leave browser, only aggregated summaries
-    sent to backend, full delete at any time
+Browser activity: domain + time, processed locally, category auto-tag
+YouTube tracking: title, channel, duration, completion %, transcript
+if watched > 50%
+LeetCode: problem title, difficulty, topic tags, solve status
+Privacy-first: raw URLs never leave browser, only aggregated summaries
+sent to backend, full delete at any time
 Browser + YouTube activity → unified_activity via extension
 Voice-to-Content: record voice note → transcribe → generate platform drafts
 Privacy controls dashboard: full data viewer per source and date range
@@ -269,45 +269,45 @@ Full open source prep + case study writeup
 
 ### What has been built
 
-| Area | File(s) | Status |
-|------|---------|--------|
-| TanStack Query provider | src/providers/QueryProvider.tsx | ✅ Done |
-| Shared Axios instance | src/lib/axios.ts | ✅ Done |
-| Runtime config (invite cap, referral bonus) | src/lib/config.ts | ✅ Done |
-| Waitlist query hooks | src/lib/queries/waitlist.ts | ✅ Done |
-| Admin query hooks | src/lib/queries/admin.ts | ✅ Done |
-| Token query hook | src/lib/queries/tokens.ts | ✅ Done |
-| UI Zustand store | src/stores/uiStore.ts | ✅ Done |
-| Admin Zustand store | src/stores/adminStore.ts | ✅ Done |
-| WaitlistForm | src/components/waitlist/WaitlistForm.tsx | ✅ Done |
-| LandingPage | src/components/landing/LandingPage.tsx | ✅ Done |
-| Waitlist API routes (4 routes) | src/app/api/waitlist/ | ✅ Done |
-| Supabase SSR cookie helper | src/proxy.ts | ✅ Done |
-| Invite acceptance page | src/app/invite/[token]/page.tsx | ✅ Done |
-| Invite signup form | src/components/auth/InviteSignupForm.tsx | ✅ Done |
-| Invite auth API routes | src/app/api/auth/verify-token/ + accept-invite/ | ✅ Done |
-| Login page | src/app/login/page.tsx | ✅ Done |
-| NextAuth v5 config | src/auth.ts | ✅ Done |
-| NextAuth type augmentation | src/types/next-auth.d.ts | ✅ Done |
-| Admin dashboard | src/app/admin/page.tsx + AdminDashboard.tsx | ✅ Done |
-| Admin API routes (5 routes) | src/app/api/admin/ | ✅ Done |
-| Admin server-side guard | src/lib/auth/requireAdmin.ts | ✅ Done |
-| Next.js proxy (admin + app JWT protection) | src/proxy.ts | ✅ Done |
-| CLAUDE.md | CLAUDE.md | ✅ Done |
-| Phase 8.1 — DB schema extension (5 tables) | supabase/phase8_schema.sql | ✅ Done |
-| DB types update (onboarding + API keys) | src/types/database.ts | ✅ Done |
-| Onboarding Zustand store | src/stores/onboardingStore.ts | ✅ Done |
-| Onboarding wizard + progress indicator | src/components/onboarding/OnboardingWizard.tsx + OnboardingProgress.tsx | ✅ Done |
-| Onboarding step components (4 shells) | src/components/onboarding/steps/ | ✅ Done |
-| Onboarding layout + page (server component) | src/app/onboarding/layout.tsx + page.tsx | ✅ Done |
-| Onboarding PATCH API route | src/app/api/user/onboarding/route.ts | ✅ Done |
-| Onboarding TanStack Query hooks | src/lib/queries/onboarding.ts | ✅ Done |
-| App route protection (/dashboard, /onboarding, /api/user) | src/proxy.ts | ✅ Done |
-| App shell layout (sidebar + bottom nav) | src/app/(app)/layout.tsx | ✅ Done |
-| Sidebar component | src/components/layout/AppSidebar.tsx | ✅ Done |
-| Bottom nav component | src/components/layout/AppBottomNav.tsx | ✅ Done |
-| Nav item definitions | src/components/layout/nav-items.ts | ✅ Done |
-| Dashboard page stub (with onboarding guard) | src/app/(app)/dashboard/page.tsx | ✅ Done (stub) |
+| Area                                                      | File(s)                                                                 | Status         |
+| --------------------------------------------------------- | ----------------------------------------------------------------------- | -------------- |
+| TanStack Query provider                                   | src/providers/QueryProvider.tsx                                         | ✅ Done        |
+| Shared Axios instance                                     | src/lib/axios.ts                                                        | ✅ Done        |
+| Runtime config (invite cap, referral bonus)               | src/lib/config.ts                                                       | ✅ Done        |
+| Waitlist query hooks                                      | src/lib/queries/waitlist.ts                                             | ✅ Done        |
+| Admin query hooks                                         | src/lib/queries/admin.ts                                                | ✅ Done        |
+| Token query hook                                          | src/lib/queries/tokens.ts                                               | ✅ Done        |
+| UI Zustand store                                          | src/stores/uiStore.ts                                                   | ✅ Done        |
+| Admin Zustand store                                       | src/stores/adminStore.ts                                                | ✅ Done        |
+| WaitlistForm                                              | src/components/waitlist/WaitlistForm.tsx                                | ✅ Done        |
+| LandingPage                                               | src/components/landing/LandingPage.tsx                                  | ✅ Done        |
+| Waitlist API routes (4 routes)                            | src/app/api/waitlist/                                                   | ✅ Done        |
+| Supabase SSR cookie helper                                | src/proxy.ts                                                            | ✅ Done        |
+| Invite acceptance page                                    | src/app/invite/[token]/page.tsx                                         | ✅ Done        |
+| Invite signup form                                        | src/components/auth/InviteSignupForm.tsx                                | ✅ Done        |
+| Invite auth API routes                                    | src/app/api/auth/verify-token/ + accept-invite/                         | ✅ Done        |
+| Login page                                                | src/app/login/page.tsx                                                  | ✅ Done        |
+| NextAuth v5 config                                        | src/auth.ts                                                             | ✅ Done        |
+| NextAuth type augmentation                                | src/types/next-auth.d.ts                                                | ✅ Done        |
+| Admin dashboard                                           | src/app/admin/page.tsx + AdminDashboard.tsx                             | ✅ Done        |
+| Admin API routes (5 routes)                               | src/app/api/admin/                                                      | ✅ Done        |
+| Admin server-side guard                                   | src/lib/auth/requireAdmin.ts                                            | ✅ Done        |
+| Next.js proxy (admin + app JWT protection)                | src/proxy.ts                                                            | ✅ Done        |
+| CLAUDE.md                                                 | CLAUDE.md                                                               | ✅ Done        |
+| Phase 8.1 — DB schema extension (5 tables)                | supabase/phase8_schema.sql                                              | ✅ Done        |
+| DB types update (onboarding + API keys)                   | src/types/database.ts                                                   | ✅ Done        |
+| Onboarding Zustand store                                  | src/stores/onboardingStore.ts                                           | ✅ Done        |
+| Onboarding wizard + progress indicator                    | src/components/onboarding/OnboardingWizard.tsx + OnboardingProgress.tsx | ✅ Done        |
+| Onboarding step components (4 shells)                     | src/components/onboarding/steps/                                        | ✅ Done        |
+| Onboarding layout + page (server component)               | src/app/onboarding/layout.tsx + page.tsx                                | ✅ Done        |
+| Onboarding PATCH API route                                | src/app/api/user/onboarding/route.ts                                    | ✅ Done        |
+| Onboarding TanStack Query hooks                           | src/lib/queries/onboarding.ts                                           | ✅ Done        |
+| App route protection (/dashboard, /onboarding, /api/user) | src/proxy.ts                                                            | ✅ Done        |
+| App shell layout (sidebar + bottom nav)                   | src/app/(app)/layout.tsx                                                | ✅ Done        |
+| Sidebar component                                         | src/components/layout/AppSidebar.tsx                                    | ✅ Done        |
+| Bottom nav component                                      | src/components/layout/AppBottomNav.tsx                                  | ✅ Done        |
+| Nav item definitions                                      | src/components/layout/nav-items.ts                                      | ✅ Done        |
+| Dashboard page stub (with onboarding guard)               | src/app/(app)/dashboard/page.tsx                                        | ✅ Done (stub) |
 
 ### What's next
 
@@ -359,9 +359,9 @@ Onboarding must solve this on day one.
 **Step 1 — Platform connections**
 Connect at least one: GitHub, Gmail, LinkedIn, X.
 Connecting GitHub → immediately backfill 90 days of commit history
-  into unified_activity. Heatmap is populated before they leave onboarding.
+into unified_activity. Heatmap is populated before they leave onboarding.
 Connecting Gmail → establish permission; intelligence surfacing begins in
-  Phase 2. Connection is made now so Phase 2 has no auth friction.
+Phase 2. Connection is made now so Phase 2 has no auth friction.
 All backfills run as Trigger.dev background tasks, not blocking.
 
 **Step 2 — Platform selection**
@@ -385,6 +385,7 @@ Never an error, always a next action.
 
 **Step 5 — Quick wins on dashboard after onboarding**
 Dashboard must never be blank after onboarding:
+
 - GitHub connected → heatmap shows real data
 - Session logged → calendar shows today's dot, streak starts at 1
 - Both → topic distribution shows first data point
@@ -444,6 +445,7 @@ The intelligence layer is aggressive about filtering.
 A quiet day shows nothing — no cards, no noise, no filler.
 
 Suggestion card types:
+
 - **Brief suggestion**: "You spent 90 min on system design today.
   Want to save a quick note?" → one-tap save, or dismiss.
   Never auto-saves. User stays in control.
@@ -468,6 +470,7 @@ unified activity feed. It is valuable precisely because it is scoped to
 the user's own data — not general knowledge retrieval.
 
 The assistant knows:
+
 - What the user has been studying (sessions + browser activity)
 - What they have built (GitHub activity)
 - What they have written and synthesized (notes)
@@ -475,6 +478,7 @@ The assistant knows:
 - Their topic patterns over time (topic_nodes, unified_activity)
 
 What it handles well:
+
 - "What do I actually know about system design? Where are my gaps?"
 - "I've been reading about load balancers for a week. Quiz me."
 - "What should I study next given what I've been working on?"
@@ -483,11 +487,13 @@ What it handles well:
 - "I have a system design interview in 2 weeks. Help me plan."
 
 What it does NOT do:
+
 - General internet search (that is what Google is for)
 - Answer questions outside the user's own data without flagging it
 - Auto-save anything (suggestions only, user decides)
 
 Key UX rules:
+
 - Every response shows which notes / sessions it referenced (collapsible)
 - Streaming responses — never wait for a full answer
 - Full page, not a floating widget. Cmd+K to open.
@@ -582,12 +588,14 @@ Save as status=draft in generated_content
 ### What is actually possible per platform
 
 **GitHub**
+
 - OAuth app flow ✅
 - Commits, PRs, reviews via REST API ✅
 - 90-day backfill on connect ✅
 - Feeds unified_activity as source=github
 
 **Gmail**
+
 - OAuth scope: gmail.readonly ✅
 - Surface newsletters and flagged threads on dashboard ✅ (Phase 2)
 - One-click article → note ✅ (Phase 2)
@@ -595,18 +603,21 @@ Save as status=draft in generated_content
 - Never sends email on user's behalf
 
 **LinkedIn**
+
 - Publish posts via API ✅
 - OAuth PKCE flow ✅
 - Basic post performance (impressions, reactions, comments) ✅
   Used internally by Opportunity Agent — never displayed as metrics
 
 **X (Twitter)**
+
 - Publish posts via API ✅
 - OAuth PKCE flow ✅
 - Post performance: limited on free API tier
   Track: published at, post URL only on free tier.
 
 **Medium**
+
 - Publish posts via API ✅
 - OAuth flow ✅
 - No public analytics API — Mintmark tracks published_at + post_url only
@@ -624,12 +635,14 @@ internally — but no metrics dashboard is exposed to the user.
 ## Content Studio Rules
 
 ### Platform selection
+
 User sets active platforms once in Settings.
 Content Studio shows only active platform panels.
 User can override for a specific post without changing global setting.
 Fewer platforms = fewer AI calls = lower cost on user's BYOK key.
 
 ### Generation rules
+
 Only generate when user explicitly submits in Content Studio.
 Never auto-generate in the background without user action.
 All active platforms generated in parallel (Promise.all).
@@ -638,17 +651,19 @@ Content saved as status=draft first.
 Published only on explicit user action — never automatic.
 
 ### Per-platform format rules (enforced at agent level)
+
 LinkedIn: max 3000 chars, professional storytelling, hook in first line,
-  whitespace-friendly formatting
+whitespace-friendly formatting
 X: max 280 chars, punchy, hook-first, no filler
 Medium: unlimited, deep dive, well-structured with headers,
-  intro that earns the scroll
+intro that earns the scroll
 
 ### AI instructions
+
 User defines per-platform tone, style, and examples in Settings.
 Stored in platform_instructions table.
 Every generation call: system prompt = platform instructions +
-  format rules + enriched brief from Research Agent.
+format rules + enriched brief from Research Agent.
 Switching providers (Anthropic → OpenAI etc.) requires zero UI change.
 
 ---
@@ -902,20 +917,20 @@ Rendered with D3.js — never a third-party heatmap library
 
 ### Sources by phase
 
-| Source  | What counts                        | Phase |
-|---------|------------------------------------|-------|
-| session | manual sessions logged             | 1     |
-| github  | commits, PRs, reviews              | 1     |
-| linkedin| posts published                    | 1     |
-| x       | posts published                    | 1     |
-| notes   | notes created or updated           | 2     |
-| gmail   | newsletters read, articles opened  | 2     |
-| browser | time on domain (from extension)    | 3     |
-| youtube | videos watched >50%                | 3     |
-| leetcode| problems solved                    | 3     |
-| medium  | articles read                      | 3     |
-| vscode  | coding time tracked                | 4     |
-| codeforces | problems solved, contests       | 4     |
+| Source     | What counts                       | Phase |
+| ---------- | --------------------------------- | ----- |
+| session    | manual sessions logged            | 1     |
+| github     | commits, PRs, reviews             | 1     |
+| linkedin   | posts published                   | 1     |
+| x          | posts published                   | 1     |
+| notes      | notes created or updated          | 2     |
+| gmail      | newsletters read, articles opened | 2     |
+| browser    | time on domain (from extension)   | 3     |
+| youtube    | videos watched >50%               | 3     |
+| leetcode   | problems solved                   | 3     |
+| medium     | articles read                     | 3     |
+| vscode     | coding time tracked               | 4     |
+| codeforces | problems solved, contests         | 4     |
 
 ### Caching
 
@@ -940,8 +955,8 @@ actual content (note, post, session, GitHub repo).
 Today: completed activity + pending calendar tasks + suggestion cards.
 
 Future days: scheduled posts from generated_content (status=scheduled),
-  user-set reminders from calendar_tasks.
-  No AI suggestions on future dates — only confirmed items.
+user-set reminders from calendar_tasks.
+No AI suggestions on future dates — only confirmed items.
 
 ### Task reminders
 
@@ -970,6 +985,7 @@ Code blocks and images in Notion: stripped to plain text on pull.
 ## Chrome Extension (Phase 3) — Privacy Rules
 
 What is tracked (opt-in per category):
+
 - Browser: domain only (not full URL), time spent, category tag
   No page content, no keystrokes, no form data — ever
 - YouTube: title, channel, category, duration, completion %
@@ -977,12 +993,14 @@ What is tracked (opt-in per category):
 - LeetCode: problem title, difficulty, topic tags, solve status
 
 What is never tracked:
+
 - Full URLs or page content of any site
 - Any input, form, password, or personal data
 - Sites on user's personal blocklist
 - Anything outside opted-in categories
 
 Data handling:
+
 - Raw browsing data processed locally in extension first
 - Only aggregated domain + time summary sent to backend
 - Raw URL data never leaves the browser
@@ -1010,7 +1028,7 @@ Gmail: readonly scope only, never send on user's behalf
 Voice audio: private Supabase Storage bucket, user-scoped policies
 
 Must never reach client bundle:
-NEXTAUTH_SECRET, SUPABASE_SERVICE_KEY, ENCRYPTION_KEY, BREVO_API_KEY
+AUTH_SECRET, SUPABASE_SERVICE_KEY, ENCRYPTION_KEY, BREVO_API_KEY
 
 ---
 
@@ -1032,7 +1050,7 @@ Daily intelligence job: max 2 AI calls per user per run.
 Content generation: fires only on explicit user action.
 Auto-brief: only if session ≥ 20 min AND has a topic tag.
 Opportunity Agent: only if 3+ signals on topic this week
-  AND no post on that topic in 7+ days.
+AND no post on that topic in 7+ days.
 Assistant RAG: never retrieve more than top 8 results.
 Critic/Reviser loop: max 2 iterations before shipping draft.
 
@@ -1048,7 +1066,7 @@ Batch related cache reads into single operations.
 Debounce topic extraction: 10 minutes after last note save.
 Debounce knowledge graph recompute: 5 minutes after last note save.
 Daily intelligence: one cron job fans out to all users,
-  not one cron job per user.
+not one cron job per user.
 
 ---
 
@@ -1059,24 +1077,24 @@ Daily intelligence: one cron job fans out to all users,
 Every feature built assuming 100k users from day one.
 No hardcoded user limits in business logic.
 All heavy processing in Trigger.dev background tasks,
-  never blocking API route handlers.
+never blocking API route handlers.
 All DB queries scoped with indexes on user_id + created_at.
 No N+1 queries — always batch or join.
 
 ### Caching strategy
 
 Upstash Redis:
-  Heatmap per user — 1 hour TTL, invalidate on activity write
-  Dashboard intelligence cards — 1 hour TTL, invalidate on new intelligence
-  Platform connection status per user — 5 min TTL
-  Rate limiting — no TTL, sliding window
-  Never cache auth or token data
+Heatmap per user — 1 hour TTL, invalidate on activity write
+Dashboard intelligence cards — 1 hour TTL, invalidate on new intelligence
+Platform connection status per user — 5 min TTL
+Rate limiting — no TTL, sliding window
+Never cache auth or token data
 
 ### Database scaling
 
 Connection pooling: Supabase pgBouncer in transaction mode.
 Partition heavy tables (unified_activity, activity_log,
-  generated_content) by created_at month when rows exceed 10M.
+generated_content) by created_at month when rows exceed 10M.
 Vector search always scoped to user's embeddings — never global.
 All new tables require: user_id index + created_at index minimum.
 
@@ -1101,6 +1119,7 @@ Provider: Brevo — @getbrevo/brevo SDK + React Email templates
 From: notifications@mintmark.app
 
 Email types:
+
 - Waitlist confirmation (immediate, transactional)
 - Referral milestone (moved up X spots)
 - Invite (unique token, 48hr expiry)
@@ -1110,6 +1129,7 @@ Email types:
 - Notion conflict alert (when manual resolution needed)
 
 Rules:
+
 - Plain text version always included
 - Unsubscribe in every non-transactional email
 - User controls per email type in Settings
@@ -1123,9 +1143,9 @@ Rules:
 Auto-generated at mintmark.app/u/[username].
 Off by default. Opt-in in Settings.
 Shows: heatmap (intensity only, no source breakdown),
-  topic cloud, recent published posts, activity stats summary.
+topic cloud, recent published posts, activity stats summary.
 Never shows: notes content, session details, browsing data,
-  source breakdown of heatmap, AI conversations.
+source breakdown of heatmap, AI conversations.
 ISR on Vercel, revalidated hourly.
 Username: alphanumeric + hyphens, 3–30 chars, no reserved words.
 
@@ -1145,8 +1165,8 @@ Dark mode by default, light mode toggle available.
 
 Stitch project: https://stitch.withgoogle.com/projects/3017715713759689498
 Stitch MCP: claude mcp add stitch --transport http
-  --url "https://stitch.googleapis.com/mcp"
-  --header "X-Goog-Api-Key: [key]"
+--url "https://stitch.googleapis.com/mcp"
+--header "X-Goog-Api-Key: [key]"
 
 ---
 
@@ -1179,79 +1199,80 @@ Not a Pomodoro or productivity timer — Mintmark tracks, it does not time
 ## How to Help Me
 
 When writing data-fetching code: TanStack Query always,
-  never useState + useEffect to fetch, all HTTP via src/lib/axios.ts.
+never useState + useEffect to fetch, all HTTP via src/lib/axios.ts.
 
 When cross-component state needed after mutation: Zustand store flag.
 
 When building any AI feature:
-  - Confirm it uses the BYOK adapter
-  - Confirm it is strictly scoped to requesting user's data (user_id first)
-  - Confirm it has a threshold check before the AI call
-  - Confirm it streams where UX benefits from streaming
-  - Confirm it cites sources when answering from user's data
+
+- Confirm it uses the BYOK adapter
+- Confirm it is strictly scoped to requesting user's data (user_id first)
+- Confirm it has a threshold check before the AI call
+- Confirm it streams where UX benefits from streaming
+- Confirm it cites sources when answering from user's data
 
 When the AI assistant is involved: it must never behave as a general
-  chatbot. If the user asks something outside their own data, the
-  assistant acknowledges the limit and redirects to what it does know.
+chatbot. If the user asks something outside their own data, the
+assistant acknowledges the limit and redirects to what it does know.
 
 When suggesting AI calls: ask "does this justify a call?"
-  If a rule-based check can answer the same question, use the rule.
+If a rule-based check can answer the same question, use the rule.
 
 When building any agent: implement as a Trigger.dev task.
-  No external agent framework. Native TypeScript orchestration only.
+No external agent framework. Native TypeScript orchestration only.
 
 When building heatmap or calendar features:
-  Always write to unified_activity.
-  Never create source-specific tables.
-  Always include (user_id, activity_date) index.
+Always write to unified_activity.
+Never create source-specific tables.
+Always include (user_id, activity_date) index.
 
 When building the intelligence layer:
-  Threshold check before AI call — always.
-  Never surface more than 2 suggestion cards at once.
-  Never show the same suggestion type two days in a row.
-  A quiet day must show nothing — no filler cards.
+Threshold check before AI call — always.
+Never surface more than 2 suggestion cards at once.
+Never show the same suggestion type two days in a row.
+A quiet day must show nothing — no filler cards.
 
 When building content generation:
-  Read user_settings.active_platforms first.
-  Only generate for active platforms — never all three by default.
-  Check platform is in active set before creating an agent task for it.
+Read user_settings.active_platforms first.
+Only generate for active platforms — never all three by default.
+Check platform is in active set before creating an agent task for it.
 
 When building the Gmail intelligence widget (Phase 2):
-  Read-only scope — never send, never store raw email content.
-  Surface only — links out to Gmail for full management.
-  Process server-side, user-scoped, never store raw.
+Read-only scope — never send, never store raw email content.
+Surface only — links out to Gmail for full management.
+Process server-side, user-scoped, never store raw.
 
 When building browser or YouTube tracking (Phase 3):
-  Processing happens in the Chrome extension first.
-  Only aggregated summaries reach the backend.
-  Full URLs never leave the browser.
-  Always provide delete controls per category and date range.
+Processing happens in the Chrome extension first.
+Only aggregated summaries reach the backend.
+Full URLs never leave the browser.
+Always provide delete controls per category and date range.
 
 When suggesting DB changes: show full migration SQL.
 
 When building API routes: rate limiting + input validation +
-  RLS verification — all three, always.
+RLS verification — all three, always.
 
 When building any user-facing data feature:
-  Include view, export (JSON), and delete controls.
+Include view, export (JSON), and delete controls.
 
 When a phase step completes: update Current Development State.
-  Do not wait to be asked.
+Do not wait to be asked.
 
 When asked about UI: remind to design in Google Stitch first,
-  then build from DESIGN.md.
+then build from DESIGN.md.
 
 When building for mobile: bottom nav below 768px,
-  44px minimum tap targets, test calendar and heatmap on small screens.
+44px minimum tap targets, test calendar and heatmap on small screens.
 
 When evaluating a new feature idea: check if it belongs in the
-  defined phase plan, flag scope creep, flag if it adds unnecessary
-  cost or noise for the user.
+defined phase plan, flag scope creep, flag if it adds unnecessary
+cost or noise for the user.
 
 When someone suggests adding timers, stopwatches, or Pomodoro:
-  Mintmark tracks activity, it does not manage time.
-  A session logger that records duration is the correct pattern.
-  A live timer widget is out of scope.
+Mintmark tracks activity, it does not manage time.
+A session logger that records duration is the correct pattern.
+A live timer widget is out of scope.
 
 Always think about the non-developer user.
 Mintmark is for any professional who learns — not just engineers.
