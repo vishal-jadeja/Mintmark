@@ -1028,7 +1028,7 @@ Gmail: readonly scope only, never send on user's behalf
 Voice audio: private Supabase Storage bucket, user-scoped policies
 
 Must never reach client bundle:
-AUTH_SECRET, SUPABASE_SERVICE_KEY, ENCRYPTION_KEY, BREVO_API_KEY
+NEXTAUTH_SECRET, SUPABASE_SERVICE_KEY, ENCRYPTION_KEY, BREVO_API_KEY
 
 ---
 

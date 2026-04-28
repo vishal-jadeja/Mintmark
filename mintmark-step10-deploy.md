@@ -83,7 +83,7 @@ Copy it to `.env.local` for local dev, populate all values.
 
 ### Environment variable notes
 
-- `AUTH_SECRET`: generate with `openssl rand -hex 32`
+- `NEXTAUTH_SECRET`: generate with `openssl rand -hex 32`
 - `ENCRYPTION_KEY`: generate with `openssl rand -hex 32`
 - `NEXT_PUBLIC_APP_URL`: must be the exact production URL including
   protocol, no trailing slash

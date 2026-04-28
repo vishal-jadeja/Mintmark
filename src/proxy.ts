@@ -8,7 +8,7 @@ export async function proxy(request: NextRequest) {
   if (pathname.startsWith("/admin")) {
     const token = await getToken({
       req: request,
-      secret: process.env.AUTH_SECRET
+      secret: process.env.NEXTAUTH_SECRET
     })
     if (!token) {
       return NextResponse.redirect(new URL("/login", request.url))
@@ -21,7 +21,7 @@ export async function proxy(request: NextRequest) {
   else if (pathname.startsWith("/api/admin")) {
     const token = await getToken({
       req: request,
-      secret: process.env.AUTH_SECRET
+      secret: process.env.NEXTAUTH_SECRET
     })
     if (!token) return NextResponse.redirect(new URL("/login", request.url))
     if ((token.role as string) !== "admin") {
@@ -44,7 +44,7 @@ export async function proxy(request: NextRequest) {
   ) {
     const token = await getToken({
       req: request,
-      secret: process.env.AUTH_SECRET
+      secret: process.env.NEXTAUTH_SECRET
     })
     if (!token) {
       const callbackUrl = encodeURIComponent(
@@ -63,31 +63,6 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL("/admin", request.url))
     }
   }
-
-  // Supabase SSR cookie refresh — remove getUser(), Mintmark uses NextAuth not Supabase Auth
-  const supabaseResponse = NextResponse.next({ request })
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          )
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
-        },
-      },
-    }
-  )
-
-  return supabaseResponse
 }
 
 export const config = {
