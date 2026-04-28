@@ -6,7 +6,7 @@ export async function proxy(request: NextRequest) {
 
   const token = await getToken({
     req: request,
-    secret: process.env.NEXTAUTH_SECRET
+    secret: process.env.AUTH_SECRET
   }).catch((err) => {
     console.error("getToken error:", err)
     return null
@@ -82,8 +82,22 @@ export async function proxy(request: NextRequest) {
   return NextResponse.next()
 }
 
+// export const config = {
+//   matcher: [
+//     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+//   ],
+// }
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/admin/:path*",
+    "/api/admin/:path*",
+    "/dashboard/:path*",
+    "/onboarding/:path*",
+    "/notes/:path*",
+    "/api/user/:path*",
+    "/api/connections/:path*",
+    "/api/notes/:path*",
+    "/api/folders/:path*",
+    "/api/activity/:path*",
   ],
 }

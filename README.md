@@ -295,7 +295,7 @@ in `.env.example`. Key variables:
 | `NEXT_PUBLIC_SUPABASE_URL`             | ✅       | Supabase project URL                                |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | ✅       | Supabase anon key                                   |
 | `SUPABASE_SECRET_KEY`                  | ✅       | Supabase service role key — **server-only**         |
-| `NEXTAUTH_SECRET`                      | ✅       | `openssl rand -hex 32`                              |
+| `AUTH_SECRET`                          | ✅       | `openssl rand -hex 32`                              |
 | `NEXTAUTH_URL`                         | ✅       | Exact app URL (no trailing slash)                   |
 | `ENCRYPTION_KEY`                       | ✅       | `openssl rand -hex 32` — AES-256 for tokens at rest |
 | `BREVO_API_KEY`                        | ✅       | Brevo transactional email                           |
@@ -312,7 +312,7 @@ in `.env.example`. Key variables:
 | `MEDIUM_CLIENT_ID/SECRET`              | ⬜       | Medium OAuth                                        |
 | `EARLY_ACCESS_LIMIT`                   | ⬜       | Override invite cap (default 100)                   |
 
-> **Security:** `SUPABASE_SECRET_KEY`, `NEXTAUTH_SECRET`, and
+> **Security:** `SUPABASE_SECRET_KEY`, `AUTH_SECRET`, and
 > `ENCRYPTION_KEY` are server-only. Never prefix with `NEXT_PUBLIC_`.
 
 ---

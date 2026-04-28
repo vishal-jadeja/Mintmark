@@ -194,7 +194,7 @@ the stamp a mint presses on a coin — authentic, certified, from a specific sou
 NEXT_PUBLIC_SUPABASE_URL=your_url
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...   # from Supabase dashboard → API Keys
 SUPABASE_SECRET_KEY=sb_secret_...                         # from Supabase dashboard → API Keys
-NEXTAUTH_SECRET=generate_with_openssl_rand_base64_32
+AUTH_SECRET=generate_with_openssl_rand_base64_32
 ENCRYPTION_KEY=generate_with_openssl_rand_base64_32
 ```
 
@@ -857,7 +857,7 @@ Add TRIGGER_SECRET_KEY to the env vars list in the README.
    NEXT_PUBLIC_SUPABASE_URL
    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
    SUPABASE_SECRET_KEY
-   NEXTAUTH_SECRET
+   AUTH_SECRET
    NEXTAUTH_URL (your Vercel URL)
    ENCRYPTION_KEY
    RESEND_API_KEY
@@ -880,7 +880,7 @@ Check every file and flag any issues in these categories:
 SECURITY AUDIT:
 - Any env vars referenced in client components or client-side code
   that should be server-only (SUPABASE_SECRET_KEY, ENCRYPTION_KEY,
-  RESEND_API_KEY, NEXTAUTH_SECRET must NEVER appear in any file
+  RESEND_API_KEY, AUTH_SECRET must NEVER appear in any file
   that runs client-side)
 - Any API route missing rate limiting
 - Any DB query missing user_id scoping
@@ -919,7 +919,7 @@ Copy this into your Vercel project settings:
 | NEXT_PUBLIC_SUPABASE_URL             | Supabase dashboard → API Keys                                            | ✅ yes         |
 | NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY | Supabase dashboard → API Keys (`sb_publishable_...`)                     | ✅ yes         |
 | SUPABASE_SECRET_KEY                  | Supabase dashboard → API Keys (`sb_secret_...`)                          | ❌ server only |
-| NEXTAUTH_SECRET                      | `openssl rand -base64 32`                                                | ❌ server only |
+| AUTH_SECRET                          | `openssl rand -base64 32`                                                | ❌ server only |
 | NEXTAUTH_URL                         | your domain                                                              | ❌ server only |
 | ENCRYPTION_KEY                       | `openssl rand -hex 32`                                                   | ❌ server only |
 | RESEND_API_KEY                       | resend.com dashboard                                                     | ❌ server only |
