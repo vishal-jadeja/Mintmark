@@ -26,6 +26,7 @@ export interface PlatformInstruction {
   instruction_text: string | null
   tone: string | null
   format_rules: string | null
+  max_length: number | null
 }
 
 export function usePlatformInstructions() {
@@ -116,6 +117,7 @@ interface UpsertPlatformInstructionInput {
   tone?: string
   instruction_text?: string
   format_rules?: string
+  max_length?: number | null
 }
 
 export function useUpdateActivePlatforms() {
@@ -136,6 +138,83 @@ export function useUpdateActivePlatforms() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["user-settings"] })
+    },
+  })
+}
+
+// ─── Account / profile hooks ───────────────────────────────────────────────
+
+interface UpdateProfileInput {
+  name?: string
+  avatar?: string
+}
+
+interface UpdateProfileResult {
+  name: string | null
+  avatar: string | null
+}
+
+export function useUpdateProfile() {
+  return useMutation<UpdateProfileResult, Error, UpdateProfileInput>({
+    mutationFn: async (payload) => {
+      try {
+        const { data } = await api.patch<UpdateProfileResult>("/api/user/profile", payload)
+        return data
+      } catch (err) {
+        if (isAxiosError(err)) {
+          throw new Error(
+            (err.response?.data as { error?: string })?.error ?? "Failed to update profile."
+          )
+        }
+        throw err
+      }
+    },
+  })
+}
+
+interface ChangePasswordInput {
+  currentPassword: string
+  newPassword: string
+}
+
+export function useChangePassword() {
+  return useMutation<{ success: boolean }, Error, ChangePasswordInput>({
+    mutationFn: async (payload) => {
+      try {
+        const { data } = await api.post<{ success: boolean }>("/api/user/change-password", payload)
+        return data
+      } catch (err) {
+        if (isAxiosError(err)) {
+          throw new Error(
+            (err.response?.data as { error?: string })?.error ?? "Failed to change password."
+          )
+        }
+        throw err
+      }
+    },
+  })
+}
+
+interface DeleteAccountInput {
+  confirmation: string
+}
+
+export function useDeleteAccount() {
+  return useMutation<{ success: boolean }, Error, DeleteAccountInput>({
+    mutationFn: async (payload) => {
+      try {
+        const { data } = await api.delete<{ success: boolean }>("/api/user/account", {
+          data: payload,
+        })
+        return data
+      } catch (err) {
+        if (isAxiosError(err)) {
+          throw new Error(
+            (err.response?.data as { error?: string })?.error ?? "Failed to delete account."
+          )
+        }
+        throw err
+      }
     },
   })
 }

@@ -347,6 +347,8 @@ export interface Database {
           tone: PlatformTone | null
           /** User-defined format constraints. null = not yet set. */
           format_rules: string | null
+          /** User's preferred max character limit. null = use platform default. */
+          max_length: number | null
           updated_at: string
         }
         Insert: {
@@ -356,6 +358,7 @@ export interface Database {
           instruction_text?: string | null
           tone?: PlatformTone | null
           format_rules?: string | null
+          max_length?: number | null
           updated_at?: string
         }
         Update: {
@@ -365,6 +368,7 @@ export interface Database {
           instruction_text?: string | null
           tone?: PlatformTone | null
           format_rules?: string | null
+          max_length?: number | null
           updated_at?: string
         }
         Relationships: [
@@ -676,7 +680,14 @@ export type ContentPlatform = "linkedin" | "x" | "medium"
 /** All sources that can appear in unified_activity */
 export type ActivitySource = "github" | "session" | "linkedin" | "x" | "medium" | "notes"
 
-export type PlatformTone = "professional" | "casual" | "educational" | "storytelling"
+export type PlatformTone =
+  | "professional"
+  | "casual"
+  | "educational"
+  | "storytelling"
+  | "witty"
+  | "authoritative"
+  | "inspirational"
 
 // =============================================================================
 // Helper type aliases — mirror the Supabase CLI output pattern

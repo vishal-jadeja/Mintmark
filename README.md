@@ -366,7 +366,7 @@ mintmark/
 │   │   │   ├── auth/           # NextAuth handlers + verify-token + accept-invite
 │   │   │   ├── admin/          # Admin API routes (stats, waitlist, invites, config)
 │   │   │   ├── connections/    # Platform OAuth (GET list, DELETE, authorize, callback)
-│   │   │   ├── user/           # User API routes (onboarding, settings, platform-instructions)
+│   │   │   ├── user/           # User API routes (onboarding, settings, platform-instructions, profile, change-password, account)
 │   │   │   └── waitlist/       # Public waitlist API (join, count, referral-stats, verify)
 │   │   ├── layout.tsx          # Root layout (QueryProvider, fonts, dark theme)
 │   │   └── page.tsx            # Landing page
@@ -430,7 +430,7 @@ Mintmark treats security as a first-class concern, not an afterthought.
 | Phase       | Status         | Focus                                                                             |
 | ----------- | -------------- | --------------------------------------------------------------------------------- |
 | **Phase 1** | ✅ Complete    | Early access system — waitlist, invites, admin dashboard                          |
-| **Phase 2** | 🟡 In Progress | Onboarding (Steps 8.1–8.5 done), BYOK key, Dashboard scaffold, Content Studio, AI |
+| **Phase 2** | 🟡 In Progress | Onboarding, BYOK key, Dashboard scaffold, Notes page, Settings (account, connections, API keys, privacy) |
 | **Phase 3** | 🔲 Planned     | Notes editor, Notion sync, AI assistant, Unified Heatmap, Chrome extension        |
 | **Phase 4** | 🔲 Planned     | GitHub, YouTube, LeetCode tracking, VS Code extension, public portfolio           |
 | **Phase 5** | 🔲 Planned     | Weekly digest, trending topics, LinkedIn analytics, content calendar              |

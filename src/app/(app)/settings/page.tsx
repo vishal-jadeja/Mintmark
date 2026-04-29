@@ -8,5 +8,11 @@ export default async function SettingsPage() {
   const session = await auth()
   if (!session?.user?.id) redirect("/login")
 
-  return <SettingsClient />
+  return (
+    <SettingsClient
+      initialName={session.user.name ?? null}
+      initialEmail={session.user.email ?? ""}
+      initialAvatar={session.user.image ?? null}
+    />
+  )
 }

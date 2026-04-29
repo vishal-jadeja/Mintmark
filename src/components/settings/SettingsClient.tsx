@@ -2,13 +2,15 @@
 
 import { Suspense, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Link2, Send, KeyRound, Shield } from "lucide-react"
+import { Link2, Send, KeyRound, Shield, User } from "lucide-react"
 import { ConnectionsTab } from "./ConnectionsTab"
 import { PublishingWidget } from "../dashboard/PublishingWidget"
 import { ApiKeysTab } from "./ApiKeysTab"
 import { PrivacyTab } from "./PrivacyTab"
+import { AccountTab } from "./AccountTab"
 
 const TABS = [
+  { id: "Account"     as const, label: "Account",     Icon: User,     sub: "Profile & security" },
   { id: "Connections" as const, label: "Connections", Icon: Link2,    sub: "Platforms & OAuth" },
   { id: "Publishing"  as const, label: "Publishing",  Icon: Send,     sub: "AI tone & instructions" },
   { id: "AI Keys"     as const, label: "AI Keys",     Icon: KeyRound, sub: "LLM provider keys" },
@@ -16,6 +18,8 @@ const TABS = [
 ]
 
 type Tab = (typeof TABS)[number]["id"]
+
+const DEFAULT_TAB: Tab = "Account"
 
 function ConnectionsSkeleton() {
   return (
@@ -31,8 +35,14 @@ function ConnectionsSkeleton() {
   )
 }
 
-export function SettingsClient() {
-  const [active, setActive] = useState<Tab>("Connections")
+interface SettingsClientProps {
+  initialName: string | null
+  initialEmail: string
+  initialAvatar: string | null
+}
+
+export function SettingsClient({ initialName, initialEmail, initialAvatar }: SettingsClientProps) {
+  const [active, setActive] = useState<Tab>(DEFAULT_TAB)
 
   return (
     <div className="flex min-h-full">
@@ -125,6 +135,13 @@ export function SettingsClient() {
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
             >
+              {active === "Account" && (
+                <AccountTab
+                  initialName={initialName}
+                  initialEmail={initialEmail}
+                  initialAvatar={initialAvatar}
+                />
+              )}
               {active === "Connections" && (
                 <Suspense fallback={<ConnectionsSkeleton />}>
                   <ConnectionsTab />

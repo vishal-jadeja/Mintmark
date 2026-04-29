@@ -177,33 +177,52 @@ ACT (user-initiated, entirely optional)
 ✅ Invite acceptance page /invite/[token], login page, NextAuth v5 — Step 6
 ✅ Admin dashboard /admin, 5 API routes, NextAuth JWT proxy protection — Step 7
 
-**STEP 8 — ONBOARDING** 🟡 In Progress (Phases 8.1–8.2 of 8 complete; 8.8 partial)
+**STEP 8 — ONBOARDING** ✅ Complete (all 8 phases)
 ✅ Phase 8.1 — DB schema: api_keys, platform_connections, platform_instructions,
 unified_activity, topic_nodes (supabase/phase8_schema.sql)
 ✅ Phase 8.2 — Routing + wizard shell: /onboarding layout + page, 4-step wizard,
 progress indicator, onboardingStore, PATCH /api/user/onboarding, proxy protection
-Also built ahead of 8.8: (app) route group layout, AppSidebar, AppBottomNav,
-nav-items.ts, dashboard stub page with onboarding guard
-⬜ Phase 8.3 — Platform OAuth connections (GitHub, Gmail, LinkedIn, X, Medium) ← NEXT
-⬜ Phase 8.4 — GitHub commit backfill (Trigger.dev, 90 days → unified_activity)
-⬜ Phase 8.5 — Active platforms + per-platform AI instructions
-⬜ Phase 8.6 — First manual session log → unified_activity + topic_nodes
-⬜ Phase 8.7 — BYOK API key (optional onboarding step)
-🟡 Phase 8.8 — Dashboard scaffold (heatmap, week calendar, streak, empty state)
-Layout shell done. Dashboard page components + API route still needed.
+✅ Phase 8.3 — Platform OAuth connections (GitHub, Gmail, LinkedIn, X, Medium)
+✅ Phase 8.4 — GitHub commit backfill (Trigger.dev, 90 days → unified_activity)
+✅ Phase 8.5 — Active platforms + per-platform AI instructions
+✅ Phase 8.6 — First manual session log → unified_activity + topic_nodes
+✅ Phase 8.7 — BYOK API key (optional onboarding step)
+✅ Phase 8.8 — Dashboard scaffold (heatmap, week calendar, streak, empty state)
 
-**MAIN APP** (post-Step-8)
-GitHub integration: OAuth connect + 90-day commit backfill → unified_activity
-Manual session logger: log offline work → AI auto-tags into topics →
-feeds unified_activity → visible on calendar immediately
-Dashboard: week-at-a-glance, topic time distribution, heatmap widget,
-streak counter, intelligence cards (only when genuinely useful)
-Content studio: paste or describe what you learned → generate drafts
-only for active platforms → edit → schedule or publish
-Notes: markdown editor, auto-topic tagging, folder organization, search
-AI assistant scaffold: stub page + BYOK check, full RAG in Phase 2
-PWA: installable on mobile, offline support, bottom nav on mobile
-Security: encrypted OAuth token storage, BYOK AI keys, RLS everywhere
+**STEP 9 — BACKGROUND JOBS** ✅ Complete
+✅ Phase 9.1 — send-batch-invites Trigger.dev task
+✅ Phase 9.2 — cleanup-expired-tokens cron (2am UTC)
+✅ Phase 9.3 — daily-intelligence stub
+✅ Phase 9.4 — topic-extraction stub
+
+**STEP 10 — DEPLOY CONFIG** ✅ Complete (code done; manual infra steps pending)
+✅ Phase 10.1 — Production config (next.config.ts, vercel.json)
+✅ Phase 10.2 — Environment variable reference (.env.example, all 22 vars)
+⬜ Phases 10.3–10.9 — Manual infra: Vercel, Supabase, Upstash, Trigger.dev cloud,
+OAuth app production credentials, Brevo domain verification, smoke tests
+
+**STEP 11 — SETTINGS PAGE** ✅ Complete
+✅ Phase 11.1 — Query hooks (useUserSettings, usePlatformInstructions)
+✅ Phase 11.2 — /settings server page + SettingsClient (4 tabs)
+✅ Phase 11.3 — ConnectionsTab (all 5 platforms, connect/disconnect, backfill chip)
+✅ Phase 11.4 — PublishingTab (active platforms + AI instructions)
+✅ Phase 11.5 — ApiKeysTab (4 provider cards, show/delete)
+✅ Phase 11.6 — PrivacyTab (Phase 2 placeholder)
+
+**STEP 12 — NOTES PAGE** ✅ Complete
+✅ Phase 12.1 — DB schema (folders + notes, supabase/phase12_schema.sql)
+✅ Phase 12.2 — Types update (database.ts)
+✅ Phase 12.3 — API routes (notes + folders CRUD)
+✅ Phase 12.4 — Query hooks (src/lib/queries/notes.ts)
+✅ Phase 12.5 — NotesClient (split pane), NotesSidebar, NoteEditor
+✅ Phase 12.6 — Proxy protection
+✅ Phase 12.7 — Markdown preview CSS (.prose-notes in globals.css)
+
+**MAIN APP** (next steps)
+Content Studio: BYOK AI adapter → Trigger.dev generation pipeline → /studio UI ← Step 13
+AI Assistant: RAG context retrieval → streaming chat UI → /assistant ← Step 14
+Daily intelligence: full agent implementation (Phase 2 proper)
+Topic extraction: note embedding pipeline, pgvector search (Phase 2)
 
 ### Phase 2 (Planned)
 
@@ -263,85 +282,79 @@ Full open source prep + case study writeup
 ## Current Development State
 
 > Update this section whenever a phase step completes or a major feature ships.
-> Last updated: 2026-04-21 — Step 8 in progress: Phases 8.1 + 8.2 complete.
-> App shell (sidebar, bottom nav, (app) route group layout) built ahead of 8.8 spec.
-> Phase 8.3 is the active next step.
+> Last updated: 2026-04-29 — Steps 8–12 complete. Step 13 (Content Studio) is next.
 
 ### What has been built
 
-| Area                                                      | File(s)                                                                 | Status         |
-| --------------------------------------------------------- | ----------------------------------------------------------------------- | -------------- |
-| TanStack Query provider                                   | src/providers/QueryProvider.tsx                                         | ✅ Done        |
-| Shared Axios instance                                     | src/lib/axios.ts                                                        | ✅ Done        |
-| Runtime config (invite cap, referral bonus)               | src/lib/config.ts                                                       | ✅ Done        |
-| Waitlist query hooks                                      | src/lib/queries/waitlist.ts                                             | ✅ Done        |
-| Admin query hooks                                         | src/lib/queries/admin.ts                                                | ✅ Done        |
-| Token query hook                                          | src/lib/queries/tokens.ts                                               | ✅ Done        |
-| UI Zustand store                                          | src/stores/uiStore.ts                                                   | ✅ Done        |
-| Admin Zustand store                                       | src/stores/adminStore.ts                                                | ✅ Done        |
-| WaitlistForm                                              | src/components/waitlist/WaitlistForm.tsx                                | ✅ Done        |
-| LandingPage                                               | src/components/landing/LandingPage.tsx                                  | ✅ Done        |
-| Waitlist API routes (4 routes)                            | src/app/api/waitlist/                                                   | ✅ Done        |
-| Supabase SSR cookie helper                                | src/proxy.ts                                                            | ✅ Done        |
-| Invite acceptance page                                    | src/app/invite/[token]/page.tsx                                         | ✅ Done        |
-| Invite signup form                                        | src/components/auth/InviteSignupForm.tsx                                | ✅ Done        |
-| Invite auth API routes                                    | src/app/api/auth/verify-token/ + accept-invite/                         | ✅ Done        |
-| Login page                                                | src/app/login/page.tsx                                                  | ✅ Done        |
-| NextAuth v5 config                                        | src/auth.ts                                                             | ✅ Done        |
-| NextAuth type augmentation                                | src/types/next-auth.d.ts                                                | ✅ Done        |
-| Admin dashboard                                           | src/app/admin/page.tsx + AdminDashboard.tsx                             | ✅ Done        |
-| Admin API routes (5 routes)                               | src/app/api/admin/                                                      | ✅ Done        |
-| Admin server-side guard                                   | src/lib/auth/requireAdmin.ts                                            | ✅ Done        |
-| Next.js proxy (admin + app JWT protection)                | src/proxy.ts                                                            | ✅ Done        |
-| CLAUDE.md                                                 | CLAUDE.md                                                               | ✅ Done        |
-| Phase 8.1 — DB schema extension (5 tables)                | supabase/phase8_schema.sql                                              | ✅ Done        |
-| DB types update (onboarding + API keys)                   | src/types/database.ts                                                   | ✅ Done        |
-| Onboarding Zustand store                                  | src/stores/onboardingStore.ts                                           | ✅ Done        |
-| Onboarding wizard + progress indicator                    | src/components/onboarding/OnboardingWizard.tsx + OnboardingProgress.tsx | ✅ Done        |
-| Onboarding step components (4 shells)                     | src/components/onboarding/steps/                                        | ✅ Done        |
-| Onboarding layout + page (server component)               | src/app/onboarding/layout.tsx + page.tsx                                | ✅ Done        |
-| Onboarding PATCH API route                                | src/app/api/user/onboarding/route.ts                                    | ✅ Done        |
-| Onboarding TanStack Query hooks                           | src/lib/queries/onboarding.ts                                           | ✅ Done        |
-| App route protection (/dashboard, /onboarding, /api/user) | src/proxy.ts                                                            | ✅ Done        |
-| App shell layout (sidebar + bottom nav)                   | src/app/(app)/layout.tsx                                                | ✅ Done        |
-| Sidebar component                                         | src/components/layout/AppSidebar.tsx                                    | ✅ Done        |
-| Bottom nav component                                      | src/components/layout/AppBottomNav.tsx                                  | ✅ Done        |
-| Nav item definitions                                      | src/components/layout/nav-items.ts                                      | ✅ Done        |
-| Dashboard page stub (with onboarding guard)               | src/app/(app)/dashboard/page.tsx                                        | ✅ Done (stub) |
+| Area                                                      | File(s)                                                                          | Status  |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------- | ------- |
+| TanStack Query provider                                   | src/providers/QueryProvider.tsx                                                  | ✅ Done |
+| Shared Axios instance                                     | src/lib/axios.ts                                                                 | ✅ Done |
+| Runtime config (invite cap, referral bonus)               | src/lib/config.ts                                                                | ✅ Done |
+| Waitlist query hooks                                      | src/lib/queries/waitlist.ts                                                      | ✅ Done |
+| Admin query hooks                                         | src/lib/queries/admin.ts                                                         | ✅ Done |
+| Token query hook                                          | src/lib/queries/tokens.ts                                                        | ✅ Done |
+| UI Zustand store                                          | src/stores/uiStore.ts                                                            | ✅ Done |
+| Admin Zustand store                                       | src/stores/adminStore.ts                                                         | ✅ Done |
+| WaitlistForm                                              | src/components/waitlist/WaitlistForm.tsx                                         | ✅ Done |
+| LandingPage                                               | src/components/landing/LandingPage.tsx                                           | ✅ Done |
+| Waitlist API routes (4 routes)                            | src/app/api/waitlist/                                                            | ✅ Done |
+| Supabase SSR + proxy                                      | src/proxy.ts                                                                     | ✅ Done |
+| Invite acceptance page                                    | src/app/invite/[token]/page.tsx                                                  | ✅ Done |
+| Invite signup form                                        | src/components/auth/InviteSignupForm.tsx                                         | ✅ Done |
+| Invite auth API routes                                    | src/app/api/auth/verify-token/ + accept-invite/                                  | ✅ Done |
+| Login page                                                | src/app/login/page.tsx                                                           | ✅ Done |
+| NextAuth v5 config                                        | src/auth.ts                                                                      | ✅ Done |
+| NextAuth type augmentation                                | src/types/next-auth.d.ts                                                         | ✅ Done |
+| Admin dashboard                                           | src/app/admin/page.tsx + AdminDashboard.tsx                                      | ✅ Done |
+| Admin API routes (5 routes)                               | src/app/api/admin/                                                               | ✅ Done |
+| Admin server-side guard                                   | src/lib/auth/requireAdmin.ts                                                     | ✅ Done |
+| Phase 8.1 — DB schema extension (5 tables)                | supabase/phase8_schema.sql                                                       | ✅ Done |
+| DB types                                                  | src/types/database.ts                                                            | ✅ Done |
+| Onboarding Zustand store                                  | src/stores/onboardingStore.ts                                                    | ✅ Done |
+| Onboarding wizard + progress indicator                    | src/components/onboarding/OnboardingWizard.tsx + OnboardingProgress.tsx          | ✅ Done |
+| Onboarding step components (4 steps)                      | src/components/onboarding/steps/                                                 | ✅ Done |
+| Onboarding layout + page                                  | src/app/onboarding/layout.tsx + page.tsx                                         | ✅ Done |
+| Onboarding PATCH API route                                | src/app/api/user/onboarding/route.ts                                             | ✅ Done |
+| Onboarding TanStack Query hooks                           | src/lib/queries/onboarding.ts                                                    | ✅ Done |
+| Platform OAuth connections (GitHub, Gmail, LinkedIn, X, Medium) | src/app/api/connections/ + src/lib/oauth/providers.ts                    | ✅ Done |
+| GitHub commit backfill                                    | src/trigger/github-backfill.ts                                                   | ✅ Done |
+| App shell layout (sidebar + bottom nav)                   | src/app/(app)/layout.tsx                                                         | ✅ Done |
+| Sidebar component                                         | src/components/layout/AppSidebar.tsx                                             | ✅ Done |
+| Bottom nav component                                      | src/components/layout/AppBottomNav.tsx                                           | ✅ Done |
+| Nav item definitions                                      | src/components/layout/nav-items.ts                                               | ✅ Done |
+| Dashboard page (heatmap, week calendar, streak)           | src/app/(app)/dashboard/page.tsx + src/components/dashboard/                     | ✅ Done |
+| Activity API route                                        | src/app/api/dashboard/activity/ + src/app/api/activity/session/                  | ✅ Done |
+| Activity thresholds + streak util                         | src/lib/activity-thresholds.ts + src/lib/streak.ts                               | ✅ Done |
+| Background jobs (send-batch-invites, cleanup-expired-tokens) | src/trigger/send-batch-invites.ts + cleanup-expired-tokens.ts               | ✅ Done |
+| Background job stubs (daily-intelligence, topic-extraction) | src/trigger/daily-intelligence.ts + topic-extraction.ts                        | ✅ Done |
+| Production config                                         | next.config.ts + vercel.json                                                     | ✅ Done |
+| Environment variable reference                            | .env.example                                                                     | ✅ Done |
+| Settings page (4 tabs)                                    | src/app/(app)/settings/page.tsx + src/components/settings/                       | ✅ Done |
+| Settings query hooks                                      | src/lib/queries/settings.ts                                                      | ✅ Done |
+| Notes page (split pane editor)                            | src/app/(app)/notes/page.tsx + src/components/notes/                             | ✅ Done |
+| Notes + folders API routes                                | src/app/api/notes/ + src/app/api/folders/                                        | ✅ Done |
+| Notes query hooks                                         | src/lib/queries/notes.ts                                                         | ✅ Done |
+| Notes DB schema                                           | supabase/phase12_schema.sql                                                      | ✅ Done |
 
 ### What's next
 
-**Step 8 — Onboarding (Phases 8.3–8.8 remaining)**
+**Step 13 — Content Studio (`/studio`)**
+See `mintmark-step13-studio.md` for the full spec.
+BYOK AI adapter → Trigger.dev generation pipeline (research → platform agents →
+critic → reviser) → API routes → StudioClient UI with streaming draft panels.
 
-Phases 8.1 (DB schema) and 8.2 (wizard shell + routing) are complete.
-Remaining phases in order:
+**Step 14 — AI Assistant (`/assistant`)**
+See `mintmark-step14-assistant.md` for the full spec.
+Context retrieval (notes + activity + topic_nodes) → streaming route handler →
+streaming chat UI with collapsible source citations.
 
-- **Phase 8.3** — OAuth platform connections (GitHub, LinkedIn, X, Medium)
-  - `/api/connections` GET + DELETE routes
-  - `/api/connections/[platform]/callback` OAuth callback per platform
-  - Encrypted token storage via existing `encryption.ts`
-- **Phase 8.4** — GitHub commit backfill (Trigger.dev background task)
-  - 90 days of commits → `unified_activity` on connect
-  - Backfill status polling endpoint
-- **Phase 8.5** — Active platforms + per-platform AI instructions
-  - `/api/user/settings` GET + PATCH
-  - `/api/user/platform-instructions` GET + POST
-- **Phase 8.6** — First manual session log
-  - `/api/activity/session` POST → seeds `unified_activity` + `topic_nodes`
-- **Phase 8.7** — BYOK API key (optional onboarding step)
-  - `/api/user/api-key` POST + DELETE, `/api/user/api-keys` GET
-- **Phase 8.8** — Dashboard scaffold (layout shell already done)
-  - D3.js heatmap widget, week-at-a-glance (7 day cells), topic time
-    distribution (ranked list), streak counter, empty state
-  - `/api/dashboard/activity` GET route
-  - Replace `src/app/(app)/dashboard/page.tsx` stub with real server component
-
-**Step 9 — Trigger.dev background jobs**
-`send-batch-invites`, `cleanup-expired-tokens` (daily cron), stubs for
-`daily-intelligence` and `topic-extraction`.
-
-**Step 10 — Deploy**
-Vercel, Brevo domain verification, Upstash Redis, Trigger.dev cloud.
+**Phase 2 (after Steps 13 + 14)**
+Daily intelligence: full significance/pattern/opportunity agent implementation.
+Topic extraction: note embedding pipeline, pgvector similarity search.
+Notes embeddings: embed on save (debounced 10 min Trigger.dev task).
+Calendar view: full month, activity overlay, task reminders.
+Gmail intelligence widget on dashboard.
 
 ---
 
@@ -879,6 +892,52 @@ activity_log           user_id, source, type, metadata,
 -- Voice notes (Phase 3)
 voice_notes            user_id, audio_url, transcript, duration_seconds,
                        generated_content_ids jsonb, created_at
+```
+
+---
+
+## Account Deletion — Cascade Order
+
+`DELETE /api/user/account` removes user data explicitly in this order before
+deleting the `users` row. Never rely on a single CASCADE for this — large
+tables hold FK locks too long and can timeout.
+
+**Rule:** Every new table with a `user_id` FK must be added to this list at
+the phase it ships, in the correct position (most rows first).
+
+File to update: `src/app/api/user/account/route.ts` → `USER_DATA_TABLES`
+
+```
+Phase 1 / 2 (currently wired):
+  unified_activity        — one row per source per day, grows steadily
+  topic_nodes             — one per topic per user
+  notes                   — user's markdown notes
+  folders                 — note folders
+  platform_connections    — OAuth tokens
+  platform_instructions   — per-platform AI instructions
+  api_keys                — encrypted BYOK keys
+  user_settings           — theme, timezone, active_platforms
+
+Add at Phase 2:
+  daily_intelligence      — one per user per day
+  weekly_suggestions      — one per user per week
+  ai_messages             — one per message turn (can be large)
+  ai_conversations        — conversation containers
+  calendar_tasks          — user-set reminders
+  notion_sync_log         — Notion sync history
+
+Add at Phase 3:
+  youtube_activity        — one per video watched
+  browsing_activity       — one per domain per day
+  activity_log            — raw event log (potentially very large)
+  voice_notes             — voice recordings metadata
+
+Add at Phase 4:
+  generated_content       — AI-generated post drafts
+  content_inputs          — user studio inputs
+  portfolio_settings      — public profile config
+
+  users                   — LAST. CASCADE handles any table missed above.
 ```
 
 ---
