@@ -26,6 +26,7 @@ export interface PlatformInstruction {
   instruction_text: string | null
   tone: string | null
   format_rules: string | null
+  max_length: number | null
 }
 
 export function usePlatformInstructions() {
@@ -116,6 +117,7 @@ interface UpsertPlatformInstructionInput {
   tone?: string
   instruction_text?: string
   format_rules?: string
+  max_length?: number | null
 }
 
 export function useUpdateActivePlatforms() {

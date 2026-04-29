@@ -9,6 +9,7 @@ import {
   useUserSettings,
   useUpdateActivePlatforms,
 } from "@/lib/queries/settings"
+import { PLATFORM_RULES, X_LIMITS, LINKEDIN_LIMITS } from "@/lib/ai/platform-rules"
 
 // ── Platform icons ────────────────────────────────────────────────────────────
 
@@ -67,6 +68,7 @@ interface PlatformState {
   tone: string
   instruction_text: string
   activePresets: Set<string>
+  max_length: string
 }
 
 function parsePresets(raw: string): Set<string> {
@@ -77,6 +79,21 @@ function parsePresets(raw: string): Set<string> {
 
 function serializePresets(active: Set<string>): string {
   return [...active].join(",")
+}
+
+function LimitBadge({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+  return (
+    <span
+      className="font-mono text-[10px] rounded-full px-2 py-0.5"
+      style={{
+        background: highlight ? "rgba(230,195,100,0.08)" : "rgba(255,255,255,0.04)",
+        color: highlight ? "rgba(230,195,100,0.7)" : "rgba(255,255,255,0.35)",
+        border: `1px solid ${highlight ? "rgba(230,195,100,0.15)" : "rgba(255,255,255,0.08)"}`,
+      }}
+    >
+      {label}: {value}
+    </span>
+  )
 }
 
 function SectionLabel({ label, step }: { label: string; step?: string }) {
@@ -107,9 +124,6 @@ export function PublishingWidget() {
   const [saved, setSaved] = useState(false)
   const [lastSaved, setLastSaved] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  // Content length — UI only, no DB field
-  const [minWords, setMinWords] = useState("")
-  const [maxWords, setMaxWords] = useState("")
   const [activePlatforms, setActivePlatforms] = useState<Set<PlatformId>>(new Set())
   const [platformsInitialized, setPlatformsInitialized] = useState(false)
 
@@ -140,6 +154,7 @@ export function PublishingWidget() {
           tone: inst.tone ?? "",
           instruction_text: inst.instruction_text ?? "",
           activePresets: parsePresets(inst.format_rules ?? ""),
+          max_length: inst.max_length != null ? String(inst.max_length) : "",
         }
       }
     }
@@ -151,6 +166,7 @@ export function PublishingWidget() {
     tone: "",
     instruction_text: "",
     activePresets: new Set(),
+    max_length: "",
   }
 
   function updateCurrent(patch: Partial<PlatformState>) {
@@ -178,11 +194,14 @@ export function PublishingWidget() {
     setLoading(true)
     setSaved(false)
     try {
+      const parsedMaxLength =
+        current.max_length !== "" ? parseInt(current.max_length, 10) : null
       await upsertInstruction.mutateAsync({
         platform: activePlatform,
         tone: current.tone || undefined,
         instruction_text: current.instruction_text || undefined,
         format_rules: serializePresets(current.activePresets) || undefined,
+        max_length: parsedMaxLength && !isNaN(parsedMaxLength) ? parsedMaxLength : null,
       })
       setSaved(true)
       setLastSaved(
@@ -391,63 +410,68 @@ export function PublishingWidget() {
                 >
                   Content Length
                 </span>
-                <div className="flex items-center gap-2">
-                  <span
-                    className="font-mono text-[10px] rounded-full px-2 py-0.5"
-                    style={{
-                      background: "rgba(255,255,255,0.06)",
-                      color: "rgba(255,255,255,0.3)",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                    }}
-                  >
-                    Coming soon
-                  </span>
-                  <span className="font-mono text-[10px]" style={{ color: "rgba(255,255,255,0.2)" }}>
-                    Step 3 of 3
-                  </span>
-                </div>
+                <span className="font-mono text-[10px]" style={{ color: "rgba(255,255,255,0.2)" }}>
+                  Step 3 of 3
+                </span>
               </div>
-              <div className="flex gap-3 items-center">
-                <div className="flex flex-col gap-1 flex-1">
-                  <label
-                    className="font-mono text-[9px] tracking-widest uppercase"
-                    style={{ color: "rgba(255,255,255,0.25)" }}
-                  >
-                    Minimum Words
-                  </label>
-                  <input
-                    type="number"
-                    value={minWords}
-                    onChange={(e) => setMinWords(e.target.value)}
-                    placeholder="300"
-                    disabled
-                    className="rounded-lg px-3 py-2.5 font-mono text-sm focus:outline-none w-full opacity-40"
-                    style={inputBase}
-                  />
-                </div>
-                <div className="flex flex-col gap-1 flex-1">
-                  <label
-                    className="font-mono text-[9px] tracking-widest uppercase"
-                    style={{ color: "rgba(255,255,255,0.25)" }}
-                  >
-                    Maximum Words
-                  </label>
-                  <input
-                    type="number"
-                    value={maxWords}
-                    onChange={(e) => setMaxWords(e.target.value)}
-                    placeholder="800"
-                    disabled
-                    className="rounded-lg px-3 py-2.5 font-mono text-sm focus:outline-none w-full opacity-40"
-                    style={inputBase}
-                  />
-                </div>
-                <p
-                  className="font-body text-xs flex-shrink-0 mt-5 opacity-40"
-                  style={{ color: "var(--muted-foreground)" }}
+              {/* Platform tier limits */}
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                <span
+                  className="font-mono text-[9px] uppercase tracking-widest flex-shrink-0"
+                  style={{ color: "rgba(255,255,255,0.3)" }}
                 >
-                  Optimal for algorithm
-                </p>
+                  Platform limits:
+                </span>
+                {activePlatform === "x" ? (
+                  <>
+                    <LimitBadge label="Free" value={X_LIMITS.post.free.label} />
+                    <LimitBadge label="Premium" value={X_LIMITS.post.premium.label} highlight />
+                    <LimitBadge label="Premium+ Article" value="100,000 characters" />
+                  </>
+                ) : activePlatform === "linkedin" ? (
+                  <>
+                    <LimitBadge label="Post (all tiers)" value={LINKEDIN_LIMITS.post.standard.label} />
+                    <LimitBadge label="Article" value="~125,000 characters" />
+                  </>
+                ) : (
+                  <LimitBadge label="Article" value="Unlimited" highlight />
+                )}
+              </div>
+              <div className="flex flex-col gap-1">
+                <label
+                  className="font-mono text-[9px] tracking-widest uppercase"
+                  style={{ color: "rgba(255,255,255,0.25)" }}
+                >
+                  Custom max characters{" "}
+                  <span style={{ color: "rgba(255,255,255,0.15)" }}>(optional)</span>
+                </label>
+                <div className="flex gap-3 items-center">
+                  <input
+                    type="number"
+                    value={current.max_length}
+                    onChange={(e) => updateCurrent({ max_length: e.target.value })}
+                    placeholder={
+                      activePlatform === "x"
+                        ? "25000"
+                        : activePlatform === "linkedin"
+                          ? "3000"
+                          : "Unlimited"
+                    }
+                    min={1}
+                    max={
+                      activePlatform === "x"
+                        ? X_LIMITS.post.premiumPlus.maxChars
+                        : activePlatform === "linkedin"
+                          ? LINKEDIN_LIMITS.post.standard.maxChars
+                          : undefined
+                    }
+                    className="rounded-lg px-3 py-2.5 font-mono text-sm focus:outline-none w-40"
+                    style={inputBase}
+                  />
+                  <p className="font-body text-xs" style={{ color: "var(--muted-foreground)" }}>
+                    Leave blank to use the platform&apos;s default limit
+                  </p>
+                </div>
               </div>
             </div>
 

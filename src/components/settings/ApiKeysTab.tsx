@@ -254,7 +254,6 @@ function ProviderCard({ provider, existingKey }: ProviderCardProps) {
           >
             <div
               className="px-5 pb-5 flex flex-col gap-3"
-              style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
             >
               <div className="relative mt-1">
                 <input

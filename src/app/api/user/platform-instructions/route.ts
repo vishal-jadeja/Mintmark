@@ -1,9 +1,18 @@
 import { auth } from "@/auth"
 import { createAdminClient } from "@/lib/supabase/admin"
 import type { ContentPlatform, PlatformTone } from "@/types/database"
+import { PLATFORM_MAX_CHARS } from "@/lib/ai/platform-rules"
 
 const ALLOWED_PLATFORMS = ["linkedin", "x", "medium"] as const
-const ALLOWED_TONES = ["professional", "casual", "educational", "storytelling"] as const
+const ALLOWED_TONES: PlatformTone[] = [
+  "professional",
+  "casual",
+  "educational",
+  "storytelling",
+  "witty",
+  "authoritative",
+  "inspirational",
+]
 
 export async function GET() {
   const session = await auth()
@@ -14,7 +23,7 @@ export async function GET() {
   const supabase = createAdminClient()
   const { data, error } = await supabase
     .from("platform_instructions")
-    .select("platform, instruction_text, tone, format_rules")
+    .select("platform, instruction_text, tone, format_rules, max_length")
     .eq("user_id", session.user.id)
 
   if (error) {
@@ -32,8 +41,7 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json()) as Record<string, unknown>
-
-  const { platform, instruction_text, tone, format_rules } = body
+  const { platform, instruction_text, tone, format_rules, max_length } = body
 
   if (!ALLOWED_PLATFORMS.includes(platform as (typeof ALLOWED_PLATFORMS)[number])) {
     return Response.json(
@@ -42,22 +50,41 @@ export async function POST(request: Request) {
     )
   }
 
-  if (tone !== undefined && !ALLOWED_TONES.includes(tone as (typeof ALLOWED_TONES)[number])) {
+  if (tone !== undefined && !ALLOWED_TONES.includes(tone as PlatformTone)) {
     return Response.json(
-      { error: "tone must be one of: professional, casual, educational, storytelling." },
+      { error: `tone must be one of: ${ALLOWED_TONES.join(", ")}.` },
       { status: 400 }
     )
   }
 
+  if (max_length !== undefined && max_length !== null) {
+    const num = Number(max_length)
+    if (!Number.isInteger(num) || num <= 0) {
+      return Response.json({ error: "max_length must be a positive integer." }, { status: 400 })
+    }
+    const platformKey = platform as keyof typeof PLATFORM_MAX_CHARS
+    const hardLimit = PLATFORM_MAX_CHARS[platformKey]
+    if (hardLimit !== null && num > hardLimit) {
+      return Response.json(
+        { error: `max_length cannot exceed ${hardLimit} for ${platform}.` },
+        { status: 400 }
+      )
+    }
+  }
+
   const supabase = createAdminClient()
-  const { error } = await supabase.from("platform_instructions").update(
+  const { error } = await supabase.from("platform_instructions").upsert(
     {
+      user_id: session.user.id,
+      platform: platform as ContentPlatform,
       instruction_text: (instruction_text as string | undefined) ?? null,
       tone: (tone as PlatformTone | undefined) ?? null,
       format_rules: (format_rules as string | undefined) ?? null,
+      max_length: max_length != null ? Number(max_length) : null,
       updated_at: new Date().toISOString(),
-    }
-  ).eq("user_id", session.user.id).eq("platform", platform as ContentPlatform)
+    },
+    { onConflict: "user_id,platform" }
+  )
 
   if (error) {
     console.error("[platform-instructions POST] Supabase error:", error.message)
